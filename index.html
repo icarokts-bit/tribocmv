@@ -259,50 +259,72 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Settings Card -->
-                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 space-y-6">
-                    <h3 class="text-lg font-bold text-white border-b border-stone-800 pb-3">Indicadores de Preço de Venda</h3>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-stone-300 mb-1">CMV Alvo (%)</label>
-                            <div class="relative rounded-lg shadow-sm">
-                                <input type="number" id="setting-target-cmv" min="1" max="100" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
+                <!-- Left Column with Settings and Categories -->
+                <div class="space-y-6">
+                    <!-- Settings Card -->
+                    <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 space-y-6">
+                        <h3 class="text-lg font-bold text-white border-b border-stone-800 pb-3">Indicadores de Preço de Venda</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-stone-300 mb-1">CMV Alvo (%)</label>
+                                <div class="relative rounded-lg shadow-sm">
+                                    <input type="number" id="setting-target-cmv" min="1" max="100" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
+                                </div>
+                                <span class="text-xs text-stone-500">Idealmente de 25% a 33% para delivery de hamburguerias.</span>
                             </div>
-                            <span class="text-xs text-stone-500">Idealmente de 25% a 33% para delivery de hamburguerias.</span>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-stone-300 mb-1">Impostos Operacionais (Simples Nacional etc. %)</label>
+                                <div class="relative rounded-lg shadow-sm">
+                                    <input type="number" id="setting-taxes" min="0" max="100" step="0.1" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
+                                </div>
+                                <span class="text-xs text-stone-500">Média de imposto sobre faturamento bruto.</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-stone-300 mb-1">Comissão Média do Delivery (ex: iFood %)</label>
+                                <div class="relative rounded-lg shadow-sm">
+                                    <input type="number" id="setting-platform" min="0" max="100" step="0.1" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
+                                </div>
+                                <span class="text-xs text-stone-500">Porcentagem retida por plataformas de marketplace.</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-stone-300 mb-1">Taxas Médias de Cartão / Meios de Pagamento (%)</label>
+                                <div class="relative rounded-lg shadow-sm">
+                                    <input type="number" id="setting-cards" min="0" max="100" step="0.1" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
+                                </div>
+                                <span class="text-xs text-stone-500">Média ponderada de taxas de débito/crédito/Pix.</span>
+                            </div>
+
+                            <button onclick="saveSettings()" class="w-full bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold py-3 rounded-lg transition-colors">
+                                Salvar Parâmetros Globais
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Custom Categories Management Card -->
+                    <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 space-y-4">
+                        <h3 class="text-lg font-bold text-white border-b border-stone-800 pb-3">Categorias do Cardápio</h3>
+                        <p class="text-xs text-stone-400">Cadastre novas divisões de cardápio para classificar e agrupar as fichas técnicas de seus produtos.</p>
+                        
+                        <!-- List of tags -->
+                        <div id="settings-categories-list" class="flex flex-wrap gap-2 py-1">
+                            <!-- Dynamic category badges loaded from Firestore -->
                         </div>
 
-                        <div>
-                            <label class="block text-sm font-semibold text-stone-300 mb-1">Impostos Operacionais (Simples Nacional etc. %)</label>
-                            <div class="relative rounded-lg shadow-sm">
-                                <input type="number" id="setting-taxes" min="0" max="100" step="0.1" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
-                            </div>
-                            <span class="text-xs text-stone-500">Média de imposto sobre faturamento bruto.</span>
+                        <!-- Add category field -->
+                        <div class="flex gap-2 pt-2 border-t border-stone-800/60">
+                            <input type="text" id="new-category-input" placeholder="Ex: Sobremesas, Combos, Especiais" class="flex-1 bg-stone-900 border border-stone-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-tribo-500">
+                            <button onclick="addCustomCategory()" class="bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2 rounded-lg text-sm transition-colors shrink-0">
+                                Adicionar
+                            </button>
                         </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-stone-300 mb-1">Comissão Média do Delivery (ex: iFood %)</label>
-                            <div class="relative rounded-lg shadow-sm">
-                                <input type="number" id="setting-platform" min="0" max="100" step="0.1" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
-                            </div>
-                            <span class="text-xs text-stone-500">Porcentagem retida por plataformas de marketplace.</span>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-stone-300 mb-1">Taxas Médias de Cartão / Meios de Pagamento (%)</label>
-                            <div class="relative rounded-lg shadow-sm">
-                                <input type="number" id="setting-cards" min="0" max="100" step="0.1" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
-                            </div>
-                            <span class="text-xs text-stone-500">Média ponderada de taxas de débito/crédito/Pix.</span>
-                        </div>
-
-                        <button onclick="saveSettings()" class="w-full bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold py-3 rounded-lg transition-colors">
-                            Salvar Parâmetros Globais
-                        </button>
                     </div>
                 </div>
 
@@ -421,11 +443,7 @@
                     <div>
                         <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Categoria de Cardápio</label>
                         <select id="recipe-category" required class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2 text-white focus:outline-none focus:border-tribo-500">
-                            <option value="Smashes">Smashes</option>
-                            <option value="Artesanais">Artesanais</option>
-                            <option value="Especiais">Especiais (Tribo Premium)</option>
-                            <option value="Acompanhamentos">Acompanhamentos</option>
-                            <option value="Bebidas">Bebidas</option>
+                            <!-- Populated dynamically via JS -->
                         </select>
                     </div>
                 </div>
@@ -697,14 +715,24 @@
             }
         };
 
-        // Listeners for Insumos, Fichas, and Config
+        // Helper to seed categories if cloud has none
+        async function seedDefaultCategories() {
+            if (!userId) return;
+            for (const cat of window.defaultCategories) {
+                await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'categories', cat.id), cat);
+            }
+        }
+
+        // Listeners for Insumos, Fichas, Categories and Config
         function attachCloudRealtimeListeners() {
             if (isCloudInitialized) return;
             isCloudInitialized = true;
 
             const pathInsumos = collection(db, 'artifacts', appId, 'users', userId, 'insumos');
             const pathRecipes = collection(db, 'artifacts', appId, 'users', userId, 'recipes');
+            const pathCategories = collection(db, 'artifacts', appId, 'users', userId, 'categories');
             const pathSettings = collection(db, 'artifacts', appId, 'users', userId, 'config');
+
 
             // Listening to Insumos
             onSnapshot(pathInsumos, (snapshot) => {
@@ -732,6 +760,25 @@
                 }
             }, (error) => {
                 console.error("Erro de sincronia (receitas):", error);
+            });
+
+            // Listening to Categories
+            onSnapshot(pathCategories, (snapshot) => {
+                const cloudCategories = [];
+                snapshot.forEach(doc => {
+                    cloudCategories.push({ id: doc.id, ...doc.data() });
+                });
+                
+                if (cloudCategories.length === 0 && snapshot.metadata.fromCache === false) {
+                    seedDefaultCategories();
+                } else {
+                    window.recipeCategories = cloudCategories;
+                    window.renderCategoriesInSettings();
+                    window.populateRecipeCategoryDropdown();
+                    window.renderAll();
+                }
+            }, (error) => {
+                console.error("Erro de sincronia (categorias):", error);
             });
 
             // Listening to Settings
@@ -821,6 +868,24 @@
             }
         };
 
+        window.cloudSaveCategory = async function(cat) {
+            if (!userId) return;
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'categories', cat.id), cat);
+            } catch (e) {
+                console.error("Erro salvando categoria na nuvem:", e);
+            }
+        };
+
+        window.cloudDeleteCategory = async function(id) {
+            if (!userId) return;
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'categories', id));
+            } catch (e) {
+                console.error("Erro deletando categoria da nuvem:", e);
+            }
+        };
+
         window.cloudSaveSettings = async function(settingsData) {
             if (!userId) return;
             try {
@@ -840,12 +905,18 @@
                 for (const rec of window.recipes) {
                     await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'recipes', rec.id));
                 }
+                for (const cat of window.recipeCategories) {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'categories', cat.id));
+                }
                 // Upload defaults
                 for (const ing of window.defaultIngredients) {
                     await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'insumos', ing.id), ing);
                 }
                 for (const rec of window.defaultRecipes) {
                     await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'recipes', rec.id), rec);
+                }
+                for (const cat of window.defaultCategories) {
+                    await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'categories', cat.id), cat);
                 }
                 await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'config', 'global'), window.defaultSettings);
             } catch (e) {
@@ -862,7 +933,10 @@
             // Read standard values
             window.ingredients = window.defaultIngredients;
             window.recipes = window.defaultRecipes;
+            window.recipeCategories = window.defaultCategories;
             window.settings = window.defaultSettings;
+            window.renderCategoriesInSettings();
+            window.populateRecipeCategoryDropdown();
             window.renderAll();
         }
 
@@ -930,6 +1004,14 @@
             }
         ];
 
+        window.defaultCategories = [
+            { id: "cat_1", name: "Smashes" },
+            { id: "cat_2", name: "Artesanais" },
+            { id: "cat_3", name: "Especiais" },
+            { id: "cat_4", name: "Acompanhamentos" },
+            { id: "cat_5", name: "Bebidas" }
+        ];
+
         window.defaultSettings = {
             targetCMV: 30,
             taxes: 6.0,
@@ -940,6 +1022,7 @@
         // Live systems arrays
         window.ingredients = [];
         window.recipes = [];
+        window.recipeCategories = [];
         window.settings = window.defaultSettings;
         let myChart = null;
 
@@ -1008,11 +1091,91 @@
                 async () => {
                     if (window.cloudResetToDefaults) {
                         await window.cloudResetToDefaults();
-                        showCustomAlert("Configuração Restaurada", "As fichas técnicas e insumos originais foram recarregados com sucesso!");
+                        showCustomAlert("Configuração Restaurada", "As fichas técnicas, categorias e insumos originais foram recarregados com sucesso!");
                     }
                 }
             );
         }
+
+        window.renderCategoriesInSettings = function() {
+            const container = document.getElementById('settings-categories-list');
+            if (!container) return;
+            container.innerHTML = '';
+
+            window.recipeCategories.forEach(cat => {
+                const tag = document.createElement('div');
+                tag.className = "flex items-center gap-2 bg-stone-900 text-stone-200 border border-stone-800 rounded-full px-3 py-1.5 text-xs font-semibold";
+                tag.innerHTML = `
+                    <span>${cat.name}</span>
+                    <button onclick="removeCustomCategory('${cat.id}', '${cat.name}')" class="text-stone-500 hover:text-rose-400 font-bold ml-1 transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                `;
+                container.appendChild(tag);
+            });
+        };
+
+        window.populateRecipeCategoryDropdown = function() {
+            const select = document.getElementById('recipe-category');
+            if (!select) return;
+            select.innerHTML = '';
+            
+            window.recipeCategories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat.name;
+                opt.textContent = cat.name;
+                select.appendChild(opt);
+            });
+        };
+
+        window.addCustomCategory = async function() {
+            const input = document.getElementById('new-category-input');
+            const name = input.value.trim();
+
+            if (!name) {
+                showCustomAlert("Erro", "Por favor, digite o nome de uma categoria válida.");
+                return;
+            }
+
+            const exists = window.recipeCategories.some(c => c.name.toLowerCase() === name.toLowerCase());
+            if (exists) {
+                showCustomAlert("Duplicidade", "Já existe uma categoria cadastrada com este nome.");
+                return;
+            }
+
+            const newCat = {
+                id: `cat_${Date.now()}`,
+                name: name
+            };
+
+            if (window.cloudSaveCategory) {
+                await window.cloudSaveCategory(newCat);
+                input.value = '';
+            }
+        };
+
+        window.removeCustomCategory = function(id, name) {
+            // Check if any recipe is using this category
+            const usingRecipes = window.recipes.filter(r => r.category === name);
+            if (usingRecipes.length > 0) {
+                const names = usingRecipes.map(r => r.name).join(', ');
+                showCustomAlert(
+                    "Categoria em Uso", 
+                    `Não é possível remover a categoria "${name}" pois ela está associada aos produtos: ${names}. Modifique as receitas antes de excluí-la.`
+                );
+                return;
+            }
+
+            showCustomConfirm(
+                "Remover Categoria", 
+                `Tem certeza de que deseja excluir a categoria "${name}" de forma permanente?`,
+                async () => {
+                    if (window.cloudDeleteCategory) {
+                        await window.cloudDeleteCategory(id);
+                    }
+                }
+            );
+        };
 
         // NAVIGATION TABS
         function switchTab(tabId) {
@@ -1635,6 +1798,8 @@
             
             document.getElementById('recipe-ingredients-rows').innerHTML = '';
             currentRecipeRowsCount = 0;
+
+            window.populateRecipeCategoryDropdown();
 
             if (id) {
                 document.getElementById('recipe-modal-title').textContent = "Editar Ficha Técnica";
