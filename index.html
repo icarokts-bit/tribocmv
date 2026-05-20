@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tribo Burger - Sistema de Precificação & CMV</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        tribo: {
+                            50: '#fffbf0',
+                            100: '#fef4d6',
+                            200: '#fce3ad',
+                            300: '#f9cb79',
+                            400: '#f6aa48',
+                            500: '#f2831b',
+                            600: '#d95f10',
+                            700: '#b44110',
+                            800: '#903212',
+                            900: '#752912',
+                            dark: '#1c1917',
+                            card: '#292524'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for a cleaner dark UI */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1c1917;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #44403c;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f2831b;
+        }
+    </style>
+</head>
+<body class="bg-stone-900 text-stone-100 min-h-screen font-sans flex flex-col md:flex-row">
+
+    <!-- SIDEBAR -->
+    <aside class="w-full md:w-64 bg-stone-950 border-b md:border-b-0 md:border-r border-stone-800 flex flex-col justify-between shrink-0 z-10">
+        <div>
+            <!-- Header Logo -->
+            <div class="p-6 border-b border-stone-800 flex items-center gap-3">
+                <div class="bg-tribo-500 text-stone-950 p-2 rounded-xl font-bold text-xl tracking-wider flex items-center justify-center shadow-lg shadow-tribo-500/20">
+                    TB
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight text-white">TRIBO BURGER</h1>
+                    <p class="text-xs text-stone-400">Gestão de Custos & CMV</p>
+                </div>
+            </div>
+
+            <!-- Connection Status Widget inside Sidebar -->
+            <div class="p-4 mx-3 my-3 bg-stone-900/50 rounded-xl border border-stone-800 text-xs">
+                <div class="flex items-center gap-2 mb-1">
+                    <span id="cloud-status-dot" class="w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse"></span>
+                    <span id="cloud-status-text" class="font-bold text-stone-300">Conectando...</span>
+                </div>
+                <div class="flex items-center justify-between text-[10px] text-stone-500 mt-1.5">
+                    <span id="cloud-user-id" class="truncate max-w-[120px]">ID: ...</span>
+                    <button onclick="copyUserId()" class="hover:text-tribo-400 font-semibold uppercase text-[9px] transition-colors">Copiar</button>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="p-4 space-y-1">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all bg-tribo-500 text-stone-950 font-semibold shadow-md shadow-tribo-500/10">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"></path></svg>
+                    Painel Geral
+                </button>
+                <button onclick="switchTab('insumos')" id="nav-insumos" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                    Insumos (Ingredientes)
+                </button>
+                <button onclick="switchTab('fichas')" id="nav-fichas" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                    Fichas Técnicas
+                </button>
+                <button onclick="switchTab('config')" id="nav-config" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Parâmetros & Taxas
+                </button>
+            </nav>
+        </div>
+
+        <!-- System Reset / Footer Info -->
+        <div class="p-4 border-t border-stone-800">
+            <button onclick="triggerResetConfirmation()" class="w-full py-2 text-xs font-semibold text-rose-400 hover:text-rose-300 border border-stone-800 hover:border-rose-500/30 rounded-lg transition-colors">
+                Restaurar Dados Padrão
+            </button>
+            <div class="mt-3 text-center text-[10px] text-stone-500">
+                Tribo Burger v1.5 &bull; Cloud Enabled
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 overflow-y-auto p-4 md:p-8 max-w-7xl w-full mx-auto space-y-8">
+        
+        <!-- ==================== TAB: DASHBOARD ==================== -->
+        <section id="tab-dashboard" class="space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-white tracking-tight">Painel Executivo</h2>
+                    <p class="text-stone-400">Visão consolidada da rentabilidade, CMV do cardápio e simulação de lucros.</p>
+                </div>
+                <div class="flex items-center gap-2 bg-stone-950 px-4 py-2 rounded-xl border border-stone-800">
+                    <span id="dashboard-status-dot" class="w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse"></span>
+                    <span id="dashboard-status-label" class="text-xs font-semibold text-stone-300">Conectando...</span>
+                </div>
+            </div>
+
+            <!-- KPI Row -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- KPI 1 -->
+                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-stone-400">CMV Médio Real</span>
+                    <div class="flex items-baseline gap-2 mt-2">
+                        <span id="kpi-avg-cmv" class="text-3xl font-black text-white">0%</span>
+                        <span id="kpi-avg-cmv-indicator" class="text-xs font-bold px-2 py-0.5 rounded">Calculando...</span>
+                    </div>
+                    <p class="text-xs text-stone-500 mt-2">Média ponderada baseada no preço de venda.</p>
+                </div>
+                <!-- KPI 2 -->
+                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Meta de CMV</span>
+                    <div class="flex items-baseline gap-2 mt-2">
+                        <span id="kpi-target-cmv" class="text-3xl font-black text-tribo-400">30%</span>
+                        <span class="text-xs font-bold text-stone-500">Definido</span>
+                    </div>
+                    <p class="text-xs text-stone-500 mt-2">Alvo recomendado para hamburguerias artesanais.</p>
+                </div>
+                <!-- KPI 3 -->
+                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Total de Insumos</span>
+                    <div class="flex items-baseline gap-2 mt-2">
+                        <span id="kpi-total-ingredients" class="text-3xl font-black text-white">0</span>
+                        <span class="text-xs font-medium text-stone-400">ativos</span>
+                    </div>
+                    <p class="text-xs text-stone-500 mt-2">Ingredientes e embalagens catalogados.</p>
+                </div>
+                <!-- KPI 4 -->
+                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Produtos no Cardápio</span>
+                    <div class="flex items-baseline gap-2 mt-2">
+                        <span id="kpi-total-recipes" class="text-3xl font-black text-white">0</span>
+                        <span class="text-xs font-medium text-stone-400">hambúrgueres</span>
+                    </div>
+                    <p class="text-xs text-stone-500 mt-2">Fichas técnicas totalmente estruturadas.</p>
+                </div>
+            </div>
+
+            <!-- Graphs & Alerts Area -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Graph Container -->
+                <div class="lg:col-span-2 bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-bold text-white">Relação Custo vs. Preço de Venda</h3>
+                        <p class="text-xs text-stone-400">Compare o Custo do Alimento (CMV R$) com o Preço praticado.</p>
+                    </div>
+                    <div class="relative flex-1 min-h-[300px] flex items-center justify-center">
+                        <canvas id="cmvChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Alerts & Highlights -->
+                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between space-y-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-white mb-2">Alertas de Atenção</h3>
+                        <p class="text-xs text-stone-400 mb-4">Itens com CMV crítico acima da meta do seu estabelecimento.</p>
+                        
+                        <div id="alerts-list" class="space-y-3 max-h-[280px] overflow-y-auto pr-1">
+                            <!-- Alert card injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Quick Action Card -->
+                    <div class="bg-stone-900 p-4 rounded-xl border border-stone-800">
+                        <h4 class="text-xs font-bold uppercase text-tribo-400 tracking-wider">Análise de Lucro</h4>
+                        <p class="text-xs text-stone-400 mt-1">Lembre-se: O CMV foca apenas nos ingredientes. O lucro líquido real depende das despesas fixas (aluguel, equipe, marketing).</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB: INSUMOS (INGREDIENTS) ==================== -->
+        <section id="tab-insumos" class="space-y-6 hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-white tracking-tight">Banco de Insumos</h2>
+                    <p class="text-stone-400">Cadastre a matéria-prima utilizada na produção de seus hambúrgueres e embalagens.</p>
+                </div>
+                <button onclick="openIngredientModal()" class="flex items-center justify-center gap-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-tribo-500/15">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Novo Insumo
+                </button>
+            </div>
+
+            <!-- Search and Count Header -->
+            <div class="bg-stone-950 p-4 rounded-2xl border border-stone-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="relative w-full max-w-xs">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-500">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </span>
+                    <input type="text" id="search-insumo" oninput="renderIngredients()" placeholder="Buscar insumo..." class="w-full bg-stone-900 text-stone-200 pl-9 pr-4 py-2 rounded-lg text-sm border border-stone-800 focus:outline-none focus:border-tribo-500">
+                </div>
+                <span id="ingredient-count-badge" class="text-xs text-stone-400 font-semibold px-2.5 py-1 bg-stone-900 rounded-full border border-stone-800">0 Cadastrados</span>
+            </div>
+
+            <!-- Container for Category-divided Tables -->
+            <div id="ingredients-categories-container" class="space-y-6">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- ==================== TAB: FICHAS TÉCNICAS ==================== -->
+        <section id="tab-fichas" class="space-y-6 hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-white tracking-tight">Fichas Técnicas & Precificação</h2>
+                    <p class="text-stone-400">Desenvolva as receitas de hambúrgueres e configure o preço de venda estratégico.</p>
+                </div>
+                <button onclick="openRecipeModal()" class="flex items-center justify-center gap-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-tribo-500/15">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Nova Ficha Técnica
+                </button>
+            </div>
+
+            <!-- Recipes Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="recipes-grid">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- ==================== TAB: SETTINGS ==================== -->
+        <section id="tab-config" class="space-y-6 hidden">
+            <div>
+                <h2 class="text-2xl font-extrabold text-white tracking-tight">Parâmetros de Operação & Custos</h2>
+                <p class="text-stone-400">Defina os índices comerciais e de impostos para apuração precisa da margem e preço sugerido.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Settings Card -->
+                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 space-y-6">
+                    <h3 class="text-lg font-bold text-white border-b border-stone-800 pb-3">Indicadores de Preço de Venda</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-stone-300 mb-1">CMV Alvo (%)</label>
+                            <div class="relative rounded-lg shadow-sm">
+                                <input type="number" id="setting-target-cmv" min="1" max="100" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
+                            </div>
+                            <span class="text-xs text-stone-500">Idealmente de 25% a 33% para delivery de hamburguerias.</span>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-stone-300 mb-1">Impostos Operacionais (Simples Nacional etc. %)</label>
+                            <div class="relative rounded-lg shadow-sm">
+                                <input type="number" id="setting-taxes" min="0" max="100" step="0.1" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
+                            </div>
+                            <span class="text-xs text-stone-500">Média de imposto sobre faturamento bruto.</span>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-stone-300 mb-1">Comissão Média do Delivery (ex: iFood %)</label>
+                            <div class="relative rounded-lg shadow-sm">
+                                <input type="number" id="setting-platform" min="0" max="100" step="0.1" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
+                            </div>
+                            <span class="text-xs text-stone-500">Porcentagem retida por plataformas de marketplace.</span>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-stone-300 mb-1">Taxas Médias de Cartão / Meios de Pagamento (%)</label>
+                            <div class="relative rounded-lg shadow-sm">
+                                <input type="number" id="setting-cards" min="0" max="100" step="0.1" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
+                            </div>
+                            <span class="text-xs text-stone-500">Média ponderada de taxas de débito/crédito/Pix.</span>
+                        </div>
+
+                        <button onclick="saveSettings()" class="w-full bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold py-3 rounded-lg transition-colors">
+                            Salvar Parâmetros Globais
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Guidance & Concepts -->
+                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 space-y-4">
+                    <h3 class="text-lg font-bold text-white border-b border-stone-800 pb-3">Guia Conceitual da Tribo</h3>
+                    
+                    <div class="space-y-4 text-sm text-stone-300 leading-relaxed">
+                        <div class="bg-stone-900 p-3 rounded-lg border-l-4 border-tribo-500">
+                            <strong class="text-white block mb-1">1. O que é CMV?</strong>
+                            Custo de Mercadoria Vendida. Representa o custo estrito do alimento (ingredientes) e embalagens diretas necessários para estruturar um hambúrguer pronto.
+                        </div>
+                        <div class="bg-stone-900 p-3 rounded-lg border-l-4 border-amber-500">
+                            <strong class="text-white block mb-1">2. Como precificar corretamente?</strong>
+                            Muitos comerciantes multiplicam o custo do insumo por 3. Isso pode ser arriscado para delivery. O sistema utiliza a fórmula de markup real para calcular o preço ideal, subtraindo os impostos, comissões e taxas da fatia útil de receita.
+                        </div>
+                        <div class="bg-stone-900 p-3 rounded-lg border-l-4 border-emerald-500">
+                            <strong class="text-white block mb-1">3. Margem de Contribuição Bruta</strong>
+                            É o valor que sobra de cada venda após retirar o CMV, Impostos, Comissões e Taxas de Cartão. Essa margem bruta é o que de fato resta para o caixa da Tribo pagar as despesas fixas da operação e gerar lucro líquido real.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== MODAL: ADD/EDIT INGREDIENT ==================== -->
+    <div id="ingredient-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-stone-950 rounded-2xl border border-stone-800 w-full max-w-lg overflow-hidden flex flex-col shadow-2xl animate-scale-up">
+            <div class="p-6 border-b border-stone-800 flex justify-between items-center">
+                <h3 id="ingredient-modal-title" class="text-lg font-bold text-white">Adicionar Novo Insumo</h3>
+                <button onclick="closeIngredientModal()" class="text-stone-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <form id="ingredient-form" onsubmit="handleIngredientSubmit(event)" class="p-6 space-y-4">
+                <input type="hidden" id="ingredient-id">
+                
+                <div>
+                    <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Nome do Insumo</label>
+                    <input type="text" id="ingredient-name" required placeholder="Ex: Carne Moida Blend, Queijo Cheddar, Pão Brioche" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2 text-white focus:outline-none focus:border-tribo-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Categoria</label>
+                        <select id="ingredient-category" required class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2 text-white focus:outline-none focus:border-tribo-500">
+                            <option value="Proteína">Proteína</option>
+                            <option value="Laticínios">Laticínios</option>
+                            <option value="Hortifrúti">Hortifrúti</option>
+                            <option value="Pães">Pães</option>
+                            <option value="Molhos & Temperos">Molhos & Temperos</option>
+                            <option value="Embalagem">Embalagem</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Unidade de Compra</label>
+                        <select id="ingredient-unit" required class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2 text-white focus:outline-none focus:border-tribo-500">
+                            <option value="kg">Quilo (kg)</option>
+                            <option value="g">Grama (g)</option>
+                            <option value="un">Unidade (un)</option>
+                            <option value="l">Litro (L)</option>
+                            <option value="ml">Mililitro (ml)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Quantidade Embalagem</label>
+                        <input type="number" id="ingredient-qty" step="any" required placeholder="Ex: 5" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2 text-white focus:outline-none focus:border-tribo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Preço Total de Compra</label>
+                        <div class="relative rounded-lg shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400 text-xs">R$</div>
+                            <input type="number" id="ingredient-price" step="0.01" required placeholder="0,00" class="w-full bg-stone-900 border border-stone-800 rounded-lg pl-8 pr-2 p-2 text-white focus:outline-none focus:border-tribo-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-stone-900 p-3 rounded-lg border border-stone-800/80">
+                    <span class="text-xs text-stone-400">Custo unitário equivalente:</span>
+                    <p id="ingredient-calculated-cost" class="text-lg font-bold text-tribo-400 mt-1">R$ 0,00</p>
+                </div>
+
+                <div class="pt-4 border-t border-stone-800 flex justify-end gap-2">
+                    <button type="button" onclick="closeIngredientModal()" class="px-4 py-2 border border-stone-800 hover:bg-stone-900 rounded-lg text-sm text-stone-400">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold rounded-lg text-sm">Salvar Insumo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: ADD/EDIT RECIPE (FICHA TÉCNICA) ==================== -->
+    <div id="recipe-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-stone-950 rounded-2xl border border-stone-800 w-full max-w-2xl overflow-hidden flex flex-col shadow-2xl h-full max-h-[90vh]">
+            <div class="p-6 border-b border-stone-800 flex justify-between items-center shrink-0">
+                <h3 id="recipe-modal-title" class="text-lg font-bold text-white">Criar Nova Ficha Técnica</h3>
+                <button onclick="closeRecipeModal()" class="text-stone-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <form id="recipe-form" onsubmit="handleRecipeSubmit(event)" class="flex-1 overflow-y-auto p-6 space-y-6">
+                <input type="hidden" id="recipe-id">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Nome do Hambúrguer</label>
+                        <input type="text" id="recipe-name" required placeholder="Ex: Pajé Smash, Tribo Bacon Burger" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2 text-white focus:outline-none focus:border-tribo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Categoria de Cardápio</label>
+                        <select id="recipe-category" required class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2 text-white focus:outline-none focus:border-tribo-500">
+                            <option value="Smashes">Smashes</option>
+                            <option value="Artesanais">Artesanais</option>
+                            <option value="Especiais">Especiais (Tribo Premium)</option>
+                            <option value="Acompanhamentos">Acompanhamentos</option>
+                            <option value="Bebidas">Bebidas</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Recipe Ingredients Maker -->
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-tribo-400">Composição (Insumos e Quantidades)</h4>
+                        <button type="button" onclick="addIngredientRowToRecipe()" class="text-xs flex items-center gap-1 text-tribo-400 hover:text-tribo-300 font-bold border border-stone-800 hover:border-tribo-500 px-2 py-1 rounded">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Adicionar Linha
+                        </button>
+                    </div>
+                    
+                    <div id="recipe-ingredients-rows" class="space-y-3 max-h-[220px] overflow-y-auto pr-1">
+                        <!-- Dynamic rows here -->
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-stone-800">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Outros Custos Diretos / Embalagem Fixa</label>
+                        <div class="relative rounded-lg shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400 text-xs">R$</div>
+                            <input type="number" id="recipe-packaging" step="0.01" value="0.00" class="w-full bg-stone-900 border border-stone-800 rounded-lg pl-8 pr-2 p-2 text-white focus:outline-none focus:border-tribo-500">
+                        </div>
+                        <span class="text-[10px] text-stone-500">Ex: Embalagem térmica + caixa + adesivos.</span>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Preço Proposto de Venda (R$)</label>
+                        <div class="relative rounded-lg shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400 text-xs">R$</div>
+                            <input type="number" id="recipe-selling-price" step="0.01" required placeholder="0,00" class="w-full bg-stone-900 border border-stone-800 rounded-lg pl-8 pr-2 p-2 text-white focus:outline-none focus:border-tribo-500 font-bold text-tribo-400">
+                        </div>
+                        <span class="text-[10px] text-stone-500">O preço praticado no cardápio / balcão.</span>
+                    </div>
+                </div>
+
+                <!-- Simulation Info Block -->
+                <div class="bg-stone-900 p-4 rounded-xl border border-stone-800 space-y-2">
+                    <h5 class="text-xs font-bold uppercase text-white">Resultados Prévios Estimados</h5>
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                        <div class="bg-stone-950 p-2 rounded border border-stone-800">
+                            <span class="text-[10px] block text-stone-400">Custo Total Alimento</span>
+                            <span id="preview-cost" class="font-bold text-white">R$ 0,00</span>
+                        </div>
+                        <div class="bg-stone-950 p-2 rounded border border-stone-800">
+                            <span class="text-[10px] block text-stone-400">CMV Real</span>
+                            <span id="preview-cmv" class="font-bold text-emerald-400">0%</span>
+                        </div>
+                        <div class="bg-stone-950 p-2 rounded border border-stone-800">
+                            <span class="text-[10px] block text-stone-400">Margem Estimada</span>
+                            <span id="preview-margin" class="font-bold text-amber-400">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-stone-800 flex justify-end gap-2 shrink-0">
+                    <button type="button" onclick="closeRecipeModal()" class="px-4 py-2 border border-stone-800 hover:bg-stone-900 rounded-lg text-sm text-stone-400">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold rounded-lg text-sm">Salvar Ficha Técnica</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== CUSTOM DIALOGS MODALS ==================== -->
+    <!-- Premium replacements for browser alert/confirm -->
+    <div id="custom-alert-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-stone-950 rounded-2xl border border-stone-800 w-full max-w-sm overflow-hidden flex flex-col shadow-2xl p-6 text-center space-y-4">
+            <div class="mx-auto bg-tribo-500/10 text-tribo-500 p-3 rounded-full w-fit">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div>
+                <h3 id="custom-alert-title" class="text-lg font-bold text-white">Aviso</h3>
+                <p id="custom-alert-message" class="text-sm text-stone-400 mt-2">Mensagem informativa...</p>
+            </div>
+            <button id="custom-alert-btn" class="w-full bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold py-2.5 rounded-xl transition-colors">Ok</button>
+        </div>
+    </div>
+
+    <div id="custom-confirm-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-stone-950 rounded-2xl border border-stone-800 w-full max-w-sm overflow-hidden flex flex-col shadow-2xl p-6 text-center space-y-4">
+            <div class="mx-auto bg-rose-500/10 text-rose-500 p-3 rounded-full w-fit">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div>
+                <h3 id="custom-confirm-title" class="text-lg font-bold text-white">Confirmar Ação</h3>
+                <p id="custom-confirm-message" class="text-sm text-stone-400 mt-2">Tem certeza de que deseja prosseguir?</p>
+            </div>
+            <div class="flex gap-2.5">
+                <button id="custom-confirm-cancel-btn" class="flex-1 bg-stone-900 hover:bg-stone-800 text-stone-300 font-semibold py-2.5 rounded-xl transition-colors border border-stone-800">Cancelar</button>
+                <button id="custom-confirm-confirm-btn" class="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-bold py-2.5 rounded-xl transition-colors">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE INITIALIZATION & SYNC LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Environment properties
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'tribo-burger-pricing-system';
+        let firebaseConfig = {};
+        try {
+            firebaseConfig = JSON.parse(__firebase_config);
+        } catch (e) {
+            // Fallback for isolated sandbox testing
+            firebaseConfig = {
+                apiKey: "mock-api-key",
+                authDomain: "mock-domain.firebaseapp.com",
+                projectId: "mock-project",
+                storageBucket: "mock-project.appspot.com",
+                messagingSenderId: "12345",
+                appId: "1-12345-abc"
+            };
+        }
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let userId = null;
+        let isCloudInitialized = false;
+
+        // Perform Authentication securely
+        async function authenticate() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Erro na autenticação do Firebase:", error);
+                showCustomAlert("Erro de Conexão", "Não foi possível autenticar com o banco de dados. O sistema funcionará de forma local até restabelecer contato.");
+                initializeFallbackOffline();
+            }
+        }
+
+        // Monitor Auth state and attach real-time listeners
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userId = user.uid;
+                document.getElementById('cloud-user-id').textContent = `ID: ${userId}`;
+                document.getElementById('cloud-status-dot').className = "w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse";
+                document.getElementById('cloud-status-text').textContent = "Nuvem Sincronizada";
+                document.getElementById('dashboard-status-dot').className = "w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse";
+                document.getElementById('dashboard-status-label').textContent = "Nuvem Ativa";
+                
+                // Migrate localStorage if necessary and load database structures
+                migrateLocalStorageToCloud();
+                attachCloudRealtimeListeners();
+            } else {
+                authenticate();
+            }
+        });
+
+        // Listeners for Insumos, Fichas, and Config
+        function attachCloudRealtimeListeners() {
+            if (isCloudInitialized) return;
+            isCloudInitialized = true;
+
+            const pathInsumos = collection(db, 'artifacts', appId, 'users', userId, 'insumos');
+            const pathRecipes = collection(db, 'artifacts', appId, 'users', userId, 'recipes');
+            const pathSettings = collection(db, 'artifacts', appId, 'users', userId, 'config');
+
+            // Listening to Insumos
+            onSnapshot(pathInsumos, (snapshot) => {
+                const cloudIngredients = [];
+                snapshot.forEach(doc => {
+                    cloudIngredients.push({ id: doc.id, ...doc.data() });
+                });
+                if (cloudIngredients.length > 0 || snapshot.metadata.fromCache === false) {
+                    window.ingredients = cloudIngredients;
+                    window.renderAll();
+                }
+            }, (error) => {
+                console.error("Erro de sincronia (insumos):", error);
+            });
+
+            // Listening to Recipes
+            onSnapshot(pathRecipes, (snapshot) => {
+                const cloudRecipes = [];
+                snapshot.forEach(doc => {
+                    cloudRecipes.push({ id: doc.id, ...doc.data() });
+                });
+                if (cloudRecipes.length > 0 || snapshot.metadata.fromCache === false) {
+                    window.recipes = cloudRecipes;
+                    window.renderAll();
+                }
+            }, (error) => {
+                console.error("Erro de sincronia (receitas):", error);
+            });
+
+            // Listening to Settings
+            onSnapshot(pathSettings, (snapshot) => {
+                snapshot.forEach(docSnap => {
+                    if (docSnap.id === 'global') {
+                        window.settings = docSnap.data();
+                        document.getElementById('setting-target-cmv').value = window.settings.targetCMV;
+                        document.getElementById('setting-taxes').value = window.settings.taxes;
+                        document.getElementById('setting-platform').value = window.settings.platformFees;
+                        document.getElementById('setting-cards').value = window.settings.cardFees;
+                        window.renderAll();
+                    }
+                });
+            }, (error) => {
+                console.error("Erro de sincronia (configurações):", error);
+            });
+        }
+
+        // Migration helper
+        async function migrateLocalStorageToCloud() {
+            try {
+                const storedIngs = localStorage.getItem('tribo_ingredients');
+                const storedRecs = localStorage.getItem('tribo_recipes');
+                const storedSets = localStorage.getItem('tribo_settings');
+
+                if (storedIngs) {
+                    const ingsList = JSON.parse(storedIngs);
+                    for (const ing of ingsList) {
+                        await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'insumos', ing.id), ing);
+                    }
+                    localStorage.removeItem('tribo_ingredients');
+                }
+
+                if (storedRecs) {
+                    const recList = JSON.parse(storedRecs);
+                    for (const rec of recList) {
+                        await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'recipes', rec.id), rec);
+                    }
+                    localStorage.removeItem('tribo_recipes');
+                }
+
+                if (storedSets) {
+                    const settingData = JSON.parse(storedSets);
+                    await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'config', 'global'), settingData);
+                    localStorage.removeItem('tribo_settings');
+                }
+            } catch (err) {
+                console.warn("Falha ao migrar dados locais ou já estão na nuvem:", err);
+            }
+        }
+
+        // Write wrappers to push updates immediately
+        window.cloudSaveIngredient = async function(ing) {
+            if (!userId) return;
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'insumos', ing.id), ing);
+            } catch (e) {
+                console.error("Erro salvando insumo na nuvem:", e);
+            }
+        };
+
+        window.cloudDeleteIngredient = async function(id) {
+            if (!userId) return;
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'insumos', id));
+            } catch (e) {
+                console.error("Erro deletando insumo da nuvem:", e);
+            }
+        };
+
+        window.cloudSaveRecipe = async function(rec) {
+            if (!userId) return;
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'recipes', rec.id), rec);
+            } catch (e) {
+                console.error("Erro salvando receita na nuvem:", e);
+            }
+        };
+
+        window.cloudDeleteRecipe = async function(id) {
+            if (!userId) return;
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'recipes', id));
+            } catch (e) {
+                console.error("Erro deletando receita da nuvem:", e);
+            }
+        };
+
+        window.cloudSaveSettings = async function(settingsData) {
+            if (!userId) return;
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'config', 'global'), settingsData);
+            } catch (e) {
+                console.error("Erro salvando parâmetros na nuvem:", e);
+            }
+        };
+
+        window.cloudResetToDefaults = async function() {
+            if (!userId) return;
+            try {
+                // Wipe cloud nodes
+                for (const ing of window.ingredients) {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'insumos', ing.id));
+                }
+                for (const rec of window.recipes) {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'recipes', rec.id));
+                }
+                // Upload defaults
+                for (const ing of window.defaultIngredients) {
+                    await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'insumos', ing.id), ing);
+                }
+                for (const rec of window.defaultRecipes) {
+                    await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'recipes', rec.id), rec);
+                }
+                await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'config', 'global'), window.defaultSettings);
+            } catch (e) {
+                console.error("Erro resetando banco de dados:", e);
+            }
+        };
+
+        function initializeFallbackOffline() {
+            document.getElementById('cloud-status-dot').className = "w-2.5 h-2.5 bg-rose-500 rounded-full";
+            document.getElementById('cloud-status-text').textContent = "Offline (Local)";
+            document.getElementById('dashboard-status-dot').className = "w-2.5 h-2.5 bg-rose-500 rounded-full";
+            document.getElementById('dashboard-status-label').textContent = "Banco de Dados Local";
+            
+            // Read standard values
+            window.ingredients = window.defaultIngredients;
+            window.recipes = window.defaultRecipes;
+            window.settings = window.defaultSettings;
+            window.renderAll();
+        }
+
+        // Initialize session auth
+        authenticate();
+    </script>
+
+    <!-- MAIN APP JAVASCRIPT -->
+    <script>
+        // Default models fallback
+        window.defaultIngredients = [
+            { id: "ing_1", name: "Pão Brioche Selado", category: "Pães", unit: "un", purchaseQty: 30, purchasePrice: 36.00, unitCost: 1.20 },
+            { id: "ing_2", name: "Blend de Carne Tribo 150g", category: "Proteína", unit: "kg", purchaseQty: 10, purchasePrice: 380.00, unitCost: 0.038 },
+            { id: "ing_3", name: "Queijo Cheddar Fatiado", category: "Laticínios", unit: "kg", purchaseQty: 2, purchasePrice: 110.00, unitCost: 0.055 },
+            { id: "ing_4", name: "Bacon de Lombo Fatiado", category: "Proteína", unit: "kg", purchaseQty: 1, purchasePrice: 54.00, unitCost: 0.054 },
+            { id: "ing_5", name: "Molho Especial Tribo", category: "Molhos & Temperos", unit: "ml", purchaseQty: 1000, purchasePrice: 28.00, unitCost: 0.028 },
+            { id: "ing_6", name: "Alface Americana Higienizada", category: "Hortifrúti", unit: "g", purchaseQty: 500, purchasePrice: 12.00, unitCost: 0.024 },
+            { id: "ing_7", name: "Tomate Vermelho Fatiado", category: "Hortifrúti", unit: "kg", purchaseQty: 3, purchasePrice: 24.00, unitCost: 0.008 },
+            { id: "ing_8", name: "Embalagem Hambúrguer Térmica", category: "Embalagem", unit: "un", purchaseQty: 100, purchasePrice: 120.00, unitCost: 1.20 }
+        ];
+
+        window.defaultRecipes = [
+            {
+                id: "rec_1",
+                name: "Tribo Clássico",
+                category: "Artesanais",
+                packagingCost: 1.20,
+                sellingPrice: 28.90,
+                ingredients: [
+                    { ingredientId: "ing_1", qty: 1 },
+                    { ingredientId: "ing_2", qty: 150 },
+                    { ingredientId: "ing_3", qty: 30 },
+                    { ingredientId: "ing_5", qty: 20 },
+                    { ingredientId: "ing_8", qty: 1 }
+                ]
+            },
+            {
+                id: "rec_2",
+                name: "Tribo Bacon Turbinado",
+                category: "Artesanais",
+                packagingCost: 1.50,
+                sellingPrice: 34.90,
+                ingredients: [
+                    { ingredientId: "ing_1", qty: 1 },
+                    { ingredientId: "ing_2", qty: 150 },
+                    { ingredientId: "ing_3", qty: 40 },
+                    { ingredientId: "ing_4", qty: 45 },
+                    { ingredientId: "ing_5", qty: 25 },
+                    { ingredientId: "ing_8", qty: 1 }
+                ]
+            },
+            {
+                id: "rec_3",
+                name: "Pajé Smash Simples",
+                category: "Smashes",
+                packagingCost: 1.20,
+                sellingPrice: 19.90,
+                ingredients: [
+                    { ingredientId: "ing_1", qty: 1 },
+                    { ingredientId: "ing_2", qty: 100 },
+                    { ingredientId: "ing_3", qty: 20 },
+                    { ingredientId: "ing_5", qty: 15 },
+                    { ingredientId: "ing_8", qty: 1 }
+                ]
+            }
+        ];
+
+        window.defaultSettings = {
+            targetCMV: 30,
+            taxes: 6.0,
+            platformFees: 12.0,
+            cardFees: 2.5
+        };
+
+        // Live systems arrays
+        window.ingredients = [];
+        window.recipes = [];
+        window.settings = window.defaultSettings;
+        let myChart = null;
+
+        // Custom modally-handled promises
+        let activeConfirmCallback = null;
+
+        // Initial setup
+        window.addEventListener('load', () => {
+            setupLiveCalculationListeners();
+        });
+
+        // Safe dialog implementations that replaces system pop-ups
+        window.showCustomAlert = function(title, msg) {
+            document.getElementById('custom-alert-title').textContent = title;
+            document.getElementById('custom-alert-message').textContent = msg;
+            const modal = document.getElementById('custom-alert-modal');
+            modal.classList.remove('hidden');
+
+            const btn = document.getElementById('custom-alert-btn');
+            btn.onclick = () => {
+                modal.classList.add('hidden');
+            };
+        };
+
+        window.showCustomConfirm = function(title, msg, onConfirm) {
+            document.getElementById('custom-confirm-title').textContent = title;
+            document.getElementById('custom-confirm-message').textContent = msg;
+            const modal = document.getElementById('custom-confirm-modal');
+            modal.classList.remove('hidden');
+
+            activeConfirmCallback = onConfirm;
+
+            document.getElementById('custom-confirm-cancel-btn').onclick = () => {
+                modal.classList.add('hidden');
+                activeConfirmCallback = null;
+            };
+
+            document.getElementById('custom-confirm-confirm-btn').onclick = () => {
+                modal.classList.add('hidden');
+                if (activeConfirmCallback) {
+                    activeConfirmCallback();
+                }
+                activeConfirmCallback = null;
+            };
+        };
+
+        window.copyUserId = function() {
+            const rawId = document.getElementById('cloud-user-id').textContent;
+            const cleanId = rawId.replace('ID: ', '');
+            
+            // Build temporary input element because iframe clipboard API has strict boundaries
+            const tempInput = document.createElement("input");
+            tempInput.value = cleanId;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            showCustomAlert("Sucesso", "O ID do seu banco de dados foi copiado! Use-o para referenciar seu painel de custos.");
+        };
+
+        function triggerResetConfirmation() {
+            showCustomConfirm(
+                "Restaurar Padrão", 
+                "Deseja realmente redefinir todos os dados para o padrão da Tribo Burger? Alterações atuais salvas na nuvem serão excluídas permanentemente.",
+                async () => {
+                    if (window.cloudResetToDefaults) {
+                        await window.cloudResetToDefaults();
+                        showCustomAlert("Configuração Restaurada", "As fichas técnicas e insumos originais foram recarregados com sucesso!");
+                    }
+                }
+            );
+        }
+
+        // NAVIGATION TABS
+        function switchTab(tabId) {
+            document.querySelectorAll('section').forEach(section => section.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white";
+            });
+
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            activeBtn.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all bg-tribo-500 text-stone-950 font-semibold shadow-md shadow-tribo-500/10";
+
+            if (tabId === 'dashboard') {
+                setTimeout(renderDashboardChart, 50);
+            }
+        }
+
+        // GENERAL UTILITIES
+        function formatCurrency(val) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+        }
+
+        function calcIngredientUnitCost(price, qty) {
+            if (!price || !qty) return 0;
+            return price / qty;
+        }
+
+        function getIngredientCost(id, qty) {
+            const ing = window.ingredients.find(i => i.id === id);
+            return ing ? ing.unitCost * qty : 0;
+        }
+
+        function calculateRecipeCost(recipe) {
+            let cost = 0;
+            recipe.ingredients.forEach(item => {
+                cost += getIngredientCost(item.ingredientId, item.qty);
+            });
+            cost += Number(recipe.packagingCost || 0);
+            return cost;
+        }
+
+        // Calc breakdown for financial metrics
+        function calculateBreakdown(recipe) {
+            const cost = calculateRecipeCost(recipe);
+            const price = recipe.sellingPrice || 0;
+            
+            const cmvRealPercent = price > 0 ? (cost / price) * 100 : 0;
+            
+            const taxCost = price * (window.settings.taxes / 100);
+            const platformCost = price * (window.settings.platformFees / 100);
+            const cardCost = price * (window.settings.cardFees / 100);
+            
+            const netMarginAmount = price - cost - taxCost - platformCost - cardCost;
+            const netMarginPercent = price > 0 ? (netMarginAmount / price) * 100 : 0;
+
+            const targetCMVMultiplier = (window.settings.targetCMV / 100);
+            const suggestedPriceByCMVOnly = targetCMVMultiplier > 0 ? cost / targetCMVMultiplier : 0;
+
+            const taxFactor = window.settings.taxes + window.settings.platformFees + window.settings.cardFees;
+            const pricingDenominator = 100 - window.settings.targetCMV - taxFactor;
+            const suggestedFullMarkupPrice = pricingDenominator > 0 ? (cost / (pricingDenominator / 100)) : 0;
+
+            return {
+                cost,
+                price,
+                cmvRealPercent,
+                taxCost,
+                platformCost,
+                cardCost,
+                netMarginAmount,
+                netMarginPercent,
+                suggestedPriceByCMVOnly,
+                suggestedFullMarkupPrice
+            };
+        }
+
+        // Standard view rendering
+        function renderAll() {
+            renderIngredients();
+            renderRecipes();
+            renderDashboardStats();
+            renderDashboardChart();
+        }
+        window.renderAll = renderAll;
+
+        function renderDashboardStats() {
+            document.getElementById('kpi-total-ingredients').textContent = window.ingredients.length;
+            document.getElementById('kpi-total-recipes').textContent = window.recipes.length;
+            document.getElementById('kpi-target-cmv').textContent = `${window.settings.targetCMV}%`;
+
+            let totalCostOfAll = 0;
+            let totalSalesValue = 0;
+            let criticalItemsCount = 0;
+            
+            const alertListContainer = document.getElementById('alerts-list');
+            alertListContainer.innerHTML = '';
+
+            window.recipes.forEach(rec => {
+                const breakdown = calculateBreakdown(rec);
+                totalCostOfAll += breakdown.cost;
+                totalSalesValue += breakdown.price;
+
+                if (breakdown.cmvRealPercent > window.settings.targetCMV) {
+                    criticalItemsCount++;
+                    const alertCard = document.createElement('div');
+                    alertCard.className = "flex items-start gap-3 bg-rose-950/40 p-3 rounded-lg border border-rose-900/50 text-left";
+                    alertCard.innerHTML = `
+                        <div class="text-rose-400 mt-0.5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-white">${rec.name}</h4>
+                            <p class="text-[11px] text-stone-300">CMV Real está em <span class="font-bold text-rose-400">${breakdown.cmvRealPercent.toFixed(1)}%</span> (Meta: ${window.settings.targetCMV}%)</p>
+                            <p class="text-[10px] text-stone-500 mt-1">Sugestão: Ajustar preço para ${formatCurrency(breakdown.suggestedFullMarkupPrice)} para equilibrar margens.</p>
+                        </div>
+                    `;
+                    alertListContainer.appendChild(alertCard);
+                }
+            });
+
+            if (criticalItemsCount === 0) {
+                alertListContainer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center p-6 text-center text-stone-500">
+                        <svg class="w-10 h-10 text-emerald-500/30 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <p class="text-xs font-semibold text-stone-400">Excelente! Nenhum item crítico.</p>
+                        <p class="text-[10px] text-stone-500 mt-1">Todo o seu cardápio está saudável ou dentro da meta de CMV.</p>
+                    </div>
+                `;
+            }
+
+            const averageCmv = totalSalesValue > 0 ? (totalCostOfAll / totalSalesValue) * 100 : 0;
+            const kpiAvgCmv = document.getElementById('kpi-avg-cmv');
+            kpiAvgCmv.textContent = `${averageCmv.toFixed(1)}%`;
+
+            const kpiIndicator = document.getElementById('kpi-avg-cmv-indicator');
+            if (averageCmv === 0) {
+                kpiIndicator.textContent = 'Sem dados';
+                kpiIndicator.className = 'text-xs font-bold px-2 py-0.5 rounded bg-stone-800 text-stone-400';
+            } else if (averageCmv <= window.settings.targetCMV) {
+                kpiIndicator.textContent = 'Ótimo';
+                kpiIndicator.className = 'text-xs font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400';
+            } else if (averageCmv <= window.settings.targetCMV + 5) {
+                kpiIndicator.textContent = 'Alerta';
+                kpiIndicator.className = 'text-xs font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-400';
+            } else {
+                kpiIndicator.textContent = 'Crítico';
+                kpiIndicator.className = 'text-xs font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-400';
+            }
+        }
+
+        function renderDashboardChart() {
+            const chartCanvas = document.getElementById('cmvChart');
+            if (!chartCanvas) return;
+            const ctx = chartCanvas.getContext('2d');
+            
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            const labels = window.recipes.map(r => r.name);
+            const costs = window.recipes.map(r => calculateRecipeCost(r).toFixed(2));
+            const prices = window.recipes.map(r => r.sellingPrice.toFixed(2));
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Custo de Produção (R$)',
+                            data: costs,
+                            backgroundColor: '#f2831b', 
+                            borderColor: '#d95f10',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Preço de Venda (R$)',
+                            data: prices,
+                            backgroundColor: '#44403c', 
+                            borderColor: '#292524',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#d6d3d1',
+                                font: { size: 12, weight: 'bold' }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#a8a29e' },
+                            grid: { color: '#44403c' }
+                        },
+                        x: {
+                            ticks: { color: '#a8a29e' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderIngredients() {
+            const container = document.getElementById('ingredients-categories-container');
+            if (!container) return;
+            const searchVal = document.getElementById('search-insumo').value.toLowerCase();
+            container.innerHTML = '';
+
+            const filteredIngredients = window.ingredients.filter(i => i.name.toLowerCase().includes(searchVal));
+            document.getElementById('ingredient-count-badge').textContent = `${filteredIngredients.length} Cadastrados`;
+
+            if (filteredIngredients.length === 0) {
+                container.innerHTML = `
+                    <div class="p-12 text-center text-stone-500 bg-stone-950 rounded-2xl border border-stone-800">
+                        Nenhum insumo encontrado para a busca.
+                    </div>
+                `;
+                return;
+            }
+
+            const categories = ["Proteína", "Laticínios", "Hortifrúti", "Pães", "Molhos & Temperos", "Embalagem", "Outros"];
+            const categoryIcons = {
+                "Proteína": "🥩",
+                "Laticínios": "🧀",
+                "Hortifrúti": "🥬",
+                "Pães": "🍞",
+                "Molhos & Temperos": "🥫",
+                "Embalagem": "📦",
+                "Outros": "🏷️"
+            };
+
+            categories.forEach(cat => {
+                const catIngredients = filteredIngredients.filter(i => i.category === cat);
+                if (catIngredients.length === 0) return; 
+
+                const catDiv = document.createElement('div');
+                catDiv.className = "bg-stone-950 rounded-2xl border border-stone-800 overflow-hidden text-left";
+                
+                let tableRows = '';
+                catIngredients.forEach(ing => {
+                    const proportionalLabel = ing.unit === 'kg' ? 'g' : (ing.unit === 'l' ? 'ml' : ing.unit);
+                    tableRows += `
+                        <tr class="hover:bg-stone-900/30 transition-colors">
+                            <td class="p-4 font-semibold text-white">${ing.name}</td>
+                            <td class="p-4 font-medium text-stone-300">${formatCurrency(ing.purchasePrice)}</td>
+                            <td class="p-4 text-center text-stone-400">${ing.purchaseQty} ${ing.unit}</td>
+                            <td class="p-4 text-right font-mono font-bold text-tribo-400">
+                                ${formatCurrency(ing.unitCost)} <span class="text-[10px] text-stone-500 font-normal">por ${proportionalLabel}</span>
+                            </td>
+                            <td class="p-4 text-center">
+                                <div class="flex justify-center items-center gap-2">
+                                    <button onclick="editIngredient('${ing.id}')" class="text-stone-400 hover:text-tribo-400 transition-colors" title="Editar">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                    </button>
+                                    <button onclick="deleteIngredient('${ing.id}')" class="text-stone-400 hover:text-rose-400 transition-colors" title="Deletar">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                catDiv.innerHTML = `
+                    <div class="p-4 bg-stone-900/50 border-b border-stone-800 flex justify-between items-center">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-tribo-400 flex items-center gap-2">
+                            <span class="text-lg">${categoryIcons[cat] || '🏷️'}</span>
+                            <span>${cat}</span>
+                        </h3>
+                        <span class="text-xs text-stone-400 font-semibold px-2.5 py-1 bg-stone-900 rounded-full border border-stone-800">
+                            ${catIngredients.length} ${catIngredients.length === 1 ? 'item' : 'itens'}
+                        </span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-stone-800 text-stone-400 text-xs font-bold uppercase bg-stone-900/20">
+                                    <th class="p-4">Nome do Insumo</th>
+                                    <th class="p-4">Preço de Compra</th>
+                                    <th class="p-4 text-center">Rendimento Embalagem</th>
+                                    <th class="p-4 text-right">Custo Proporcional (Gramas/Unidade)</th>
+                                    <th class="p-4 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-stone-800/60 text-sm">
+                                ${tableRows}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                container.appendChild(catDiv);
+            });
+        }
+
+        function openIngredientModal(id = null) {
+            const modal = document.getElementById('ingredient-modal');
+            const form = document.getElementById('ingredient-form');
+            form.reset();
+
+            if (id) {
+                document.getElementById('ingredient-modal-title').textContent = "Editar Insumo";
+                const ing = window.ingredients.find(i => i.id === id);
+                document.getElementById('ingredient-id').value = ing.id;
+                document.getElementById('ingredient-name').value = ing.name;
+                document.getElementById('ingredient-category').value = ing.category;
+                document.getElementById('ingredient-unit').value = ing.unit;
+                document.getElementById('ingredient-qty').value = ing.purchaseQty;
+                document.getElementById('ingredient-price').value = ing.purchasePrice;
+                
+                updateIngredientModalCostLabel();
+            } else {
+                document.getElementById('ingredient-modal-title').textContent = "Adicionar Novo Insumo";
+                document.getElementById('ingredient-id').value = '';
+                document.getElementById('ingredient-calculated-cost').textContent = 'R$ 0,00';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeIngredientModal() {
+            document.getElementById('ingredient-modal').classList.add('hidden');
+        }
+
+        function setupLiveCalculationListeners() {
+            const priceInp = document.getElementById('ingredient-price');
+            const qtyInp = document.getElementById('ingredient-qty');
+            const unitInp = document.getElementById('ingredient-unit');
+
+            if (priceInp && qtyInp && unitInp) {
+                const recalculate = () => {
+                    const cost = calcIngredientUnitCost(Number(priceInp.value), Number(qtyInp.value));
+                    const measure = unitInp.value === 'kg' ? 'g' : (unitInp.value === 'l' ? 'ml' : unitInp.value);
+                    document.getElementById('ingredient-calculated-cost').textContent = `${formatCurrency(cost)} por ${measure}`;
+                };
+
+                priceInp.addEventListener('input', recalculate);
+                qtyInp.addEventListener('input', recalculate);
+                unitInp.addEventListener('change', recalculate);
+            }
+        }
+
+        function updateIngredientModalCostLabel() {
+            const price = Number(document.getElementById('ingredient-price').value);
+            const qty = Number(document.getElementById('ingredient-qty').value);
+            const unit = document.getElementById('ingredient-unit').value;
+            const cost = calcIngredientUnitCost(price, qty);
+            const measure = unit === 'kg' ? 'g' : (unit === 'l' ? 'ml' : unit);
+            document.getElementById('ingredient-calculated-cost').textContent = `${formatCurrency(cost)} por ${measure}`;
+        }
+
+        async function handleIngredientSubmit(event) {
+            event.preventDefault();
+            const id = document.getElementById('ingredient-id').value;
+            const name = document.getElementById('ingredient-name').value;
+            const category = document.getElementById('ingredient-category').value;
+            const unit = document.getElementById('ingredient-unit').value;
+            const purchaseQty = Number(document.getElementById('ingredient-qty').value);
+            const purchasePrice = Number(document.getElementById('ingredient-price').value);
+            const unitCost = calcIngredientUnitCost(purchasePrice, purchaseQty);
+
+            const updatedIng = {
+                id: id || `ing_${Date.now()}`,
+                name,
+                category,
+                unit,
+                purchaseQty,
+                purchasePrice,
+                unitCost
+            };
+
+            if (window.cloudSaveIngredient) {
+                await window.cloudSaveIngredient(updatedIng);
+            }
+            closeIngredientModal();
+        }
+
+        function deleteIngredient(id) {
+            const usingRecipes = window.recipes.filter(r => r.ingredients.some(i => i.ingredientId === id));
+            
+            if (usingRecipes.length > 0) {
+                const names = usingRecipes.map(r => r.name).join(', ');
+                showCustomAlert("Insumo em Uso", `Não é possível remover o insumo! Ele está ativo nas seguintes receitas: ${names}`);
+                return;
+            }
+
+            showCustomConfirm(
+                "Remover Insumo", 
+                "Tem certeza de que deseja remover este ingrediente permanente?", 
+                async () => {
+                    if (window.cloudDeleteIngredient) {
+                        await window.cloudDeleteIngredient(id);
+                    }
+                }
+            );
+        }
+
+        function editIngredient(id) {
+            openIngredientModal(id);
+        }
+
+        // Recipe functions
+        function renderRecipes() {
+            const grid = document.getElementById('recipes-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            if (window.recipes.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-1 md:col-span-2 text-center p-12 bg-stone-950 rounded-2xl border border-stone-800 text-stone-500">
+                        Nenhum hambúrguer ou ficha técnica criada. Crie o primeiro item clicando em "Nova Ficha Técnica".
+                    </div>
+                `;
+                return;
+            }
+
+            window.recipes.forEach(recipe => {
+                const breakdown = calculateBreakdown(recipe);
+                
+                let cmvColorClass = "text-emerald-400";
+                let cmvBgClass = "bg-emerald-500/10 border-emerald-500/20";
+                
+                if (breakdown.cmvRealPercent > window.settings.targetCMV) {
+                    cmvColorClass = "text-rose-400";
+                    cmvBgClass = "bg-rose-500/10 border-rose-500/20";
+                } else if (breakdown.cmvRealPercent > window.settings.targetCMV - 3) {
+                    cmvColorClass = "text-amber-400";
+                    cmvBgClass = "bg-amber-500/10 border-amber-500/20";
+                }
+
+                const card = document.createElement('div');
+                card.className = "bg-stone-950 rounded-2xl border border-stone-800 overflow-hidden flex flex-col justify-between hover:border-stone-700 transition-all text-left";
+                
+                card.innerHTML = `
+                    <div class="p-6 space-y-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="text-[10px] font-bold uppercase tracking-widest text-tribo-400 bg-tribo-500/10 px-2.5 py-1 rounded-full border border-tribo-500/20">
+                                    ${recipe.category}
+                                </span>
+                                <h3 class="text-xl font-black text-white mt-2">${recipe.name}</h3>
+                            </div>
+                            <div class="flex gap-1.5">
+                                <button onclick="editRecipe('${recipe.id}')" class="p-2 bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-white rounded-lg transition-colors border border-stone-800">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                </button>
+                                <button onclick="deleteRecipe('${recipe.id}')" class="p-2 bg-stone-900 hover:bg-stone-800 text-rose-400 hover:text-rose-300 rounded-lg transition-colors border border-stone-800">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Mini breakdown of ingredients -->
+                        <div class="space-y-1 bg-stone-900/40 p-3 rounded-xl border border-stone-800 text-xs">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1">Ingredientes Principais</span>
+                            ${recipe.ingredients.map(item => {
+                                const ing = window.ingredients.find(i => i.id === item.ingredientId);
+                                if (!ing) return '';
+                                const costVal = getIngredientCost(item.ingredientId, item.qty);
+                                return `
+                                    <div class="flex justify-between text-stone-300">
+                                        <span>&bull; ${ing.name} <span class="text-stone-500">(${item.qty}${ing.unit === 'kg' ? 'g' : (ing.unit === 'l' ? 'ml' : ing.unit)})</span></span>
+                                        <span class="font-medium text-stone-400">${formatCurrency(costVal)}</span>
+                                    </div>
+                                `;
+                            }).join('')}
+                            ${recipe.packagingCost > 0 ? `
+                                <div class="flex justify-between text-stone-400 border-t border-stone-800/60 mt-1 pt-1">
+                                    <span>Embalagem & Despesas Fichas</span>
+                                    <span>${formatCurrency(recipe.packagingCost)}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- Cost/Margin Grid calculations -->
+                        <div class="grid grid-cols-2 gap-3 text-center">
+                            <div class="bg-stone-900 p-3 rounded-xl border border-stone-800">
+                                <span class="text-[10px] uppercase text-stone-400 font-bold tracking-wider block">Custo de Alimento (CMV R$)</span>
+                                <span class="text-lg font-bold text-white">${formatCurrency(breakdown.cost)}</span>
+                            </div>
+                            <div class="p-3 rounded-xl border ${cmvBgClass} flex flex-col justify-center">
+                                <span class="text-[10px] uppercase text-stone-400 font-bold tracking-wider block">CMV Real (%)</span>
+                                <span class="text-lg font-black ${cmvColorClass}">${breakdown.cmvRealPercent.toFixed(1)}%</span>
+                            </div>
+                        </div>
+
+                        <!-- Real price vs Net margin calculations -->
+                        <div class="border-t border-stone-800 pt-3 space-y-2 text-xs">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="font-semibold text-stone-300">Preço Atual de Venda:</span>
+                                <span class="font-extrabold text-white text-base">${formatCurrency(breakdown.price)}</span>
+                            </div>
+                            <div class="flex justify-between text-stone-400">
+                                <span>Impostos (${window.settings.taxes}%):</span>
+                                <span>${formatCurrency(breakdown.taxCost)}</span>
+                            </div>
+                            <div class="flex justify-between text-stone-400">
+                                <span>Parcerias/Apps (${window.settings.platformFees}%):</span>
+                                <span>${formatCurrency(breakdown.platformCost)}</span>
+                            </div>
+                            <div class="flex justify-between text-stone-400">
+                                <span>Taxas Financeiras (${window.settings.cardFees}%):</span>
+                                <span>${formatCurrency(breakdown.cardCost)}</span>
+                            </div>
+                            
+                            <!-- Margem de Contribuição Bruta -->
+                            <div class="flex justify-between text-stone-300 font-semibold border-t border-stone-800/60 pt-2 text-sm">
+                                <span>Margem Lucro Operacional:</span>
+                                <span class="${breakdown.netMarginPercent > 15 ? 'text-emerald-400' : 'text-amber-400'}">
+                                    ${formatCurrency(breakdown.netMarginAmount)} (${breakdown.netMarginPercent.toFixed(1)}%)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-stone-900 p-4 border-t border-stone-800 text-xs flex justify-between items-center">
+                        <span class="text-stone-400">Sugestão Tribo de Preço (Ideal):</span>
+                        <span class="font-black text-emerald-400 text-sm">${formatCurrency(breakdown.suggestedFullMarkupPrice)}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        let currentRecipeRowsCount = 0;
+
+        function addIngredientRowToRecipe(selectedIngId = '', qtyVal = '') {
+            const container = document.getElementById('recipe-ingredients-rows');
+            if (!container) return;
+            const rowId = `recipe_row_${currentRecipeRowsCount++}`;
+
+            const div = document.createElement('div');
+            div.id = rowId;
+            div.className = "flex items-center gap-2 bg-stone-900 p-2 rounded-lg border border-stone-800/80";
+
+            let optionsHtml = '<option value="">-- Selecione o Insumo --</option>';
+            window.ingredients.forEach(ing => {
+                optionsHtml += `<option value="${ing.id}" ${ing.id === selectedIngId ? 'selected' : ''}>${ing.name} (R$/${ing.unit === 'kg' ? 'g' : (ing.unit === 'l' ? 'ml' : ing.unit)})</option>`;
+            });
+
+            div.innerHTML = `
+                <select onchange="updateRecipeSimulation()" class="flex-1 bg-stone-950 border border-stone-800 rounded p-1.5 text-xs text-stone-100 focus:outline-none focus:border-tribo-500 select-ingredient-target">
+                    ${optionsHtml}
+                </select>
+                <div class="w-24 relative">
+                    <input type="number" step="any" oninput="updateRecipeSimulation()" value="${qtyVal}" required placeholder="Qtd" class="w-full bg-stone-950 border border-stone-800 rounded p-1.5 text-xs text-stone-100 focus:outline-none focus:border-tribo-500 input-qty-target">
+                </div>
+                <button type="button" onclick="removeIngredientRow('${rowId}')" class="text-stone-500 hover:text-rose-400 p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+            `;
+
+            container.appendChild(div);
+            updateRecipeSimulation();
+        }
+
+        function removeIngredientRow(rowId) {
+            const row = document.getElementById(rowId);
+            if (row) {
+                row.remove();
+            }
+            updateRecipeSimulation();
+        }
+
+        function updateRecipeSimulation() {
+            const rows = document.querySelectorAll('#recipe-ingredients-rows > div');
+            let costAccumulator = 0;
+
+            rows.forEach(row => {
+                const select = row.querySelector('.select-ingredient-target');
+                const input = row.querySelector('.input-qty-target');
+                
+                const ingId = select.value;
+                const qty = Number(input.value || 0);
+
+                if (ingId) {
+                    costAccumulator += getIngredientCost(ingId, qty);
+                }
+            });
+
+            const packCost = Number(document.getElementById('recipe-packaging').value || 0);
+            const totalCost = costAccumulator + packCost;
+            
+            const sellingPrice = Number(document.getElementById('recipe-selling-price').value || 0);
+            
+            const cmv = sellingPrice > 0 ? (totalCost / sellingPrice) * 100 : 0;
+            
+            const taxCost = sellingPrice * (window.settings.taxes / 100);
+            const platformCost = sellingPrice * (window.settings.platformFees / 100);
+            const cardCost = sellingPrice * (window.settings.cardFees / 100);
+            const profit = sellingPrice - totalCost - taxCost - platformCost - cardCost;
+            const margin = sellingPrice > 0 ? (profit / sellingPrice) * 100 : 0;
+
+            document.getElementById('preview-cost').textContent = formatCurrency(totalCost);
+            document.getElementById('preview-cmv').textContent = `${cmv.toFixed(1)}%`;
+            document.getElementById('preview-margin').textContent = `${margin.toFixed(1)}%`;
+
+            const cmvLabel = document.getElementById('preview-cmv');
+            if (cmv > window.settings.targetCMV) {
+                cmvLabel.className = 'font-bold text-rose-400';
+            } else {
+                cmvLabel.className = 'font-bold text-emerald-400';
+            }
+        }
+
+        function openRecipeModal(id = null) {
+            const modal = document.getElementById('recipe-modal');
+            const form = document.getElementById('recipe-form');
+            form.reset();
+            
+            document.getElementById('recipe-ingredients-rows').innerHTML = '';
+            currentRecipeRowsCount = 0;
+
+            if (id) {
+                document.getElementById('recipe-modal-title').textContent = "Editar Ficha Técnica";
+                const recipe = window.recipes.find(r => r.id === id);
+                document.getElementById('recipe-id').value = recipe.id;
+                document.getElementById('recipe-name').value = recipe.name;
+                document.getElementById('recipe-category').value = recipe.category;
+                document.getElementById('recipe-packaging').value = recipe.packagingCost;
+                document.getElementById('recipe-selling-price').value = recipe.sellingPrice;
+
+                recipe.ingredients.forEach(item => {
+                    addIngredientRowToRecipe(item.ingredientId, item.qty);
+                });
+            } else {
+                document.getElementById('recipe-modal-title').textContent = "Criar Nova Ficha Técnica";
+                document.getElementById('recipe-id').value = '';
+                addIngredientRowToRecipe(); 
+            }
+
+            document.getElementById('recipe-packaging').addEventListener('input', updateRecipeSimulation);
+            document.getElementById('recipe-selling-price').addEventListener('input', updateRecipeSimulation);
+
+            modal.classList.remove('hidden');
+            updateRecipeSimulation();
+        }
+
+        function closeRecipeModal() {
+            document.getElementById('recipe-modal').classList.add('hidden');
+        }
+
+        async function handleRecipeSubmit(event) {
+            event.preventDefault();
+            const id = document.getElementById('recipe-id').value;
+            const name = document.getElementById('recipe-name').value;
+            const category = document.getElementById('recipe-category').value;
+            const packagingCost = Number(document.getElementById('recipe-packaging').value || 0);
+            const sellingPrice = Number(document.getElementById('recipe-selling-price').value || 0);
+
+            const ingredientItems = [];
+            const rows = document.querySelectorAll('#recipe-ingredients-rows > div');
+            rows.forEach(row => {
+                const select = row.querySelector('.select-ingredient-target');
+                const input = row.querySelector('.input-qty-target');
+                const ingredientId = select.value;
+                const qty = Number(input.value || 0);
+
+                if (ingredientId && qty > 0) {
+                    ingredientItems.push({ ingredientId, qty });
+                }
+            });
+
+            if (ingredientItems.length === 0) {
+                showCustomAlert("Aviso", "Adicione pelo menos um ingrediente ativo na ficha técnica!");
+                return;
+            }
+
+            const updatedRecipe = {
+                id: id || `rec_${Date.now()}`,
+                name,
+                category,
+                packagingCost,
+                sellingPrice,
+                ingredients: ingredientItems
+            };
+
+            if (window.cloudSaveRecipe) {
+                await window.cloudSaveRecipe(updatedRecipe);
+            }
+            closeRecipeModal();
+        }
+
+        function deleteRecipe(id) {
+            showCustomConfirm(
+                "Deletar Ficha Técnica", 
+                "Deseja deletar esta ficha técnica permanentemente?", 
+                async () => {
+                    if (window.cloudDeleteRecipe) {
+                        await window.cloudDeleteRecipe(id);
+                    }
+                }
+            );
+        }
+
+        function editRecipe(id) {
+            openRecipeModal(id);
+        }
+
+        async function saveSettings() {
+            const targetCMV = Number(document.getElementById('setting-target-cmv').value);
+            const taxes = Number(document.getElementById('setting-taxes').value);
+            const platformFees = Number(document.getElementById('setting-platform').value);
+            const cardFees = Number(document.getElementById('setting-cards').value);
+
+            if (targetCMV <= 0 || targetCMV > 100) {
+                showCustomAlert("Erro de Validação", "A meta de CMV deve ser um valor entre 1% e 100%.");
+                return;
+            }
+
+            const updatedSettings = { targetCMV, taxes, platformFees, cardFees };
+            if (window.cloudSaveSettings) {
+                await window.cloudSaveSettings(updatedSettings);
+                showCustomAlert("Parâmetros Salvos", "Os coeficientes globais de precificação foram atualizados em tempo real na nuvem.");
+            }
+        }
+    </script>
+</body>
+</html>
