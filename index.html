@@ -95,6 +95,10 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                     Fichas Técnicas
                 </button>
+                <button onclick="switchTab('custos-fixos')" id="nav-custos-fixos" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    Custos Fixos
+                </button>
                 <button onclick="switchTab('config')" id="nav-config" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     Parâmetros & Taxas
@@ -129,8 +133,8 @@
                 </div>
             </div>
 
-            <!-- KPI Row -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- KPI Row (Expanded to 5 columns on large screens) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <!-- KPI 1 -->
                 <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between">
                     <span class="text-xs font-bold uppercase tracking-wider text-stone-400">CMV Médio Real</span>
@@ -138,7 +142,7 @@
                         <span id="kpi-avg-cmv" class="text-3xl font-black text-white">0%</span>
                         <span id="kpi-avg-cmv-indicator" class="text-xs font-bold px-2 py-0.5 rounded">Calculando...</span>
                     </div>
-                    <p class="text-xs text-stone-500 mt-2">Média ponderada baseada no preço de venda.</p>
+                    <p class="text-xs text-stone-500 mt-2">Média ponderada no preço de venda.</p>
                 </div>
                 <!-- KPI 2 -->
                 <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between">
@@ -147,7 +151,7 @@
                         <span id="kpi-target-cmv" class="text-3xl font-black text-tribo-400">30%</span>
                         <span class="text-xs font-bold text-stone-500">Definido</span>
                     </div>
-                    <p class="text-xs text-stone-500 mt-2">Alvo recomendado para hamburguerias artesanais.</p>
+                    <p class="text-xs text-stone-500 mt-2">Alvo recomendado pela Tribo.</p>
                 </div>
                 <!-- KPI 3 -->
                 <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between">
@@ -156,16 +160,25 @@
                         <span id="kpi-total-ingredients" class="text-3xl font-black text-white">0</span>
                         <span class="text-xs font-medium text-stone-400">ativos</span>
                     </div>
-                    <p class="text-xs text-stone-500 mt-2">Ingredientes e embalagens catalogados.</p>
+                    <p class="text-xs text-stone-500 mt-2">Ingredientes catalogados.</p>
                 </div>
                 <!-- KPI 4 -->
                 <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Produtos no Cardápio</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Total Custos Fixos</span>
+                    <div class="flex items-baseline gap-2 mt-2">
+                        <span id="kpi-total-fixed-costs" class="text-3xl font-black text-rose-400">R$ 0,00</span>
+                        <span class="text-xs font-bold text-stone-500">Mês</span>
+                    </div>
+                    <p class="text-xs text-stone-500 mt-2">Despesas mensais fixas.</p>
+                </div>
+                <!-- KPI 5 -->
+                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Produtos Cardápio</span>
                     <div class="flex items-baseline gap-2 mt-2">
                         <span id="kpi-total-recipes" class="text-3xl font-black text-white">0</span>
-                        <span class="text-xs font-medium text-stone-400">hambúrgueres</span>
+                        <span class="text-xs font-medium text-stone-400">ativos</span>
                     </div>
-                    <p class="text-xs text-stone-500 mt-2">Fichas técnicas totalmente estruturadas.</p>
+                    <p class="text-xs text-stone-500 mt-2">Fichas técnicas prontas.</p>
                 </div>
             </div>
 
@@ -182,21 +195,30 @@
                     </div>
                 </div>
 
-                <!-- Alerts & Highlights -->
+                <!-- Alerts, Ponto de Equilíbrio & Highlights -->
                 <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between space-y-4">
-                    <div>
-                        <h3 class="text-lg font-bold text-white mb-2">Alertas de Atenção</h3>
-                        <p class="text-xs text-stone-400 mb-4">Itens com CMV crítico acima da meta do seu estabelecimento.</p>
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-bold text-white mb-2">Ponto de Equilíbrio</h3>
                         
-                        <div id="alerts-list" class="space-y-3 max-h-[280px] overflow-y-auto pr-1">
-                            <!-- Alert card injected by JS -->
+                        <!-- Ponto de Equilíbrio Card -->
+                        <div class="bg-stone-900 p-4 rounded-xl border border-stone-800 text-left">
+                            <span class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">Faturamento Alvo Mínimo</span>
+                            <div class="text-2xl font-black text-emerald-400 mt-1" id="breakeven-revenue">R$ 0,00</div>
+                            <p class="text-[11px] text-stone-300 mt-1">Faturamento necessário apenas para cobrir as despesas fixas e custos variáveis das fichas técnicas.</p>
+                        </div>
+
+                        <div>
+                            <h3 class="text-sm font-bold text-white mb-2">Alertas de Atenção</h3>
+                            <div id="alerts-list" class="space-y-3 max-h-[180px] overflow-y-auto pr-1">
+                                <!-- Alert card injected by JS -->
+                            </div>
                         </div>
                     </div>
 
                     <!-- Quick Action Card -->
-                    <div class="bg-stone-900 p-4 rounded-xl border border-stone-800">
+                    <div class="bg-stone-900 p-4 rounded-xl border border-stone-800 text-left">
                         <h4 class="text-xs font-bold uppercase text-tribo-400 tracking-wider">Análise de Lucro</h4>
-                        <p class="text-xs text-stone-400 mt-1">Lembre-se: O CMV foca apenas nos ingredientes. O lucro líquido real depende das despesas fixas (aluguel, equipe, marketing).</p>
+                        <p class="text-xs text-stone-400 mt-1">O seu Ponto de Equilíbrio é calculado com base na Margem de Contribuição Média das suas fichas técnicas ativas.</p>
                     </div>
                 </div>
             </div>
@@ -247,6 +269,41 @@
 
             <!-- Recipes Grid -->
             <div class="space-y-8" id="recipes-grid">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- ==================== TAB: CUSTOS FIXOS ==================== -->
+        <section id="tab-custos-fixos" class="space-y-6 hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-white tracking-tight">Custos Fixos da Operação</h2>
+                    <p class="text-stone-400">Monitore as despesas recorrentes mensais de sua estrutura comercial.</p>
+                </div>
+                <button onclick="openFixedCostModal()" class="flex items-center justify-center gap-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-tribo-500/15">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Novo Custo Fixo
+                </button>
+            </div>
+
+            <!-- Summary metrics -->
+            <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Total Custos Fixos</span>
+                    <p id="fixed-costs-total-box" class="text-3xl font-black text-rose-400 mt-1">R$ 0,00</p>
+                </div>
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Categorias de Despesa</span>
+                    <p id="fixed-costs-count-box" class="text-3xl font-black text-white mt-1">0 Ativas</p>
+                </div>
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Impacto Diário Estimado</span>
+                    <p id="fixed-costs-daily-box" class="text-3xl font-black text-stone-300 mt-1">R$ 0,00</p>
+                </div>
+            </div>
+
+            <!-- List of Fixed Costs grouped by category -->
+            <div id="fixed-costs-categories-container" class="space-y-6">
                 <!-- Injected via JS -->
             </div>
         </section>
@@ -510,6 +567,53 @@
         </div>
     </div>
 
+    <!-- ==================== MODAL: ADD/EDIT FIXED COST ==================== -->
+    <div id="fixed-cost-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-stone-950 rounded-2xl border border-stone-800 w-full max-w-lg overflow-hidden flex flex-col shadow-2xl animate-scale-up">
+            <div class="p-6 border-b border-stone-800 flex justify-between items-center">
+                <h3 id="fixed-cost-modal-title" class="text-lg font-bold text-white">Adicionar Custo Fixo</h3>
+                <button onclick="closeFixedCostModal()" class="text-stone-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <form id="fixed-cost-form" onsubmit="handleFixedCostSubmit(event)" class="p-6 space-y-4">
+                <input type="hidden" id="fixed-cost-id">
+                
+                <div>
+                    <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Nome da Despesa</label>
+                    <input type="text" id="fixed-cost-name" required placeholder="Ex: Aluguel do Salão, Salário do Chapeiro, Conta de Luz" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2 text-white focus:outline-none focus:border-tribo-500">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Categoria de Custo</label>
+                        <select id="fixed-cost-category" required class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2 text-white focus:outline-none focus:border-tribo-500">
+                            <option value="Aluguel">Aluguel & Ponto</option>
+                            <option value="Utilidades">Utilidades (Água, Luz, Net)</option>
+                            <option value="Pessoal">Equipe & Pessoal (Salários, Pro-labore)</option>
+                            <option value="Sistemas">Sistemas & Software (ERP, Delivery)</option>
+                            <option value="Marketing">Marketing & Anúncios</option>
+                            <option value="Outros">Outros Custos Fixos</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Valor Mensal (R$)</label>
+                        <div class="relative rounded-lg shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400 text-xs">R$</div>
+                            <input type="number" id="fixed-cost-value" step="0.01" required placeholder="0,00" class="w-full bg-stone-900 border border-stone-800 rounded-lg pl-8 pr-2 p-2 text-white focus:outline-none focus:border-tribo-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-stone-800 flex justify-end gap-2">
+                    <button type="button" onclick="closeFixedCostModal()" class="px-4 py-2 border border-stone-800 hover:bg-stone-900 rounded-lg text-sm text-stone-400">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold rounded-lg text-sm">Salvar Despesa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- ==================== CUSTOM DIALOGS MODALS ==================== -->
     <!-- Premium replacements for browser alert/confirm -->
     <div id="custom-alert-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
@@ -722,7 +826,14 @@
             }
         }
 
-        // Listeners for Insumos, Fichas, Categories and Config
+        async function seedDefaultFixedCosts() {
+            if (!userId) return;
+            for (const fc of window.defaultFixedCosts) {
+                await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'fixed_costs', fc.id), fc);
+            }
+        }
+
+        // Listeners for Insumos, Fichas, Categories, Config, Fixed Costs
         function attachCloudRealtimeListeners() {
             if (isCloudInitialized) return;
             isCloudInitialized = true;
@@ -731,6 +842,7 @@
             const pathRecipes = collection(db, 'artifacts', appId, 'users', userId, 'recipes');
             const pathCategories = collection(db, 'artifacts', appId, 'users', userId, 'categories');
             const pathSettings = collection(db, 'artifacts', appId, 'users', userId, 'config');
+            const pathFixedCosts = collection(db, 'artifacts', appId, 'users', userId, 'fixed_costs');
 
 
             // Listening to Insumos
@@ -780,15 +892,36 @@
                 console.error("Erro de sincronia (categorias):", error);
             });
 
+            // Listening to Fixed Costs
+            onSnapshot(pathFixedCosts, (snapshot) => {
+                const cloudFixedCosts = [];
+                snapshot.forEach(doc => {
+                    cloudFixedCosts.push({ id: doc.id, ...doc.data() });
+                });
+                
+                if (cloudFixedCosts.length === 0 && snapshot.metadata.fromCache === false) {
+                    seedDefaultFixedCosts();
+                } else {
+                    window.fixedCosts = cloudFixedCosts;
+                    window.renderAll();
+                }
+            }, (error) => {
+                console.error("Erro de sincronia (custos fixos):", error);
+            });
+
             // Listening to Settings
             onSnapshot(pathSettings, (snapshot) => {
                 snapshot.forEach(docSnap => {
                     if (docSnap.id === 'global') {
                         window.settings = docSnap.data();
-                        document.getElementById('setting-target-cmv').value = window.settings.targetCMV;
-                        document.getElementById('setting-taxes').value = window.settings.taxes;
-                        document.getElementById('setting-platform').value = window.settings.platformFees;
-                        document.getElementById('setting-cards').value = window.settings.cardFees;
+                        const inputCMV = document.getElementById('setting-target-cmv');
+                        const inputTaxes = document.getElementById('setting-taxes');
+                        const inputPlatform = document.getElementById('setting-platform');
+                        const inputCards = document.getElementById('setting-cards');
+                        if (inputCMV) inputCMV.value = window.settings.targetCMV;
+                        if (inputTaxes) inputTaxes.value = window.settings.taxes;
+                        if (inputPlatform) inputPlatform.value = window.settings.platformFees;
+                        if (inputCards) inputCards.value = window.settings.cardFees;
                         window.renderAll();
                     }
                 });
@@ -803,6 +936,7 @@
                 const storedIngs = localStorage.getItem('tribo_ingredients');
                 const storedRecs = localStorage.getItem('tribo_recipes');
                 const storedSets = localStorage.getItem('tribo_settings');
+                const storedFC = localStorage.getItem('tribo_fixed_costs');
 
                 if (storedIngs) {
                     const ingsList = JSON.parse(storedIngs);
@@ -818,6 +952,14 @@
                         await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'recipes', rec.id), rec);
                     }
                     localStorage.removeItem('tribo_recipes');
+                }
+
+                if (storedFC) {
+                    const fcList = JSON.parse(storedFC);
+                    for (const fc of fcList) {
+                        await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'fixed_costs', fc.id), fc);
+                    }
+                    localStorage.removeItem('tribo_fixed_costs');
                 }
 
                 if (storedSets) {
@@ -867,6 +1009,24 @@
             }
         };
 
+        window.cloudSaveFixedCost = async function(fc) {
+            if (!userId) return;
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'fixed_costs', fc.id), fc);
+            } catch (e) {
+                console.error("Erro salvando custo fixo na nuvem:", e);
+            }
+        };
+
+        window.cloudDeleteFixedCost = async function(id) {
+            if (!userId) return;
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'fixed_costs', id));
+            } catch (e) {
+                console.error("Erro deletando custo fixo na nuvem:", e);
+            }
+        };
+
         window.cloudSaveCategory = async function(cat) {
             if (!userId) return;
             try {
@@ -904,6 +1064,9 @@
                 for (const rec of window.recipes) {
                     await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'recipes', rec.id));
                 }
+                for (const fc of window.fixedCosts) {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'fixed_costs', fc.id));
+                }
                 for (const cat of window.recipeCategories) {
                     await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'categories', cat.id));
                 }
@@ -913,6 +1076,9 @@
                 }
                 for (const rec of window.defaultRecipes) {
                     await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'recipes', rec.id), rec);
+                }
+                for (const fc of window.defaultFixedCosts) {
+                    await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'fixed_costs', fc.id), fc);
                 }
                 for (const cat of window.defaultCategories) {
                     await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'categories', cat.id), cat);
@@ -932,6 +1098,7 @@
             // Read standard values
             window.ingredients = window.defaultIngredients;
             window.recipes = window.defaultRecipes;
+            window.fixedCosts = window.defaultFixedCosts;
             window.recipeCategories = window.defaultCategories;
             window.settings = window.defaultSettings;
             window.renderCategoriesInSettings();
@@ -1003,6 +1170,16 @@
             }
         ];
 
+        window.defaultFixedCosts = [
+            { id: "fc_1", name: "Aluguel Comercial do Ponto", category: "Aluguel", value: 2500.00 },
+            { id: "fc_2", name: "Conta de Energia Elétrica", category: "Utilidades", value: 850.00 },
+            { id: "fc_3", name: "Conta de Água & Saneamento", category: "Utilidades", value: 180.00 },
+            { id: "fc_4", name: "Internet Banda Larga", category: "Utilidades", value: 120.00 },
+            { id: "fc_5", name: "Pro-labore & Salário Auxiliar", category: "Pessoal", value: 4500.00 },
+            { id: "fc_6", name: "Sistema de Caixa e Cardápio Digital", category: "Sistemas", value: 190.00 },
+            { id: "fc_7", name: "Anúncios Meta (Instagram/Facebook)", category: "Marketing", value: 500.00 }
+        ];
+
         window.defaultCategories = [
             { id: "cat_1", name: "Smashes" },
             { id: "cat_2", name: "Artesanais" },
@@ -1021,6 +1198,7 @@
         // Live systems arrays
         window.ingredients = [];
         window.recipes = [];
+        window.fixedCosts = [];
         window.recipeCategories = [];
         window.settings = window.defaultSettings;
         let myChart = null;
@@ -1233,8 +1411,7 @@
 
             const targetCMVMultiplier = (window.settings.targetCMV / 100);
             
-            // CORREÇÃO DA FÓRMULA DE PRECIFICAÇÃO:
-            // Para atingir exatamente o CMV Alvo (%) desejado, a fórmula correta é dividir o custo de alimentos diretamente pelo multiplicador do CMV Alvo.
+            // DIVISÃO DO CMV ALVO PARA PREÇO DE CARDÁPIO IDEAL:
             const suggestedFullMarkupPrice = targetCMVMultiplier > 0 ? cost / targetCMVMultiplier : 0;
 
             return {
@@ -1255,29 +1432,54 @@
         function renderAll() {
             renderIngredients();
             renderRecipes();
+            renderFixedCosts();
             renderDashboardStats();
             renderDashboardChart();
         }
         window.renderAll = renderAll;
 
         function renderDashboardStats() {
-            document.getElementById('kpi-total-ingredients').textContent = window.ingredients.length;
-            document.getElementById('kpi-total-recipes').textContent = window.recipes.length;
-            document.getElementById('kpi-target-cmv').textContent = `${window.settings.targetCMV}%`;
+            // Defensive selector checks to safeguard against asynchronous DOM state issues
+            const kpiTotalIngredients = document.getElementById('kpi-total-ingredients');
+            const kpiTotalRecipes = document.getElementById('kpi-total-recipes');
+            const kpiTargetCMV = document.getElementById('kpi-target-cmv');
+            const kpiTotalFixedCosts = document.getElementById('kpi-total-fixed-costs');
+            const kpiAvgCMV = document.getElementById('kpi-avg-cmv');
+            const kpiAvgCmvIndicator = document.getElementById('kpi-avg-cmv-indicator');
+            const breakevenRevenue = document.getElementById('breakeven-revenue');
+            
+            if (kpiTotalIngredients) kpiTotalIngredients.textContent = window.ingredients.length;
+            if (kpiTotalRecipes) kpiTotalRecipes.textContent = window.recipes.length;
+            if (kpiTargetCMV) kpiTargetCMV.textContent = `${window.settings.targetCMV}%`;
+
+            // Calculate total fixed costs
+            let totalFC = 0;
+            window.fixedCosts.forEach(fc => {
+                totalFC += fc.value || 0;
+            });
+            if (kpiTotalFixedCosts) kpiTotalFixedCosts.textContent = formatCurrency(totalFC);
 
             let totalCostOfAll = 0;
             let totalSalesValue = 0;
             let criticalItemsCount = 0;
+            let totalMarginPercentSum = 0;
+            let ratedRecipesCount = 0;
             
             const alertListContainer = document.getElementById('alerts-list');
-            alertListContainer.innerHTML = '';
+            if (alertListContainer) alertListContainer.innerHTML = '';
 
             window.recipes.forEach(rec => {
                 const breakdown = calculateBreakdown(rec);
                 totalCostOfAll += breakdown.cost;
                 totalSalesValue += breakdown.price;
+                
+                if (breakdown.price > 0) {
+                    // Pondered weight of operational margin
+                    totalMarginPercentSum += breakdown.netMarginPercent;
+                    ratedRecipesCount++;
+                }
 
-                if (breakdown.cmvRealPercent > window.settings.targetCMV) {
+                if (breakdown.cmvRealPercent > window.settings.targetCMV && alertListContainer) {
                     criticalItemsCount++;
                     const alertCard = document.createElement('div');
                     alertCard.className = "flex items-start gap-3 bg-rose-950/40 p-3 rounded-lg border border-rose-900/50 text-left";
@@ -1288,41 +1490,46 @@
                         <div>
                             <h4 class="text-xs font-bold text-white">${rec.name}</h4>
                             <p class="text-[11px] text-stone-300">CMV Real está em <span class="font-bold text-rose-400">${breakdown.cmvRealPercent.toFixed(1)}%</span> (Meta: ${window.settings.targetCMV}%)</p>
-                            <p class="text-[10px] text-stone-500 mt-1">Sugestão: Ajustar preço para ${formatCurrency(breakdown.suggestedFullMarkupPrice)} para equilibrar margens.</p>
+                            <p class="text-[10px] text-stone-500 mt-1">Sugestão: Preço ideal em ${formatCurrency(breakdown.suggestedFullMarkupPrice)}.</p>
                         </div>
                     `;
                     alertListContainer.appendChild(alertCard);
                 }
             });
 
-            if (criticalItemsCount === 0) {
+            if (criticalItemsCount === 0 && alertListContainer) {
                 alertListContainer.innerHTML = `
                     <div class="flex flex-col items-center justify-center p-6 text-center text-stone-500">
                         <svg class="w-10 h-10 text-emerald-500/30 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <p class="text-xs font-semibold text-stone-400">Excelente! Nenhum item crítico.</p>
-                        <p class="text-[10px] text-stone-500 mt-1">Todo o seu cardápio está saudável ou dentro da meta de CMV.</p>
+                        <p class="text-[10px] text-stone-500 mt-1">Todo o seu cardápio está saudável.</p>
                     </div>
                 `;
             }
 
             const averageCmv = totalSalesValue > 0 ? (totalCostOfAll / totalSalesValue) * 100 : 0;
-            const kpiAvgCmv = document.getElementById('kpi-avg-cmv');
-            kpiAvgCmv.textContent = `${averageCmv.toFixed(1)}%`;
+            if (kpiAvgCMV) kpiAvgCMV.textContent = `${averageCmv.toFixed(1)}%`;
 
-            const kpiIndicator = document.getElementById('kpi-avg-cmv-indicator');
-            if (averageCmv === 0) {
-                kpiIndicator.textContent = 'Sem dados';
-                kpiIndicator.className = 'text-xs font-bold px-2 py-0.5 rounded bg-stone-800 text-stone-400';
-            } else if (averageCmv <= window.settings.targetCMV) {
-                kpiIndicator.textContent = 'Ótimo';
-                kpiIndicator.className = 'text-xs font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400';
-            } else if (averageCmv <= window.settings.targetCMV + 5) {
-                kpiIndicator.textContent = 'Alerta';
-                kpiIndicator.className = 'text-xs font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-400';
-            } else {
-                kpiIndicator.textContent = 'Crítico';
-                kpiIndicator.className = 'text-xs font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-400';
+            if (kpiAvgCmvIndicator) {
+                if (averageCmv === 0) {
+                    kpiAvgCmvIndicator.textContent = 'Sem dados';
+                    kpiAvgCmvIndicator.className = 'text-xs font-bold px-2 py-0.5 rounded bg-stone-800 text-stone-400';
+                } else if (averageCmv <= window.settings.targetCMV) {
+                    kpiAvgCmvIndicator.textContent = 'Ótimo';
+                    kpiAvgCmvIndicator.className = 'text-xs font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400';
+                } else if (averageCmv <= window.settings.targetCMV + 5) {
+                    kpiAvgCmvIndicator.textContent = 'Alerta';
+                    kpiAvgCmvIndicator.className = 'text-xs font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-400';
+                } else {
+                    kpiAvgCmvIndicator.textContent = 'Crítico';
+                    kpiAvgCmvIndicator.className = 'text-xs font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-400';
+                }
             }
+
+            // Calculate Breakeven Revenue Point
+            const averageMarginRatio = ratedRecipesCount > 0 ? (totalMarginPercentSum / ratedRecipesCount) / 100 : 0.50; // default 50%
+            const calculatedBreakeven = averageMarginRatio > 0 ? totalFC / averageMarginRatio : 0;
+            if (breakevenRevenue) breakevenRevenue.textContent = formatCurrency(calculatedBreakeven);
         }
 
         function renderDashboardChart() {
@@ -1394,7 +1601,8 @@
             container.innerHTML = '';
 
             const filteredIngredients = window.ingredients.filter(i => i.name.toLowerCase().includes(searchVal));
-            document.getElementById('ingredient-count-badge').textContent = `${filteredIngredients.length} Cadastrados`;
+            const badgeCount = document.getElementById('ingredient-count-badge');
+            if (badgeCount) badgeCount.textContent = `${filteredIngredients.length} Cadastrados`;
 
             if (filteredIngredients.length === 0) {
                 container.innerHTML = `
@@ -1804,6 +2012,161 @@
             });
         }
 
+        // Fixed Costs rendering and functions
+        function renderFixedCosts() {
+            const container = document.getElementById('fixed-costs-categories-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            let totalFixedCostsSum = 0;
+            window.fixedCosts.forEach(fc => {
+                totalFixedCostsSum += fc.value || 0;
+            });
+
+            const fixedCostsTotalBox = document.getElementById('fixed-costs-total-box');
+            const fixedCostsCountBox = document.getElementById('fixed-costs-count-box');
+            const fixedCostsDailyBox = document.getElementById('fixed-costs-daily-box');
+            
+            if (fixedCostsTotalBox) fixedCostsTotalBox.textContent = formatCurrency(totalFixedCostsSum);
+            if (fixedCostsCountBox) fixedCostsCountBox.textContent = `${window.fixedCosts.length} Ativos`;
+            if (fixedCostsDailyBox) fixedCostsDailyBox.textContent = formatCurrency(totalFixedCostsSum / 30);
+
+            if (window.fixedCosts.length === 0) {
+                container.innerHTML = `
+                    <div class="p-12 text-center text-stone-500 bg-stone-950 rounded-2xl border border-stone-800">
+                        Nenhum custo fixo cadastrado ainda. Use o botão acima para adicionar.
+                    </div>
+                `;
+                return;
+            }
+
+            const categories = ["Aluguel", "Utilidades", "Pessoal", "Sistemas", "Marketing", "Outros"];
+            const categoryLabels = {
+                "Aluguel": "🏘️ Aluguel & Ponto Comercial",
+                "Utilidades": "🔌 Utilidades (Água, Luz, Internet)",
+                "Pessoal": "💼 Equipe & Pessoal",
+                "Sistemas": "💻 Sistemas & Licenças",
+                "Marketing": "📣 Marketing & Divulgação",
+                "Outros": "📦 Outros Custos Fixos"
+            };
+
+            categories.forEach(cat => {
+                const catCosts = window.fixedCosts.filter(fc => fc.category === cat);
+                if (catCosts.length === 0) return;
+
+                const catDiv = document.createElement('div');
+                catDiv.className = "bg-stone-950 rounded-2xl border border-stone-800 overflow-hidden text-left";
+
+                let tableRows = '';
+                let catSum = 0;
+                catCosts.forEach(fc => {
+                    catSum += fc.value || 0;
+                    tableRows += `
+                        <tr class="hover:bg-stone-900/30 transition-colors">
+                            <td class="p-4 font-semibold text-white">${fc.name}</td>
+                            <td class="p-4 text-right font-mono font-bold text-rose-400">${formatCurrency(fc.value)}</td>
+                            <td class="p-4 text-center">
+                                <div class="flex justify-center items-center gap-2">
+                                    <button onclick="editFixedCost('${fc.id}')" class="text-stone-400 hover:text-tribo-400 transition-colors" title="Editar">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                    </button>
+                                    <button onclick="deleteFixedCost('${fc.id}')" class="text-stone-400 hover:text-rose-400 transition-colors" title="Deletar">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                catDiv.innerHTML = `
+                    <div class="p-4 bg-stone-900/50 border-b border-stone-800 flex justify-between items-center">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-tribo-400">
+                            ${categoryLabels[cat] || cat}
+                        </h3>
+                        <span class="text-xs text-stone-200 font-bold px-3 py-1 bg-rose-500/10 rounded-full border border-rose-500/20">
+                            Subtotal: ${formatCurrency(catSum)}
+                        </span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-stone-800 text-stone-400 text-xs font-bold uppercase bg-stone-900/20">
+                                    <th class="p-4">Identificação da Despesa</th>
+                                    <th class="p-4 text-right">Valor Mensal</th>
+                                    <th class="p-4 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-stone-800/60 text-sm">
+                                ${tableRows}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                container.appendChild(catDiv);
+            });
+        }
+
+        function openFixedCostModal(id = null) {
+            const modal = document.getElementById('fixed-cost-modal');
+            const form = document.getElementById('fixed-cost-form');
+            form.reset();
+
+            if (id) {
+                document.getElementById('fixed-cost-modal-title').textContent = "Editar Custo Fixo";
+                const fc = window.fixedCosts.find(f => f.id === id);
+                document.getElementById('fixed-cost-id').value = fc.id;
+                document.getElementById('fixed-cost-name').value = fc.name;
+                document.getElementById('fixed-cost-category').value = fc.category;
+                document.getElementById('fixed-cost-value').value = fc.value;
+            } else {
+                document.getElementById('fixed-cost-modal-title').textContent = "Adicionar Custo Fixo";
+                document.getElementById('fixed-cost-id').value = '';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeFixedCostModal() {
+            document.getElementById('fixed-cost-modal').classList.add('hidden');
+        }
+
+        async function handleFixedCostSubmit(event) {
+            event.preventDefault();
+            const id = document.getElementById('fixed-cost-id').value;
+            const name = document.getElementById('fixed-cost-name').value;
+            const category = document.getElementById('fixed-cost-category').value;
+            const value = Number(document.getElementById('fixed-cost-value').value);
+
+            const updatedFC = {
+                id: id || `fc_${Date.now()}`,
+                name,
+                category,
+                value
+            };
+
+            if (window.cloudSaveFixedCost) {
+                await window.cloudSaveFixedCost(updatedFC);
+            }
+            closeFixedCostModal();
+        }
+
+        function editFixedCost(id) {
+            openFixedCostModal(id);
+        }
+
+        function deleteFixedCost(id) {
+            showCustomConfirm(
+                "Remover Custo Fixo", 
+                "Tem certeza de que deseja excluir permanentemente esta despesa fixa?", 
+                async () => {
+                    if (window.cloudDeleteFixedCost) {
+                        await window.cloudDeleteFixedCost(id);
+                    }
+                }
+            );
+        }
+
         let currentRecipeRowsCount = 0;
 
         // Add rows helper
@@ -1874,16 +2237,20 @@
             const profit = sellingPrice - totalCost - taxCost - platformCost - cardCost;
             const margin = sellingPrice > 0 ? (profit / sellingPrice) * 100 : 0;
 
-            document.getElementById('preview-cost').textContent = formatCurrency(totalCost);
-            document.getElementById('preview-cmv').textContent = `${cmv.toFixed(1)}%`;
-            document.getElementById('preview-margin').textContent = `${margin.toFixed(1)}%`;
+            const previewCost = document.getElementById('preview-cost');
+            const previewCMV = document.getElementById('preview-cmv');
+            const previewMargin = document.getElementById('preview-margin');
 
-            const cmvLabel = document.getElementById('preview-cmv');
-            if (cmv > window.settings.targetCMV) {
-                cmvLabel.className = 'font-bold text-rose-400';
-            } else {
-                cmvLabel.className = 'font-bold text-emerald-400';
+            if (previewCost) previewCost.textContent = formatCurrency(totalCost);
+            if (previewCMV) {
+                previewCMV.textContent = `${cmv.toFixed(1)}%`;
+                if (cmv > window.settings.targetCMV) {
+                    previewCMV.className = 'font-bold text-rose-400';
+                } else {
+                    previewCMV.className = 'font-bold text-emerald-400';
+                }
             }
+            if (previewMargin) previewMargin.textContent = `${margin.toFixed(1)}%`;
         }
 
         function openRecipeModal(id = null) {
