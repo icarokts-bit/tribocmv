@@ -76,6 +76,9 @@
                     <span id="cloud-user-id" class="truncate max-w-[120px]">ID: ...</span>
                     <button onclick="copyUserId()" class="hover:text-tribo-400 font-semibold uppercase text-[9px] transition-colors">Copiar</button>
                 </div>
+                <button onclick="window.runDatabaseDiagnostic()" class="w-full mt-3 py-1.5 bg-stone-900 hover:bg-stone-800 text-stone-300 font-semibold text-[10px] uppercase tracking-wider rounded-lg border border-stone-800 hover:border-tribo-500/50 transition-colors">
+                    🔍 Testar Conexão
+                </button>
             </div>
 
             <!-- Navigation -->
@@ -524,26 +527,59 @@
         </div>
     </div>
 
+    <!-- ==================== MODAL: CONNECTION DIAGNOSTIC ==================== -->
+    <div id="diagnostic-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-stone-950 rounded-2xl border border-stone-800 w-full max-w-md overflow-hidden flex flex-col shadow-2xl animate-scale-up text-left">
+            <div class="p-6 border-b border-stone-800 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span>📡</span> Diagnóstico de Conexão
+                </h3>
+                <button onclick="window.closeDiagnosticModal()" class="text-stone-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <p class="text-xs text-stone-400">Este teste executa operações reais de gravação, leitura e exclusão na pasta exclusiva do seu banco de dados para validar suas Regras de Segurança do Firestore.</p>
+                
+                <div id="diagnostic-logs" class="bg-stone-900 border border-stone-800 rounded-xl p-4 h-48 overflow-y-auto font-mono text-[11px] space-y-1">
+                    <!-- Logs listados aqui -->
+                </div>
+            </div>
+
+            <div class="p-4 bg-stone-900/50 border-t border-stone-800 flex justify-end">
+                <button onclick="window.closeDiagnosticModal()" class="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-lg text-xs transition-colors">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE INITIALIZATION & SYNC LOGIC -->
     <!-- FIREBASE INITIALIZATION & SYNC LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Environment properties
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'tribo-burger-pricing-system';
         let firebaseConfig = {};
         try {
-            firebaseConfig = JSON.parse(__firebase_config);
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                firebaseConfig = JSON.parse(__firebase_config);
+            } else {
+                throw new Error("No system environment config, falling back to static config.");
+            }
         } catch (e) {
-            // Fallback for isolated sandbox testing
+            // Configuração real do Firebase fornecida para a Tribo Burger
             firebaseConfig = {
-                apiKey: "mock-api-key",
-                authDomain: "mock-domain.firebaseapp.com",
-                projectId: "mock-project",
-                storageBucket: "mock-project.appspot.com",
-                messagingSenderId: "12345",
-                appId: "1-12345-abc"
+                apiKey: "AIzaSyA1HkiCs0F4BkHeDNVNHNuhG0Ktd2VQDLU",
+                authDomain: "tribocmv.firebaseapp.com",
+                projectId: "tribocmv",
+                storageBucket: "tribocmv.firebasestorage.app",
+                messagingSenderId: "740375597526",
+                appId: "1:740375597526:web:f826bba62245da21f0d477",
+                measurementId: "G-MH1LE7T5P1"
             };
         }
 
@@ -587,6 +623,79 @@
                 authenticate();
             }
         });
+
+        window.closeDiagnosticModal = function() {
+            document.getElementById('diagnostic-modal').classList.add('hidden');
+        };
+
+        window.runDatabaseDiagnostic = async function() {
+            const modal = document.getElementById('diagnostic-modal');
+            modal.classList.remove('hidden');
+            const logsContainer = document.getElementById('diagnostic-logs');
+            logsContainer.innerHTML = '';
+
+            function log(message, type = 'info') {
+                const colors = {
+                    info: 'text-stone-400',
+                    success: 'text-emerald-400 font-semibold',
+                    error: 'text-rose-400 font-bold animate-pulse',
+                    warn: 'text-amber-400'
+                };
+                const div = document.createElement('div');
+                div.className = `text-xs py-1 ${colors[type]}`;
+                div.textContent = message;
+                logsContainer.appendChild(div);
+                logsContainer.scrollTop = logsContainer.scrollHeight;
+            }
+
+            try {
+                log('🔄 [1/5] Iniciando autoteste de conexão do Firebase...', 'info');
+                
+                if (!auth.currentUser) {
+                    log('⏳ Sem usuário logado. Tentando se autenticar...', 'warn');
+                    await authenticate();
+                }
+                
+                const currentUid = auth.currentUser ? auth.currentUser.uid : null;
+                if (!currentUid) {
+                    throw new Error("Falha de autenticação: UID do usuário é nulo.");
+                }
+                log(`✅ Autenticado com sucesso! UID: ${currentUid}`, 'success');
+
+                log('🔄 [2/5] Escrevendo documento temporário no Firestore...', 'info');
+                const testDocRef = doc(db, 'artifacts', appId, 'users', currentUid, 'config', 'diagnostic_test');
+                
+                const testPayload = {
+                    testTime: new Date().toISOString(),
+                    status: 'success_write',
+                    author: 'Sistema de Autoteste Tribo Burger'
+                };
+                
+                await setDoc(testDocRef, testPayload);
+                log('✅ Gravação permitida! (Regras de Escrita OK)', 'success');
+
+                log('🔄 [3/5] Lendo documento gravado do Firestore...', 'info');
+                const docSnap = await getDoc(testDocRef);
+                
+                if (docSnap.exists() && docSnap.data().status === 'success_write') {
+                    log('✅ Leitura permitida e dados consistentes! (Regras de Leitura OK)', 'success');
+                } else {
+                    throw new Error("Documento não encontrado ou corrompido durante a leitura de validação.");
+                }
+
+                log('🔄 [4/5] Excluindo documento de teste...', 'info');
+                await deleteDoc(testDocRef);
+                log('✅ Limpeza concluída com sucesso! (Regras de Deleção OK)', 'success');
+
+                log('🎉 [5/5] SUCESSO! Banco de dados e Regras de Segurança estão 100% FUNCIONANDO!', 'success');
+
+            } catch (error) {
+                console.error("Erro no diagnóstico de conexão:", error);
+                log(`❌ ERRO NO DIAGNÓSTICO: ${error.message}`, 'error');
+                log('👉 Verifique se as Regras de Segurança no Firebase Console foram publicadas corretamente.', 'warn');
+                log('👉 Certifique-se de que copiou o código de regras completo e sem espaços adicionais.', 'warn');
+            }
+        };
 
         // Listeners for Insumos, Fichas, and Config
         function attachCloudRealtimeListeners() {
