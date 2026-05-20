@@ -222,6 +222,73 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Interactive Sales Goal Simulator & Profit Estimator -->
+            <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 space-y-6 text-left">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <span>🎯</span> Simulador de Meta de Vendas & Lucro Líquido
+                        </h3>
+                        <p class="text-xs text-stone-400">Determine sua meta de faturamento mensal e visualize as despesas estimadas e o lucro limpo no caixa.</p>
+                    </div>
+                    <div class="w-full sm:w-64 shrink-0">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1">Definir Meta de Faturamento</label>
+                        <div class="relative rounded-lg shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400 text-xs">R$</div>
+                            <input type="number" id="target-monthly-revenue" oninput="calculateSalesGoalProfit()" class="w-full bg-stone-900 border border-stone-800 rounded-lg pl-8 pr-3 py-2 text-white font-extrabold text-sm focus:outline-none focus:border-tribo-500" placeholder="Ex: 30000">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation results cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <!-- Target Revenue -->
+                    <div class="bg-stone-900 p-4 rounded-xl border border-stone-850">
+                        <span class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">Faturamento Alvo</span>
+                        <div class="text-lg font-black text-white mt-1" id="sim-revenue">R$ 0,00</div>
+                        <p class="text-[10px] text-stone-500 mt-1">Sua projeção mensal.</p>
+                    </div>
+                    <!-- Estimated CMV -->
+                    <div class="bg-stone-900 p-4 rounded-xl border border-stone-850">
+                        <span class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">(-) Custo Insumos (CMV)</span>
+                        <div class="text-lg font-black text-orange-400 mt-1" id="sim-cmv-cost">R$ 0,00</div>
+                        <p class="text-[10px] text-stone-500 mt-1" id="sim-cmv-pct-label">Baseado na média real.</p>
+                    </div>
+                    <!-- Estimated Variable Fees (Taxes, Commissions) -->
+                    <div class="bg-stone-900 p-4 rounded-xl border border-stone-850">
+                        <span class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">(-) Taxas & Impostos</span>
+                        <div class="text-lg font-black text-amber-500 mt-1" id="sim-fees-cost">R$ 0,00</div>
+                        <p class="text-[10px] text-stone-500 mt-1" id="sim-fees-pct-label">Impostos e Apps.</p>
+                    </div>
+                    <!-- Fixed Costs -->
+                    <div class="bg-stone-900 p-4 rounded-xl border border-stone-850">
+                        <span class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">(-) Custos Fixos</span>
+                        <div class="text-lg font-black text-rose-400 mt-1" id="sim-fixed-cost">R$ 0,00</div>
+                        <p class="text-[10px] text-stone-500 mt-1">Aluguel, equipe, utilidades.</p>
+                    </div>
+                    <!-- Result Net Profit -->
+                    <div class="p-4 rounded-xl border flex flex-col justify-between" id="sim-profit-card">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-stone-400" id="sim-profit-label">Lucro Líquido Est.</span>
+                            <div class="text-lg font-black mt-1" id="sim-net-profit">R$ 0,00</div>
+                        </div>
+                        <p class="text-[10px] mt-1" id="sim-profit-margin">Margem: 0,0%</p>
+                    </div>
+                </div>
+
+                <!-- Visual progress bar and educational helper text -->
+                <div class="bg-stone-900 p-4 rounded-xl border border-stone-800 space-y-3">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-stone-400">Progresso de Lucratividade Operacional:</span>
+                        <span class="font-bold text-stone-300" id="sim-progress-text">Analisando...</span>
+                    </div>
+                    <div class="w-full bg-stone-800 rounded-full h-2.5 overflow-hidden">
+                        <div id="sim-progress-bar" class="h-full bg-stone-700 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <p class="text-[11px] text-stone-400 font-medium" id="sim-help-text">Insira um valor de faturamento para realizar a estimativa.</p>
+                </div>
+            </div>
         </section>
 
         <!-- ==================== TAB: INSUMOS (INGREDIENTS) ==================== -->
@@ -396,7 +463,7 @@
                         </div>
                         <div class="bg-stone-900 p-3 rounded-lg border-l-4 border-amber-500">
                             <strong class="text-white block mb-1">2. Como precificar corretamente?</strong>
-                            Para atingir o CMV Alvo ideal (ex: 30%), o preço de venda é calculado diretamente a partir do custo dos ingredientes. O Markup correto do preço de venda garante que as despesas de venda e a lucratividade do cardápio estejam equilibradas.
+                            Para atingir o CMV Alvo ideal (ex: 30%), o preço de venda é calculated diretamente a partir do custo dos ingredientes. O Markup correto do preço de venda garante que as despesas de venda e a lucratividade do cardápio estejam equilibradas.
                         </div>
                         <div class="bg-stone-900 p-3 rounded-lg border-l-4 border-emerald-500">
                             <strong class="text-white block mb-1">3. Margem de Contribuição Bruta</strong>
@@ -914,14 +981,24 @@
                 snapshot.forEach(docSnap => {
                     if (docSnap.id === 'global') {
                         window.settings = docSnap.data();
+                        
+                        // Garante que o atributo salesGoal exista no settings
+                        if (window.settings.salesGoal === undefined) {
+                            window.settings.salesGoal = 30000;
+                        }
+
                         const inputCMV = document.getElementById('setting-target-cmv');
                         const inputTaxes = document.getElementById('setting-taxes');
                         const inputPlatform = document.getElementById('setting-platform');
                         const inputCards = document.getElementById('setting-cards');
+                        const inputSalesGoal = document.getElementById('target-monthly-revenue');
+
                         if (inputCMV) inputCMV.value = window.settings.targetCMV;
                         if (inputTaxes) inputTaxes.value = window.settings.taxes;
                         if (inputPlatform) inputPlatform.value = window.settings.platformFees;
                         if (inputCards) inputCards.value = window.settings.cardFees;
+                        if (inputSalesGoal) inputSalesGoal.value = window.settings.salesGoal;
+
                         window.renderAll();
                     }
                 });
@@ -1192,7 +1269,8 @@
             targetCMV: 30,
             taxes: 6.0,
             platformFees: 12.0,
-            cardFees: 2.5
+            cardFees: 2.5,
+            salesGoal: 30000
         };
 
         // Live systems arrays
@@ -1368,6 +1446,7 @@
 
             if (tabId === 'dashboard') {
                 setTimeout(renderDashboardChart, 50);
+                setTimeout(calculateSalesGoalProfit, 50);
             }
         }
 
@@ -1381,6 +1460,7 @@
             return price / qty;
         }
 
+        // Get cost of specific ingredient with defensive checking
         function getIngredientCost(id, qty) {
             const ing = window.ingredients.find(i => i.id === id);
             return ing ? ing.unitCost * qty : 0;
@@ -1435,6 +1515,7 @@
             renderFixedCosts();
             renderDashboardStats();
             renderDashboardChart();
+            calculateSalesGoalProfit();
         }
         window.renderAll = renderAll;
 
@@ -1530,6 +1611,129 @@
             const averageMarginRatio = ratedRecipesCount > 0 ? (totalMarginPercentSum / ratedRecipesCount) / 100 : 0.50; // default 50%
             const calculatedBreakeven = averageMarginRatio > 0 ? totalFC / averageMarginRatio : 0;
             if (breakevenRevenue) breakevenRevenue.textContent = formatCurrency(calculatedBreakeven);
+        }
+
+        // Live simulation calculations of monthly sales goals and estimated final net profit
+        window.calculateSalesGoalProfit = function() {
+            const inputSalesGoal = document.getElementById('target-monthly-revenue');
+            if (!inputSalesGoal) return;
+
+            const salesGoal = Number(inputSalesGoal.value || 0);
+
+            // 1. Calculate Fixed Costs Sum
+            let totalFC = 0;
+            window.fixedCosts.forEach(fc => {
+                totalFC += fc.value || 0;
+            });
+
+            // 2. Calculate average parameters
+            let totalCostOfAll = 0;
+            let totalSalesValue = 0;
+            let totalMarginPercentSum = 0;
+            let ratedRecipesCount = 0;
+
+            window.recipes.forEach(rec => {
+                const breakdown = calculateBreakdown(rec);
+                totalCostOfAll += breakdown.cost;
+                totalSalesValue += breakdown.price;
+                if (breakdown.price > 0) {
+                    totalMarginPercentSum += breakdown.netMarginPercent;
+                    ratedRecipesCount++;
+                }
+            });
+
+            // Fallback for empty menus (using setting configuration values instead)
+            const averageCmvRatio = totalSalesValue > 0 ? (totalCostOfAll / totalSalesValue) : (window.settings.targetCMV / 100);
+            const averageVarRatio = (window.settings.taxes + window.settings.platformFees + window.settings.cardFees) / 100;
+            
+            // Expected profit margin contribution percent
+            const averageMarginRatio = 1 - averageCmvRatio - averageVarRatio;
+
+            // 3. Projections
+            const estCmvCost = salesGoal * averageCmvRatio;
+            const estVarCost = salesGoal * averageVarRatio;
+            const estNetProfit = (salesGoal * averageMarginRatio) - totalFC;
+            const estProfitMargin = salesGoal > 0 ? (estNetProfit / salesGoal) * 100 : 0;
+
+            // 4. Dom Mutation
+            const simRevenue = document.getElementById('sim-revenue');
+            const simCmvCost = document.getElementById('sim-cmv-cost');
+            const simCmvPctLabel = document.getElementById('sim-cmv-pct-label');
+            const simFeesCost = document.getElementById('sim-fees-cost');
+            const simFeesPctLabel = document.getElementById('sim-fees-pct-label');
+            const simFixedCost = document.getElementById('sim-fixed-cost');
+            const simNetProfitEl = document.getElementById('sim-net-profit');
+            const simProfitMarginEl = document.getElementById('sim-profit-margin');
+            const simProfitCard = document.getElementById('sim-profit-card');
+            const simProfitLabel = document.getElementById('sim-profit-label');
+            const progressBar = document.getElementById('sim-progress-bar');
+            const progressText = document.getElementById('sim-progress-text');
+            const helpText = document.getElementById('sim-help-text');
+
+            if (simRevenue) simRevenue.textContent = formatCurrency(salesGoal);
+            if (simCmvCost) simCmvCost.textContent = formatCurrency(estCmvCost);
+            if (simCmvPctLabel) simCmvPctLabel.textContent = `CMV Médio: ${(averageCmvRatio * 100).toFixed(1)}%`;
+            
+            if (simFeesCost) simFeesCost.textContent = formatCurrency(estVarCost);
+            if (simFeesPctLabel) simFeesPctLabel.textContent = `Taxas & Impostos: ${(averageVarRatio * 100).toFixed(1)}%`;
+            
+            if (simFixedCost) simFixedCost.textContent = formatCurrency(totalFC);
+            
+            if (simNetProfitEl) {
+                simNetProfitEl.textContent = formatCurrency(estNetProfit);
+            }
+            if (simProfitMarginEl) {
+                simProfitMarginEl.textContent = `Margem Líquida: ${estProfitMargin.toFixed(1)}%`;
+            }
+
+            const breakeven = averageMarginRatio > 0 ? totalFC / averageMarginRatio : 0;
+
+            if (simProfitCard && simProfitLabel) {
+                if (salesGoal <= 0) {
+                    simProfitCard.className = "p-4 rounded-xl border bg-stone-900 border-stone-800 text-stone-400";
+                    simProfitLabel.className = "text-[10px] font-bold uppercase tracking-wider text-stone-500";
+                    if (progressText) progressText.textContent = "Aguardando meta de faturamento...";
+                    if (progressBar) {
+                        progressBar.className = "h-full bg-stone-700 transition-all duration-300";
+                        progressBar.style.width = "0%";
+                    }
+                    if (helpText) helpText.textContent = "Defina um objetivo financeiro de vendas mensais para projetar o faturamento líquido.";
+                } else if (estNetProfit < 0) {
+                    simProfitCard.className = "p-4 rounded-xl border bg-rose-500/10 border-rose-500/20 text-rose-400";
+                    simProfitLabel.className = "text-[10px] font-bold uppercase tracking-wider text-rose-300";
+                    if (progressText) progressText.textContent = `Prejuízo Operacional de ${formatCurrency(Math.abs(estNetProfit))}`;
+                    if (progressBar) {
+                        progressBar.className = "h-full bg-rose-500 transition-all duration-300";
+                        const pct = breakeven > 0 ? Math.min((salesGoal / breakeven) * 100, 99) : 0;
+                        progressBar.style.width = `${pct}%`;
+                    }
+                    if (helpText) helpText.textContent = `Atenção: A meta de faturamento está abaixo do Ponto de Equilíbrio (${formatCurrency(breakeven)}). Você precisa de pelo menos mais ${formatCurrency(breakeven - salesGoal)} em vendas para cobrir as despesas.`;
+                } else {
+                    simProfitCard.className = "p-4 rounded-xl border bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
+                    simProfitLabel.className = "text-[10px] font-bold uppercase tracking-wider text-emerald-300";
+                    if (progressText) progressText.textContent = `Lucro Estimado Saudável de ${formatCurrency(estNetProfit)}`;
+                    if (progressBar) {
+                        progressBar.className = "h-full bg-emerald-500 transition-all duration-300";
+                        progressBar.style.width = "100%";
+                    }
+                    if (helpText) helpText.textContent = `Excelente! Com faturamento de ${formatCurrency(salesGoal)}, você cobre todas as despesas variáveis e fixas de ${formatCurrency(totalFC)} e gera um lucro limpo de ${formatCurrency(estNetProfit)} no bolso!`;
+                }
+            }
+
+            // Push sales goal change to Firebase after minor delay
+            debounceCloudSaveSalesGoal(salesGoal);
+        };
+
+        // Debounce method to prevent spamming database on every typing keystroke
+        let debounceTimer;
+        function debounceCloudSaveSalesGoal(salesGoal) {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(async () => {
+                if (window.cloudSaveSettings && window.settings) {
+                    window.settings.salesGoal = salesGoal;
+                    await window.cloudSaveSettings(window.settings);
+                }
+            }, 1200);
         }
 
         function renderDashboardChart() {
@@ -2354,13 +2558,14 @@
             const taxes = Number(document.getElementById('setting-taxes').value);
             const platformFees = Number(document.getElementById('setting-platform').value);
             const cardFees = Number(document.getElementById('setting-cards').value);
+            const salesGoal = window.settings.salesGoal || 30000;
 
             if (targetCMV <= 0 || targetCMV > 100) {
                 showCustomAlert("Erro de Validação", "A meta de CMV deve ser um valor entre 1% e 100%.");
                 return;
             }
 
-            const updatedSettings = { targetCMV, taxes, platformFees, cardFees };
+            const updatedSettings = { targetCMV, taxes, platformFees, cardFees, salesGoal };
             if (window.cloudSaveSettings) {
                 await window.cloudSaveSettings(updatedSettings);
                 showCustomAlert("Parâmetros Salvos", "Os coeficientes globais de precificação foram atualizados em tempo real na nuvem.");
