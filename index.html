@@ -339,7 +339,7 @@
                         </div>
                         <div class="bg-stone-900 p-3 rounded-lg border-l-4 border-amber-500">
                             <strong class="text-white block mb-1">2. Como precificar corretamente?</strong>
-                            Muitos comerciantes multiplicam o custo do insumo por 3. Isso pode ser arriscado para delivery. O sistema utiliza a fórmula de markup real para calcular o preço ideal, subtraindo os impostos, comissões e taxas da fatia útil de receita.
+                            Para atingir o CMV Alvo ideal (ex: 30%), o preço de venda é calculado diretamente a partir do custo dos ingredientes. O Markup correto do preço de venda garante que as despesas de venda e a lucratividade do cardápio estejam equilibradas.
                         </div>
                         <div class="bg-stone-900 p-3 rounded-lg border-l-4 border-emerald-500">
                             <strong class="text-white block mb-1">3. Margem de Contribuição Bruta</strong>
@@ -573,7 +573,6 @@
         </div>
     </div>
 
-    <!-- FIREBASE INITIALIZATION & SYNC LOGIC -->
     <!-- FIREBASE INITIALIZATION & SYNC LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -1233,11 +1232,10 @@
             const netMarginPercent = price > 0 ? (netMarginAmount / price) * 100 : 0;
 
             const targetCMVMultiplier = (window.settings.targetCMV / 100);
-            const suggestedPriceByCMVOnly = targetCMVMultiplier > 0 ? cost / targetCMVMultiplier : 0;
-
-            const taxFactor = window.settings.taxes + window.settings.platformFees + window.settings.cardFees;
-            const pricingDenominator = 100 - window.settings.targetCMV - taxFactor;
-            const suggestedFullMarkupPrice = pricingDenominator > 0 ? (cost / (pricingDenominator / 100)) : 0;
+            
+            // CORREÇÃO DA FÓRMULA DE PRECIFICAÇÃO:
+            // Para atingir exatamente o CMV Alvo (%) desejado, a fórmula correta é dividir o custo de alimentos diretamente pelo multiplicador do CMV Alvo.
+            const suggestedFullMarkupPrice = targetCMVMultiplier > 0 ? cost / targetCMVMultiplier : 0;
 
             return {
                 cost,
@@ -1248,7 +1246,7 @@
                 cardCost,
                 netMarginAmount,
                 netMarginPercent,
-                suggestedPriceByCMVOnly,
+                suggestedPriceByCMVOnly: suggestedFullMarkupPrice,
                 suggestedFullMarkupPrice
             };
         }
@@ -1712,6 +1710,7 @@
 
         let currentRecipeRowsCount = 0;
 
+        // Add rows helper
         function addIngredientRowToRecipe(selectedIngId = '', qtyVal = '') {
             const container = document.getElementById('recipe-ingredients-rows');
             if (!container) return;
