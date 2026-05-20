@@ -246,7 +246,7 @@
             </div>
 
             <!-- Recipes Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="recipes-grid">
+            <div class="space-y-8" id="recipes-grid">
                 <!-- Injected via JS -->
             </div>
         </section>
@@ -1586,125 +1586,221 @@
         }
 
         // Recipe functions
+        window.expandedRecipes = window.expandedRecipes || [];
+
+        window.toggleRecipeExpand = function(recipeId) {
+            const index = window.expandedRecipes.indexOf(recipeId);
+            if (index > -1) {
+                window.expandedRecipes.splice(index, 1);
+            } else {
+                window.expandedRecipes.push(recipeId);
+            }
+            renderRecipes();
+        };
+
         function renderRecipes() {
-            const grid = document.getElementById('recipes-grid');
-            if (!grid) return;
-            grid.innerHTML = '';
+            const container = document.getElementById('recipes-grid');
+            if (!container) return;
+            container.innerHTML = '';
 
             if (window.recipes.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-1 md:col-span-2 text-center p-12 bg-stone-950 rounded-2xl border border-stone-800 text-stone-500">
+                container.innerHTML = `
+                    <div class="text-center p-12 bg-stone-950 rounded-2xl border border-stone-800 text-stone-500 w-full col-span-full">
                         Nenhum hambúrguer ou ficha técnica criada. Crie o primeiro item clicando em "Nova Ficha Técnica".
                     </div>
                 `;
                 return;
             }
 
-            window.recipes.forEach(recipe => {
-                const breakdown = calculateBreakdown(recipe);
-                
-                let cmvColorClass = "text-emerald-400";
-                let cmvBgClass = "bg-emerald-500/10 border-emerald-500/20";
-                
-                if (breakdown.cmvRealPercent > window.settings.targetCMV) {
-                    cmvColorClass = "text-rose-400";
-                    cmvBgClass = "bg-rose-500/10 border-rose-500/20";
-                } else if (breakdown.cmvRealPercent > window.settings.targetCMV - 3) {
-                    cmvColorClass = "text-amber-400";
-                    cmvBgClass = "bg-amber-500/10 border-amber-500/20";
+            // Group by category
+            const categories = [];
+            window.recipeCategories.forEach(cat => {
+                if (window.recipes.some(r => r.category === cat.name)) {
+                    categories.push(cat.name);
                 }
+            });
+            // Fallback for recipes with categories not in list
+            window.recipes.forEach(r => {
+                const catName = r.category || 'Outros';
+                if (!categories.includes(catName)) {
+                    categories.push(catName);
+                }
+            });
 
-                const card = document.createElement('div');
-                card.className = "bg-stone-950 rounded-2xl border border-stone-800 overflow-hidden flex flex-col justify-between hover:border-stone-700 transition-all text-left";
+            categories.forEach(cat => {
+                const catRecipes = window.recipes.filter(r => (r.category || 'Outros') === cat);
+                if (catRecipes.length === 0) return;
+
+                const categorySection = document.createElement('div');
+                categorySection.className = "space-y-4 text-left";
                 
-                card.innerHTML = `
-                    <div class="p-6 space-y-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-[10px] font-bold uppercase tracking-widest text-tribo-400 bg-tribo-500/10 px-2.5 py-1 rounded-full border border-tribo-500/20">
-                                    ${recipe.category}
-                                </span>
-                                <h3 class="text-xl font-black text-white mt-2">${recipe.name}</h3>
-                            </div>
-                            <div class="flex gap-1.5">
-                                <button onclick="editRecipe('${recipe.id}')" class="p-2 bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-white rounded-lg transition-colors border border-stone-800">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                </button>
-                                <button onclick="deleteRecipe('${recipe.id}')" class="p-2 bg-stone-900 hover:bg-stone-800 text-rose-400 hover:text-rose-300 rounded-lg transition-colors border border-stone-800">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Mini breakdown of ingredients -->
-                        <div class="space-y-1 bg-stone-900/40 p-3 rounded-xl border border-stone-800 text-xs">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1">Ingredientes Principais</span>
-                            ${recipe.ingredients.map(item => {
-                                const ing = window.ingredients.find(i => i.id === item.ingredientId);
-                                if (!ing) return '';
-                                const costVal = getIngredientCost(item.ingredientId, item.qty);
-                                return `
-                                    <div class="flex justify-between text-stone-300">
-                                        <span>&bull; ${ing.name} <span class="text-stone-500">(${item.qty}${ing.unit === 'kg' ? 'g' : (ing.unit === 'l' ? 'ml' : ing.unit)})</span></span>
-                                        <span class="font-medium text-stone-400">${formatCurrency(costVal)}</span>
-                                    </div>
-                                `;
-                            }).join('')}
-                            ${recipe.packagingCost > 0 ? `
-                                <div class="flex justify-between text-stone-400 border-t border-stone-800/60 mt-1 pt-1">
-                                    <span>Embalagem & Despesas Fichas</span>
-                                    <span>${formatCurrency(recipe.packagingCost)}</span>
-                                </div>
-                            ` : ''}
-                        </div>
-
-                        <!-- Cost/Margin Grid calculations -->
-                        <div class="grid grid-cols-2 gap-3 text-center">
-                            <div class="bg-stone-900 p-3 rounded-xl border border-stone-800">
-                                <span class="text-[10px] uppercase text-stone-400 font-bold tracking-wider block">Custo de Alimento (CMV R$)</span>
-                                <span class="text-lg font-bold text-white">${formatCurrency(breakdown.cost)}</span>
-                            </div>
-                            <div class="p-3 rounded-xl border ${cmvBgClass} flex flex-col justify-center">
-                                <span class="text-[10px] uppercase text-stone-400 font-bold tracking-wider block">CMV Real (%)</span>
-                                <span class="text-lg font-black ${cmvColorClass}">${breakdown.cmvRealPercent.toFixed(1)}%</span>
-                            </div>
-                        </div>
-
-                        <!-- Real price vs Net margin calculations -->
-                        <div class="border-t border-stone-800 pt-3 space-y-2 text-xs">
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="font-semibold text-stone-300">Preço Atual de Venda:</span>
-                                <span class="font-extrabold text-white text-base">${formatCurrency(breakdown.price)}</span>
-                            </div>
-                            <div class="flex justify-between text-stone-400">
-                                <span>Impostos (${window.settings.taxes}%):</span>
-                                <span>${formatCurrency(breakdown.taxCost)}</span>
-                            </div>
-                            <div class="flex justify-between text-stone-400">
-                                <span>Parcerias/Apps (${window.settings.platformFees}%):</span>
-                                <span>${formatCurrency(breakdown.platformCost)}</span>
-                            </div>
-                            <div class="flex justify-between text-stone-400">
-                                <span>Taxas Financeiras (${window.settings.cardFees}%):</span>
-                                <span>${formatCurrency(breakdown.cardCost)}</span>
-                            </div>
-                            
-                            <!-- Margem de Contribuição Bruta -->
-                            <div class="flex justify-between text-stone-300 font-semibold border-t border-stone-800/60 pt-2 text-sm">
-                                <span>Margem Lucro Operacional:</span>
-                                <span class="${breakdown.netMarginPercent > 15 ? 'text-emerald-400' : 'text-amber-400'}">
-                                    ${formatCurrency(breakdown.netMarginAmount)} (${breakdown.netMarginPercent.toFixed(1)}%)
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-stone-900 p-4 border-t border-stone-800 text-xs flex justify-between items-center">
-                        <span class="text-stone-400">Sugestão Tribo de Preço (Ideal):</span>
-                        <span class="font-black text-emerald-400 text-sm">${formatCurrency(breakdown.suggestedFullMarkupPrice)}</span>
-                    </div>
+                // Header of Category
+                const catHeader = document.createElement('div');
+                catHeader.className = "flex items-center gap-2 pb-2 border-b border-stone-800/60 mt-4";
+                catHeader.innerHTML = `
+                    <span class="text-xl">🍔</span>
+                    <h3 class="text-base font-black text-white uppercase tracking-wider">${cat}</h3>
+                    <span class="text-xs text-stone-400 font-semibold px-2.5 py-0.5 bg-stone-950 rounded-full border border-stone-850 ml-2">
+                        ${catRecipes.length} ${catRecipes.length === 1 ? 'item' : 'itens'}
+                    </span>
                 `;
-                grid.appendChild(card);
+                categorySection.appendChild(catHeader);
+
+                // Grid of recipes for this specific category
+                const grid = document.createElement('div');
+                grid.className = "grid grid-cols-1 md:grid-cols-2 gap-4";
+
+                catRecipes.forEach(recipe => {
+                    const breakdown = calculateBreakdown(recipe);
+                    const isExpanded = window.expandedRecipes.includes(recipe.id);
+                    
+                    let cmvColorClass = "text-emerald-400";
+                    let cmvBgClass = "bg-emerald-500/10 border-emerald-500/20";
+                    
+                    if (breakdown.cmvRealPercent > window.settings.targetCMV) {
+                        cmvColorClass = "text-rose-400";
+                        cmvBgClass = "bg-rose-500/10 border-rose-500/20";
+                    } else if (breakdown.cmvRealPercent > window.settings.targetCMV - 3) {
+                        cmvColorClass = "text-amber-400";
+                        cmvBgClass = "bg-amber-500/10 border-amber-500/20";
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = "bg-stone-950 rounded-2xl border border-stone-800 overflow-hidden flex flex-col justify-between hover:border-stone-700 transition-all text-left shadow-lg";
+                    
+                    const chevronSvg = isExpanded ? `
+                        <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path>
+                        </svg>
+                    ` : `
+                        <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    `;
+
+                    // Header part (Always visible)
+                    const headerHtml = `
+                        <div class="p-5 flex justify-between items-center gap-3 cursor-pointer select-none hover:bg-stone-900/10" onclick="toggleRecipeExpand('${recipe.id}')">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h4 class="text-base font-bold text-white truncate">${recipe.name}</h4>
+                                    <span class="text-[9px] font-bold uppercase tracking-wider text-stone-500 bg-stone-900 px-2 py-0.5 rounded-md border border-stone-800">
+                                        ${recipe.category}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-4 mt-1.5 text-xs text-stone-400">
+                                    <div>
+                                        <span>Custo: </span>
+                                        <span class="font-bold text-stone-300">${formatCurrency(breakdown.cost)}</span>
+                                    </div>
+                                    <div>
+                                        <span>Venda: </span>
+                                        <span class="font-bold text-tribo-400">${formatCurrency(breakdown.price)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2.5 shrink-0">
+                                <div class="px-2.5 py-1 rounded-lg border text-xs font-black ${cmvColorClass} ${cmvBgClass}">
+                                    CMV: ${breakdown.cmvRealPercent.toFixed(1)}%
+                                </div>
+                                <div class="p-1 hover:bg-stone-900 rounded-lg transition-colors">
+                                    ${chevronSvg}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    // Body details (Hidden/shown dynamically)
+                    const detailsHtml = isExpanded ? `
+                        <div class="px-5 pb-5 pt-2 border-t border-stone-900 bg-stone-950 space-y-4">
+                            <!-- Mini breakdown of ingredients -->
+                            <div class="space-y-1 bg-stone-900/40 p-3 rounded-xl border border-stone-800/80 text-xs">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1">Ingredientes Principais</span>
+                                ${recipe.ingredients.map(item => {
+                                    const ing = window.ingredients.find(i => i.id === item.ingredientId);
+                                    if (!ing) return '';
+                                    const costVal = getIngredientCost(item.ingredientId, item.qty);
+                                    return `
+                                        <div class="flex justify-between text-stone-300 py-0.5">
+                                            <span>&bull; ${ing.name} <span class="text-stone-500">(${item.qty}${ing.unit === 'kg' ? 'g' : (ing.unit === 'l' ? 'ml' : ing.unit)})</span></span>
+                                            <span class="font-semibold text-stone-400">${formatCurrency(costVal)}</span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                                ${recipe.packagingCost > 0 ? `
+                                    <div class="flex justify-between text-stone-400 border-t border-stone-800/60 mt-1.5 pt-1.5">
+                                        <span>Embalagem & Despesas Fichas</span>
+                                        <span>${formatCurrency(recipe.packagingCost)}</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+
+                            <!-- Cost/Margin Grid calculations -->
+                            <div class="grid grid-cols-2 gap-3 text-center">
+                                <div class="bg-stone-900 p-2.5 rounded-xl border border-stone-800">
+                                    <span class="text-[10px] uppercase text-stone-400 font-bold tracking-wider block">Custo total de alimento</span>
+                                    <span class="text-sm font-bold text-white">${formatCurrency(breakdown.cost)}</span>
+                                </div>
+                                <div class="p-2.5 rounded-xl border ${cmvBgClass} flex flex-col justify-center">
+                                    <span class="text-[10px] uppercase text-stone-400 font-bold tracking-wider block">CMV Real (%)</span>
+                                    <span class="text-sm font-black ${cmvColorClass}">${breakdown.cmvRealPercent.toFixed(1)}%</span>
+                                </div>
+                            </div>
+
+                            <!-- Real price vs Net margin calculations -->
+                            <div class="border-t border-stone-900 pt-3 space-y-2 text-xs">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="font-semibold text-stone-300">Preço Atual de Venda:</span>
+                                    <span class="font-extrabold text-white text-base">${formatCurrency(breakdown.price)}</span>
+                                </div>
+                                <div class="flex justify-between text-stone-400">
+                                    <span>Impostos (${window.settings.taxes}%):</span>
+                                    <span>${formatCurrency(breakdown.taxCost)}</span>
+                                </div>
+                                <div class="flex justify-between text-stone-400">
+                                    <span>Parcerias/Apps (${window.settings.platformFees}%):</span>
+                                    <span>${formatCurrency(breakdown.platformCost)}</span>
+                                </div>
+                                <div class="flex justify-between text-stone-400">
+                                    <span>Taxas Financeiras (${window.settings.cardFees}%):</span>
+                                    <span>${formatCurrency(breakdown.cardCost)}</span>
+                                </div>
+                                
+                                <!-- Margem de Contribuição Bruta -->
+                                <div class="flex justify-between text-stone-300 font-semibold border-t border-stone-800/60 pt-2 text-sm">
+                                    <span>Margem Lucro Operacional:</span>
+                                    <span class="${breakdown.netMarginPercent > 15 ? 'text-emerald-400' : 'text-amber-400'}">
+                                        ${formatCurrency(breakdown.netMarginAmount)} (${breakdown.netMarginPercent.toFixed(1)}%)
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Action buttons and suggestions -->
+                            <div class="pt-3 border-t border-stone-900 flex items-center justify-between gap-4">
+                                <div class="text-left">
+                                    <span class="text-[10px] text-stone-500 uppercase tracking-wider block">Preço Sugerido (Ideal):</span>
+                                    <span class="font-bold text-emerald-400 text-sm">${formatCurrency(breakdown.suggestedFullMarkupPrice)}</span>
+                                </div>
+                                <div class="flex gap-1.5">
+                                    <button onclick="editRecipe('${recipe.id}')" class="p-2 bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-white rounded-lg transition-colors border border-stone-800 text-xs font-semibold flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                        Editar
+                                    </button>
+                                    <button onclick="deleteRecipe('${recipe.id}')" class="p-2 bg-stone-900 hover:bg-stone-800 text-rose-400 hover:text-rose-300 rounded-lg transition-colors border border-stone-800 text-xs font-semibold flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        Excluir
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ` : '';
+
+                    card.innerHTML = `${headerHtml}${detailsHtml}`;
+                    grid.appendChild(card);
+                });
+
+                categorySection.appendChild(grid);
+                container.appendChild(categorySection);
             });
         }
 
