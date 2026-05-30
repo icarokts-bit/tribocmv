@@ -176,9 +176,9 @@
                     <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Produtos Cardápio</span>
                     <div class="flex items-baseline gap-2 mt-2">
                         <span id="kpi-total-recipes" class="text-3xl font-black text-white">0</span>
-                        <span class="text-xs font-medium text-stone-400">ativos</span>
+                        <span class="text-xs font-medium text-stone-400">ativos no CMV</span>
                     </div>
-                    <p class="text-xs text-stone-500 mt-2">Fichas técnicas prontas.</p>
+                    <p class="text-xs text-stone-500 mt-2">Fichas ativas / Totais.</p>
                 </div>
             </div>
 
@@ -204,7 +204,7 @@
                         <div class="bg-stone-900 p-4 rounded-xl border border-stone-800 text-left">
                             <span class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">Faturamento Alvo Mínimo</span>
                             <div class="text-2xl font-black text-emerald-400 mt-1" id="breakeven-revenue">R$ 0,00</div>
-                            <p class="text-[11px] text-stone-300 mt-1">Faturamento necessário apenas para cobrir as despesas fixas e custos variáveis das fichas técnicas.</p>
+                            <p class="text-[11px] text-stone-300 mt-1">Faturamento necessário apenas para cobrir as despesas fixas e custos variáveis das fichas técnicas calculadas.</p>
                         </div>
 
                         <div>
@@ -218,7 +218,7 @@
                     <!-- Quick Action Card -->
                     <div class="bg-stone-900 p-4 rounded-xl border border-stone-800 text-left">
                         <h4 class="text-xs font-bold uppercase text-tribo-400 tracking-wider">Análise de Lucro</h4>
-                        <p class="text-xs text-stone-400 mt-1">O seu Ponto de Equilíbrio é calculado com base na Margem de Contribuição Média das suas fichas técnicas ativas.</p>
+                        <p class="text-xs text-stone-400 mt-1">O seu Ponto de Equilíbrio é calculado com base na Margem de Contribuição Média das suas fichas técnicas selecionadas.</p>
                     </div>
                 </div>
             </div>
@@ -1208,6 +1208,7 @@
                 category: "Artesanais",
                 packagingCost: 1.20,
                 sellingPrice: 28.90,
+                includeInCmv: true,
                 ingredients: [
                     { ingredientId: "ing_1", qty: 1 },
                     { ingredientId: "ing_2", qty: 150 },
@@ -1222,6 +1223,7 @@
                 category: "Artesanais",
                 packagingCost: 1.50,
                 sellingPrice: 34.90,
+                includeInCmv: true,
                 ingredients: [
                     { ingredientId: "ing_1", qty: 1 },
                     { ingredientId: "ing_2", qty: 150 },
@@ -1237,6 +1239,7 @@
                 category: "Smashes",
                 packagingCost: 1.20,
                 sellingPrice: 19.90,
+                includeInCmv: true,
                 ingredients: [
                     { ingredientId: "ing_1", qty: 1 },
                     { ingredientId: "ing_2", qty: 100 },
@@ -1538,8 +1541,11 @@
             const kpiAvgCmvIndicator = document.getElementById('kpi-avg-cmv-indicator');
             const breakevenRevenue = document.getElementById('breakeven-revenue');
             
+            // Filter active recipes in CMV calculation
+            const activeRecipes = window.recipes.filter(r => r.includeInCmv !== false);
+
             if (kpiTotalIngredients) kpiTotalIngredients.textContent = window.ingredients.length;
-            if (kpiTotalRecipes) kpiTotalRecipes.textContent = window.recipes.length;
+            if (kpiTotalRecipes) kpiTotalRecipes.textContent = `${activeRecipes.length} / ${window.recipes.length}`;
             if (kpiTargetCMV) kpiTargetCMV.textContent = `${window.settings.targetCMV}%`;
 
             // Calculate total fixed costs
@@ -1549,24 +1555,24 @@
             });
             if (kpiTotalFixedCosts) kpiTotalFixedCosts.textContent = formatCurrency(totalFC);
 
-            let totalCostOfAll = 0;
-            let totalSalesValue = 0;
+            let totalCostOfAllActive = 0;
+            let totalSalesValueActive = 0;
             let criticalItemsCount = 0;
-            let totalMarginPercentSum = 0;
-            let ratedRecipesCount = 0;
+            let totalMarginPercentSumOfActive = 0;
+            let ratedRecipesCountOfActive = 0;
             
             const alertListContainer = document.getElementById('alerts-list');
             if (alertListContainer) alertListContainer.innerHTML = '';
 
-            window.recipes.forEach(rec => {
+            // Run through active recipes for cumulative statistics
+            activeRecipes.forEach(rec => {
                 const breakdown = calculateBreakdown(rec);
-                totalCostOfAll += breakdown.cost;
-                totalSalesValue += breakdown.price;
+                totalCostOfAllActive += breakdown.cost;
+                totalSalesValueActive += breakdown.price;
                 
                 if (breakdown.price > 0) {
-                    // Pondered weight of operational margin
-                    totalMarginPercentSum += breakdown.netMarginPercent;
-                    ratedRecipesCount++;
+                    totalMarginPercentSumOfActive += breakdown.netMarginPercent;
+                    ratedRecipesCountOfActive++;
                 }
 
                 if (breakdown.cmvRealPercent > window.settings.targetCMV && alertListContainer) {
@@ -1591,13 +1597,13 @@
                 alertListContainer.innerHTML = `
                     <div class="flex flex-col items-center justify-center p-6 text-center text-stone-500">
                         <svg class="w-10 h-10 text-emerald-500/30 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <p class="text-xs font-semibold text-stone-400">Excelente! Nenhum item crítico.</p>
-                        <p class="text-[10px] text-stone-500 mt-1">Todo o seu cardápio está saudável.</p>
+                        <p class="text-xs font-semibold text-stone-400">Excelente! Nenhum item crítico ativo.</p>
+                        <p class="text-[10px] text-stone-500 mt-1">Sua seleção do cardápio está saudável.</p>
                     </div>
                 `;
             }
 
-            const averageCmv = totalSalesValue > 0 ? (totalCostOfAll / totalSalesValue) * 100 : 0;
+            const averageCmv = totalSalesValueActive > 0 ? (totalCostOfAllActive / totalSalesValueActive) * 100 : 0;
             if (kpiAvgCMV) kpiAvgCMV.textContent = `${averageCmv.toFixed(1)}%`;
 
             if (kpiAvgCmvIndicator) {
@@ -1616,8 +1622,8 @@
                 }
             }
 
-            // Calculate Breakeven Revenue Point
-            const averageMarginRatio = ratedRecipesCount > 0 ? (totalMarginPercentSum / ratedRecipesCount) / 100 : 0.50; // default 50%
+            // Calculate Breakeven Revenue Point based on selected recipes
+            const averageMarginRatio = ratedRecipesCountOfActive > 0 ? (totalMarginPercentSumOfActive / ratedRecipesCountOfActive) / 100 : 0.50; // default 50%
             const calculatedBreakeven = averageMarginRatio > 0 ? totalFC / averageMarginRatio : 0;
             if (breakevenRevenue) breakevenRevenue.textContent = formatCurrency(calculatedBreakeven);
         }
@@ -1635,24 +1641,26 @@
                 totalFC += fc.value || 0;
             });
 
-            // 2. Calculate average parameters
-            let totalCostOfAll = 0;
-            let totalSalesValue = 0;
-            let totalMarginPercentSum = 0;
-            let ratedRecipesCount = 0;
+            // 2. Calculate average parameters of marked recipes
+            let totalCostOfActive = 0;
+            let totalSalesValueActive = 0;
+            let totalMarginPercentSumOfActive = 0;
+            let ratedRecipesCountOfActive = 0;
 
-            window.recipes.forEach(rec => {
+            const activeRecipes = window.recipes.filter(r => r.includeInCmv !== false);
+
+            activeRecipes.forEach(rec => {
                 const breakdown = calculateBreakdown(rec);
-                totalCostOfAll += breakdown.cost;
-                totalSalesValue += breakdown.price;
+                totalCostOfActive += breakdown.cost;
+                totalSalesValueActive += breakdown.price;
                 if (breakdown.price > 0) {
-                    totalMarginPercentSum += breakdown.netMarginPercent;
-                    ratedRecipesCount++;
+                    totalMarginPercentSumOfActive += breakdown.netMarginPercent;
+                    ratedRecipesCountOfActive++;
                 }
             });
 
             // Fallback for empty menus (using setting configuration values instead)
-            const averageCmvRatio = totalSalesValue > 0 ? (totalCostOfAll / totalSalesValue) : (window.settings.targetCMV / 100);
+            const averageCmvRatio = totalSalesValueActive > 0 ? (totalCostOfActive / totalSalesValueActive) : (window.settings.targetCMV / 100);
             const averageVarRatio = (window.settings.taxes + window.settings.platformFees + window.settings.cardFees) / 100;
             
             // Expected profit margin contribution percent
@@ -1754,9 +1762,10 @@
                 myChart.destroy();
             }
 
-            const labels = window.recipes.map(r => r.name);
-            const costs = window.recipes.map(r => calculateRecipeCost(r).toFixed(2));
-            const prices = window.recipes.map(r => r.sellingPrice.toFixed(2));
+            const activeRecipes = window.recipes.filter(r => r.includeInCmv !== false);
+            const labels = activeRecipes.map(r => r.name);
+            const costs = activeRecipes.map(r => calculateRecipeCost(r).toFixed(2));
+            const prices = activeRecipes.map(r => r.sellingPrice.toFixed(2));
 
             myChart = new Chart(ctx, {
                 type: 'bar',
@@ -2015,6 +2024,16 @@
             renderRecipes();
         };
 
+        window.toggleRecipeCmvInclusion = async function(recipeId) {
+            const recipe = window.recipes.find(r => r.id === recipeId);
+            if (recipe) {
+                recipe.includeInCmv = recipe.includeInCmv === undefined ? false : !recipe.includeInCmv;
+                if (window.cloudSaveRecipe) {
+                    await window.cloudSaveRecipe(recipe);
+                }
+            }
+        };
+
         function renderRecipes() {
             const container = document.getElementById('recipes-grid');
             if (!container) return;
@@ -2070,6 +2089,7 @@
                 catRecipes.forEach(recipe => {
                     const breakdown = calculateBreakdown(recipe);
                     const isExpanded = window.expandedRecipes.includes(recipe.id);
+                    const isIncluded = recipe.includeInCmv !== false;
                     
                     let cmvColorClass = "text-emerald-400";
                     let cmvBgClass = "bg-emerald-500/10 border-emerald-500/20";
@@ -2083,7 +2103,7 @@
                     }
 
                     const card = document.createElement('div');
-                    card.className = "bg-stone-950 rounded-2xl border border-stone-800 overflow-hidden flex flex-col justify-between hover:border-stone-700 transition-all text-left shadow-lg";
+                    card.className = `bg-stone-950 rounded-2xl border ${isIncluded ? 'border-stone-800' : 'border-stone-800/40 opacity-70'} overflow-hidden flex flex-col justify-between hover:border-stone-700 transition-all text-left shadow-lg`;
                     
                     const chevronSvg = isExpanded ? `
                         <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2095,12 +2115,16 @@
                         </svg>
                     `;
 
-                    // Header part (Always visible)
+                    // Header part (Always visible, now contains inclusion checkbox)
                     const headerHtml = `
                         <div class="p-5 flex justify-between items-center gap-3 cursor-pointer select-none hover:bg-stone-900/10" onclick="toggleRecipeExpand('${recipe.id}')">
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <h4 class="text-base font-bold text-white truncate">${recipe.name}</h4>
+                                    <div class="flex items-center gap-1.5 mr-2" onclick="event.stopPropagation()">
+                                        <input type="checkbox" id="chk-cmv-${recipe.id}" ${isIncluded ? 'checked' : ''} onchange="toggleRecipeCmvInclusion('${recipe.id}')" class="w-4 h-4 rounded border-stone-800 text-tribo-500 focus:ring-tribo-500 focus:ring-offset-stone-950 bg-stone-900 cursor-pointer accent-tribo-500">
+                                        <label for="chk-cmv-${recipe.id}" class="text-[10px] uppercase font-bold tracking-wider text-stone-400 cursor-pointer hover:text-tribo-400">Calcular</label>
+                                    </div>
+                                    <h4 class="text-base font-bold text-white truncate ${isIncluded ? '' : 'line-through text-stone-500'}">${recipe.name}</h4>
                                     <span class="text-[9px] font-bold uppercase tracking-wider text-stone-500 bg-stone-900 px-2 py-0.5 rounded-md border border-stone-800">
                                         ${recipe.category}
                                     </span>
@@ -2117,7 +2141,7 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap-2.5 shrink-0">
-                                <div class="px-2.5 py-1 rounded-lg border text-xs font-black ${cmvColorClass} ${cmvBgClass}">
+                                <div class="px-2.5 py-1 rounded-lg border text-xs font-black ${isIncluded ? cmvColorClass + ' ' + cmvBgClass : 'text-stone-500 bg-stone-900 border-stone-800'}">
                                     CMV: ${breakdown.cmvRealPercent.toFixed(1)}%
                                 </div>
                                 <div class="p-1 hover:bg-stone-900 rounded-lg transition-colors">
@@ -2158,9 +2182,9 @@
                                     <span class="text-[10px] uppercase text-stone-400 font-bold tracking-wider block">Custo total de alimento</span>
                                     <span class="text-sm font-bold text-white">${formatCurrency(breakdown.cost)}</span>
                                 </div>
-                                <div class="p-2.5 rounded-xl border ${cmvBgClass} flex flex-col justify-center">
+                                <div class="p-2.5 rounded-xl border ${isIncluded ? cmvBgClass : 'bg-stone-900 border-stone-800'} flex flex-col justify-center">
                                     <span class="text-[10px] uppercase text-stone-400 font-bold tracking-wider block">CMV Real (%)</span>
-                                    <span class="text-sm font-black ${cmvColorClass}">${breakdown.cmvRealPercent.toFixed(1)}%</span>
+                                    <span class="text-sm font-black ${isIncluded ? cmvColorClass : 'text-stone-400'}">${breakdown.cmvRealPercent.toFixed(1)}%</span>
                                 </div>
                             </div>
 
@@ -2509,6 +2533,9 @@
             const packagingCost = Number(document.getElementById('recipe-packaging').value || 0);
             const sellingPrice = Number(document.getElementById('recipe-selling-price').value || 0);
 
+            const existingRecipe = window.recipes.find(r => r.id === id);
+            const includeInCmv = existingRecipe ? (existingRecipe.includeInCmv !== false) : true;
+
             const ingredientItems = [];
             const rows = document.querySelectorAll('#recipe-ingredients-rows > div');
             rows.forEach(row => {
@@ -2533,7 +2560,8 @@
                 category,
                 packagingCost,
                 sellingPrice,
-                ingredients: ingredientItems
+                ingredients: ingredientItems,
+                includeInCmv: includeInCmv
             };
 
             if (window.cloudSaveRecipe) {
