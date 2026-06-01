@@ -3312,5 +3312,33 @@
             openComboModal(id);
         }
 
-        // Fixed Costs rendering and functions
-        function renderFixedCosts() {
+        window.editIngredient = function(id) {
+            openIngredientModal(id);
+        };
+
+        window.saveSettings = async function() {
+            const targetCMV = Number(document.getElementById('setting-target-cmv').value || 30);
+            const taxes = Number(document.getElementById('setting-taxes').value || 0);
+            const platformFees = Number(document.getElementById('setting-platform').value || 0);
+            const cardFees = Number(document.getElementById('setting-cards').value || 0);
+            const salesGoal = Number(document.getElementById('target-monthly-revenue').value || 30000);
+
+            window.settings = {
+                targetCMV,
+                taxes,
+                platformFees,
+                cardFees,
+                salesGoal
+            };
+
+            if (window.cloudSaveSettings) {
+                await window.cloudSaveSettings(window.settings);
+                showCustomAlert("Sucesso", "Parâmetros operacionais salvos com sucesso na nuvem!");
+            } else {
+                showCustomAlert("Sucesso", "Parâmetros salvos localmente.");
+            }
+            renderAll();
+        };
+    </script>
+</body>
+</html>
