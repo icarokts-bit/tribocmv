@@ -95,6 +95,12 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                     Fichas Técnicas
                 </button>
+                <button onclick="switchTab('combos')" id="nav-combos" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5a2 2 0 10-2 2h2zm0 13V12m0 9h4m-4 0H8m4-9h4m-4 0H8"></path>
+                    </svg>
+                    Fichas de Combos
+                </button>
                 <button onclick="switchTab('custos-fixos')" id="nav-custos-fixos" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                     Custos Fixos
@@ -336,6 +342,29 @@
 
             <!-- Recipes Grid -->
             <div class="space-y-8" id="recipes-grid">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- ==================== TAB: COMBOS ==================== -->
+        <section id="tab-combos" class="space-y-6 hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-white tracking-tight">Fichas Técnicas de Combos</h2>
+                    <p class="text-stone-400">Desenvolva combos unindo suas receitas prontas (Hambúrgueres, Acompanhamentos) e insumos do estoque.</p>
+                </div>
+                <button onclick="openComboModal()" class="flex items-center justify-center gap-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-tribo-500/15">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Novo Combo
+                </button>
+            </div>
+
+            <div class="bg-stone-950 p-4 rounded-2xl border border-stone-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="text-sm font-semibold text-stone-300">Painel de Precificação de Combos Promocionais</div>
+                <span id="combo-count-badge" class="text-xs text-stone-400 font-semibold px-2.5 py-1 bg-stone-900 rounded-full border border-stone-800">0 Cadastrados</span>
+            </div>
+
+            <div class="space-y-8" id="combos-grid">
                 <!-- Injected via JS -->
             </div>
         </section>
@@ -634,6 +663,96 @@
         </div>
     </div>
 
+    <!-- ==================== MODAL: ADD/EDIT COMBO ==================== -->
+    <div id="combo-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-stone-950 rounded-2xl border border-stone-800 w-full max-w-2xl overflow-hidden flex flex-col shadow-2xl h-full max-h-[90vh]">
+            <div class="p-6 border-b border-stone-800 flex justify-between items-center shrink-0">
+                <h3 id="combo-modal-title" class="text-lg font-bold text-white">Criar Nova Ficha de Combo</h3>
+                <button onclick="closeComboModal()" class="text-stone-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <form id="combo-form" onsubmit="handleComboSubmit(event)" class="flex-1 overflow-y-auto p-6 space-y-6">
+                <input type="hidden" id="combo-id">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Nome do Combo</label>
+                        <input type="text" id="combo-name" required placeholder="Ex: Combo Casal Tribo, Pack Premium Smash" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2 text-white focus:outline-none focus:border-tribo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Categoria de Cardápio</label>
+                        <select id="combo-category" required class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2 text-white focus:outline-none focus:border-tribo-500">
+                            <option value="Combos">Combos</option>
+                            <option value="Promoções">Promoções Especiais</option>
+                            <option value="Família">Família / Packs</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Combo Items Maker (Receitas ou Insumos) -->
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-tribo-400">Composição do Combo (Escolha Fichas e Insumos)</h4>
+                        <button type="button" onclick="addComboItemRow()" class="text-xs flex items-center gap-1 text-tribo-400 hover:text-tribo-300 font-bold border border-stone-800 hover:border-tribo-500 px-2 py-1 rounded">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Adicionar Item
+                        </button>
+                    </div>
+                    
+                    <div id="combo-items-rows" class="space-y-3 max-h-[220px] overflow-y-auto pr-1">
+                        <!-- Dynamic combo component rows injected here -->
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-stone-800">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Custo de Embalagens Extras / Custos Diretos Combo</label>
+                        <div class="relative rounded-lg shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400 text-xs">R$</div>
+                            <input type="number" id="combo-packaging" step="0.01" value="0.00" class="w-full bg-stone-900 border border-stone-800 rounded-lg pl-8 pr-2 p-2 text-white focus:outline-none focus:border-tribo-500">
+                        </div>
+                        <span class="text-[10px] text-stone-500">Ex: Sacola Kraft grande + brindes directos do combo.</span>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Preço de Venda Praticado (Combo)</label>
+                        <div class="relative rounded-lg shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400 text-xs">R$</div>
+                            <input type="number" id="combo-selling-price" step="0.01" required placeholder="0,00" class="w-full bg-stone-900 border border-stone-800 rounded-lg pl-8 pr-2 p-2 text-white focus:outline-none focus:border-tribo-500 font-bold text-tribo-400">
+                        </div>
+                        <span class="text-[10px] text-stone-500">Preço final de comercialização no cardápio.</span>
+                    </div>
+                </div>
+
+                <!-- Simulation Info Block -->
+                <div class="bg-stone-900 p-4 rounded-xl border border-stone-800 space-y-2">
+                    <h5 class="text-xs font-bold uppercase text-white">Resultados Prévios do Combo</h5>
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                        <div class="bg-stone-950 p-2 rounded border border-stone-800">
+                            <span class="text-[10px] block text-stone-400">Custo Total Integrado</span>
+                            <span id="combo-preview-cost" class="font-bold text-white">R$ 0,00</span>
+                        </div>
+                        <div class="bg-stone-950 p-2 rounded border border-stone-800">
+                            <span class="text-[10px] block text-stone-400">CMV Real do Combo</span>
+                            <span id="combo-preview-cmv" class="font-bold text-emerald-400">0%</span>
+                        </div>
+                        <div class="bg-stone-950 p-2 rounded border border-stone-800">
+                            <span class="text-[10px] block text-stone-400">Margem Estimada</span>
+                            <span id="combo-preview-margin" class="font-bold text-amber-400">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-stone-800 flex justify-end gap-2 shrink-0">
+                    <button type="button" onclick="closeComboModal()" class="px-4 py-2 border border-stone-800 hover:bg-stone-900 rounded-lg text-sm text-stone-400">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold rounded-lg text-sm">Salvar Combo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- ==================== MODAL: ADD/EDIT FIXED COST ==================== -->
     <div id="fixed-cost-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-stone-950 rounded-2xl border border-stone-800 w-full max-w-lg overflow-hidden flex flex-col shadow-2xl animate-scale-up">
@@ -900,6 +1019,13 @@
             }
         }
 
+        async function seedDefaultCombos() {
+            if (!userId) return;
+            for (const cb of window.defaultCombos) {
+                await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'combos', cb.id), cb);
+            }
+        }
+
         // Listeners for Insumos, Fichas, Categories, Config, Fixed Costs
         function attachCloudRealtimeListeners() {
             if (isCloudInitialized) return;
@@ -907,6 +1033,7 @@
 
             const pathInsumos = collection(db, 'artifacts', appId, 'users', userId, 'insumos');
             const pathRecipes = collection(db, 'artifacts', appId, 'users', userId, 'recipes');
+            const pathCombos = collection(db, 'artifacts', appId, 'users', userId, 'combos');
             const pathCategories = collection(db, 'artifacts', appId, 'users', userId, 'categories');
             const pathSettings = collection(db, 'artifacts', appId, 'users', userId, 'config');
             const pathFixedCosts = collection(db, 'artifacts', appId, 'users', userId, 'fixed_costs');
@@ -938,6 +1065,22 @@
                 }
             }, (error) => {
                 console.error("Erro de sincronia (receitas):", error);
+            });
+
+            // Listening to Combos
+            onSnapshot(pathCombos, (snapshot) => {
+                const cloudCombos = [];
+                snapshot.forEach(doc => {
+                    cloudCombos.push({ id: doc.id, ...doc.data() });
+                });
+                if (cloudCombos.length > 0 || snapshot.metadata.fromCache === false) {
+                    window.combos = cloudCombos;
+                    window.renderAll();
+                } else if (cloudCombos.length === 0 && snapshot.metadata.fromCache === false) {
+                    seedDefaultCombos();
+                }
+            }, (error) => {
+                console.error("Erro de sincronia (combos):", error);
             });
 
             // Listening to Categories
@@ -1012,6 +1155,7 @@
             try {
                 const storedIngs = localStorage.getItem('tribo_ingredients');
                 const storedRecs = localStorage.getItem('tribo_recipes');
+                const storedCombos = localStorage.getItem('tribo_combos');
                 const storedSets = localStorage.getItem('tribo_settings');
                 const storedFC = localStorage.getItem('tribo_fixed_costs');
 
@@ -1029,6 +1173,14 @@
                         await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'recipes', rec.id), rec);
                     }
                     localStorage.removeItem('tribo_recipes');
+                }
+
+                if (storedCombos) {
+                    const cbList = JSON.parse(storedCombos);
+                    for (const cb of cbList) {
+                        await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'combos', cb.id), cb);
+                    }
+                    localStorage.removeItem('tribo_combos');
                 }
 
                 if (storedFC) {
@@ -1083,6 +1235,24 @@
                 await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'recipes', id));
             } catch (e) {
                 console.error("Erro deletando receita da nuvem:", e);
+            }
+        };
+
+        window.cloudSaveCombo = async function(cb) {
+            if (!userId) return;
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'combos', cb.id), cb);
+            } catch (e) {
+                console.error("Erro salvando combo na nuvem:", e);
+            }
+        };
+
+        window.cloudDeleteCombo = async function(id) {
+            if (!userId) return;
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'combos', id));
+            } catch (e) {
+                console.error("Erro deletando combo da nuvem:", e);
             }
         };
 
@@ -1141,6 +1311,9 @@
                 for (const rec of window.recipes) {
                     await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'recipes', rec.id));
                 }
+                for (const cb of window.combos) {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'combos', cb.id));
+                }
                 for (const fc of window.fixedCosts) {
                     await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'fixed_costs', fc.id));
                 }
@@ -1153,6 +1326,9 @@
                 }
                 for (const rec of window.defaultRecipes) {
                     await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'recipes', rec.id), rec);
+                }
+                for (const cb of window.defaultCombos) {
+                    await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'combos', cb.id), cb);
                 }
                 for (const fc of window.defaultFixedCosts) {
                     await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'fixed_costs', fc.id), fc);
@@ -1175,6 +1351,7 @@
             // Read standard values
             window.ingredients = window.defaultIngredients;
             window.recipes = window.defaultRecipes;
+            window.combos = window.defaultCombos;
             window.fixedCosts = window.defaultFixedCosts;
             window.recipeCategories = window.defaultCategories;
             window.settings = window.defaultSettings;
@@ -1250,6 +1427,21 @@
             }
         ];
 
+        window.defaultCombos = [
+            {
+                id: "combo_1",
+                name: "Tribo Combo Duplo",
+                category: "Combos",
+                packagingCost: 2.50,
+                sellingPrice: 59.90,
+                includeInCmv: true,
+                items: [
+                    { type: "recipe", itemId: "rec_1", qty: 2 },
+                    { type: "ingredient", itemId: "ing_8", qty: 2 }
+                ]
+            }
+        ];
+
         window.defaultFixedCosts = [
             { id: "fc_1", name: "Aluguel Comercial do Ponto", category: "Aluguel", value: 2500.00 },
             { id: "fc_2", name: "Conta de Energia Elétrica", category: "Utilidades", value: 850.00 },
@@ -1279,6 +1471,7 @@
         // Live systems arrays
         window.ingredients = [];
         window.recipes = [];
+        window.combos = [];
         window.fixedCosts = [];
         window.recipeCategories = [];
         window.settings = window.defaultSettings;
@@ -1349,7 +1542,7 @@
                 async () => {
                     if (window.cloudResetToDefaults) {
                         await window.cloudResetToDefaults();
-                        showCustomAlert("Configuração Restaurada", "As fichas técnicas, categorias e insumos originais foram recarregados com sucesso!");
+                        showCustomAlert("Configuração Restaurada", "As fichas técnicas, categorias, combos e insumos originais foram recarregados com sucesso!");
                     }
                 }
             );
@@ -1487,6 +1680,23 @@
             return cost;
         }
 
+        function calculateComboCost(combo) {
+            let cost = 0;
+            if (!combo.items) return 0;
+            combo.items.forEach(item => {
+                if (item.type === 'recipe') {
+                    const recipe = window.recipes.find(r => r.id === item.itemId);
+                    if (recipe) {
+                        cost += calculateRecipeCost(recipe) * item.qty;
+                    }
+                } else if (item.type === 'ingredient') {
+                    cost += getIngredientCost(item.itemId, item.qty);
+                }
+            });
+            cost += Number(combo.packagingCost || 0);
+            return cost;
+        }
+
         // Calc breakdown for financial metrics
         function calculateBreakdown(recipe) {
             const cost = calculateRecipeCost(recipe);
@@ -1520,10 +1730,40 @@
             };
         }
 
+        function calculateComboBreakdown(combo) {
+            const cost = calculateComboCost(combo);
+            const price = combo.sellingPrice || 0;
+            
+            const cmvRealPercent = price > 0 ? (cost / price) * 100 : 0;
+            
+            const taxCost = price * (window.settings.taxes / 100);
+            const platformCost = price * (window.settings.platformFees / 100);
+            const cardCost = price * (window.settings.cardFees / 100);
+            
+            const netMarginAmount = price - cost - taxCost - platformCost - cardCost;
+            const netMarginPercent = price > 0 ? (netMarginAmount / price) * 100 : 0;
+
+            const targetCMVMultiplier = (window.settings.targetCMV / 100);
+            const suggestedFullMarkupPrice = targetCMVMultiplier > 0 ? cost / targetCMVMultiplier : 0;
+
+            return {
+                cost,
+                price,
+                cmvRealPercent,
+                taxCost,
+                platformCost,
+                cardCost,
+                netMarginAmount,
+                netMarginPercent,
+                suggestedFullMarkupPrice
+            };
+        }
+
         // Standard view rendering
         function renderAll() {
             renderIngredients();
             renderRecipes();
+            renderCombos();
             renderFixedCosts();
             renderDashboardStats();
             renderDashboardChart();
@@ -1543,9 +1783,14 @@
             
             // Filter active recipes in CMV calculation
             const activeRecipes = window.recipes.filter(r => r.includeInCmv !== false);
+            const activeCombos = window.combos ? window.combos.filter(c => c.includeInCmv !== false) : [];
 
             if (kpiTotalIngredients) kpiTotalIngredients.textContent = window.ingredients.length;
-            if (kpiTotalRecipes) kpiTotalRecipes.textContent = `${activeRecipes.length} / ${window.recipes.length}`;
+            if (kpiTotalRecipes) {
+                const activeTotal = activeRecipes.length + activeCombos.length;
+                const totalAll = window.recipes.length + (window.combos ? window.combos.length : 0);
+                kpiTotalRecipes.textContent = `${activeTotal} / ${totalAll}`;
+            }
             if (kpiTargetCMV) kpiTargetCMV.textContent = `${window.settings.targetCMV}%`;
 
             // Calculate total fixed costs
@@ -1584,7 +1829,36 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                         </div>
                         <div>
-                            <h4 class="text-xs font-bold text-white">${rec.name}</h4>
+                            <h4 class="text-xs font-bold text-white">🍔 ${rec.name}</h4>
+                            <p class="text-[11px] text-stone-300">CMV Real está em <span class="font-bold text-rose-400">${breakdown.cmvRealPercent.toFixed(1)}%</span> (Meta: ${window.settings.targetCMV}%)</p>
+                            <p class="text-[10px] text-stone-500 mt-1">Sugestão: Preço ideal em ${formatCurrency(breakdown.suggestedFullMarkupPrice)}.</p>
+                        </div>
+                    `;
+                    alertListContainer.appendChild(alertCard);
+                }
+            });
+
+            // Run through active combos for cumulative statistics
+            activeCombos.forEach(combo => {
+                const breakdown = calculateComboBreakdown(combo);
+                totalCostOfAllActive += breakdown.cost;
+                totalSalesValueActive += breakdown.price;
+                
+                if (breakdown.price > 0) {
+                    totalMarginPercentSumOfActive += breakdown.netMarginPercent;
+                    ratedRecipesCountOfActive++;
+                }
+
+                if (breakdown.cmvRealPercent > window.settings.targetCMV && alertListContainer) {
+                    criticalItemsCount++;
+                    const alertCard = document.createElement('div');
+                    alertCard.className = "flex items-start gap-3 bg-rose-950/40 p-3 rounded-lg border border-rose-900/50 text-left";
+                    alertCard.innerHTML = `
+                        <div class="text-rose-400 mt-0.5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-white">🎁 [COMBO] ${combo.name}</h4>
                             <p class="text-[11px] text-stone-300">CMV Real está em <span class="font-bold text-rose-400">${breakdown.cmvRealPercent.toFixed(1)}%</span> (Meta: ${window.settings.targetCMV}%)</p>
                             <p class="text-[10px] text-stone-500 mt-1">Sugestão: Preço ideal em ${formatCurrency(breakdown.suggestedFullMarkupPrice)}.</p>
                         </div>
@@ -1622,7 +1896,7 @@
                 }
             }
 
-            // Calculate Breakeven Revenue Point based on selected recipes
+            // Calculate Breakeven Revenue Point based on selected recipes & combos
             const averageMarginRatio = ratedRecipesCountOfActive > 0 ? (totalMarginPercentSumOfActive / ratedRecipesCountOfActive) / 100 : 0.50; // default 50%
             const calculatedBreakeven = averageMarginRatio > 0 ? totalFC / averageMarginRatio : 0;
             if (breakevenRevenue) breakevenRevenue.textContent = formatCurrency(calculatedBreakeven);
@@ -1641,16 +1915,27 @@
                 totalFC += fc.value || 0;
             });
 
-            // 2. Calculate average parameters of marked recipes
+            // 2. Calculate average parameters of marked recipes & combos
             let totalCostOfActive = 0;
             let totalSalesValueActive = 0;
             let totalMarginPercentSumOfActive = 0;
             let ratedRecipesCountOfActive = 0;
 
             const activeRecipes = window.recipes.filter(r => r.includeInCmv !== false);
+            const activeCombos = window.combos ? window.combos.filter(c => c.includeInCmv !== false) : [];
 
             activeRecipes.forEach(rec => {
                 const breakdown = calculateBreakdown(rec);
+                totalCostOfActive += breakdown.cost;
+                totalSalesValueActive += breakdown.price;
+                if (breakdown.price > 0) {
+                    totalMarginPercentSumOfActive += breakdown.netMarginPercent;
+                    ratedRecipesCountOfActive++;
+                }
+            });
+
+            activeCombos.forEach(combo => {
+                const breakdown = calculateComboBreakdown(combo);
                 totalCostOfActive += breakdown.cost;
                 totalSalesValueActive += breakdown.price;
                 if (breakdown.price > 0) {
@@ -1763,9 +2048,20 @@
             }
 
             const activeRecipes = window.recipes.filter(r => r.includeInCmv !== false);
-            const labels = activeRecipes.map(r => r.name);
-            const costs = activeRecipes.map(r => calculateRecipeCost(r).toFixed(2));
-            const prices = activeRecipes.map(r => r.sellingPrice.toFixed(2));
+            const activeCombos = window.combos ? window.combos.filter(c => c.includeInCmv !== false) : [];
+
+            const labels = [
+                ...activeRecipes.map(r => r.name),
+                ...activeCombos.map(c => `🎁 ${c.name}`)
+            ];
+            const costs = [
+                ...activeRecipes.map(r => calculateRecipeCost(r).toFixed(2)),
+                ...activeCombos.map(c => calculateComboCost(c).toFixed(2))
+            ];
+            const prices = [
+                ...activeRecipes.map(r => r.sellingPrice.toFixed(2)),
+                ...activeCombos.map(c => c.sellingPrice.toFixed(2))
+            ];
 
             myChart = new Chart(ctx, {
                 type: 'bar',
@@ -2586,24 +2882,435 @@
             openRecipeModal(id);
         }
 
-        async function saveSettings() {
-            const targetCMV = Number(document.getElementById('setting-target-cmv').value);
-            const taxes = Number(document.getElementById('setting-taxes').value);
-            const platformFees = Number(document.getElementById('setting-platform').value);
-            const cardFees = Number(document.getElementById('setting-cards').value);
-            const salesGoal = window.settings.salesGoal || 30000;
+        // COMBO CONTROLLERS AND RENDERING FUNCTIONS
+        window.expandedCombos = window.expandedCombos || [];
 
-            if (targetCMV <= 0 || targetCMV > 100) {
-                showCustomAlert("Erro de Validação", "A meta de CMV deve ser um valor entre 1% e 100%.");
+        window.toggleComboExpand = function(comboId) {
+            const index = window.expandedCombos.indexOf(comboId);
+            if (index > -1) {
+                window.expandedCombos.splice(index, 1);
+            } else {
+                window.expandedCombos.push(comboId);
+            }
+            renderCombos();
+        };
+
+        window.toggleComboCmvInclusion = async function(comboId) {
+            const combo = window.combos.find(c => c.id === comboId);
+            if (combo) {
+                combo.includeInCmv = combo.includeInCmv === undefined ? false : !combo.includeInCmv;
+                if (window.cloudSaveCombo) {
+                    await window.cloudSaveCombo(combo);
+                }
+            }
+        };
+
+        function renderCombos() {
+            const container = document.getElementById('combos-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const badgeCount = document.getElementById('combo-count-badge');
+            if (badgeCount) badgeCount.textContent = `${window.combos ? window.combos.length : 0} Cadastrados`;
+
+            if (!window.combos || window.combos.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center p-12 bg-stone-950 rounded-2xl border border-stone-800 text-stone-500 w-full col-span-full">
+                        Nenhum combo promocional ou ficha técnica de combo estruturada. Monte o primeiro combo no botão acima.
+                    </div>
+                `;
                 return;
             }
 
-            const updatedSettings = { targetCMV, taxes, platformFees, cardFees, salesGoal };
-            if (window.cloudSaveSettings) {
-                await window.cloudSaveSettings(updatedSettings);
-                showCustomAlert("Parâmetros Salvos", "Os coeficientes globais de precificação foram atualizados em tempo real na nuvem.");
-            }
+            const grid = document.createElement('div');
+            grid.className = "grid grid-cols-1 md:grid-cols-2 gap-4 text-left";
+
+            window.combos.forEach(combo => {
+                const breakdown = calculateComboBreakdown(combo);
+                const isExpanded = window.expandedCombos.includes(combo.id);
+                const isIncluded = combo.includeInCmv !== false;
+                
+                let cmvColorClass = "text-emerald-400";
+                let cmvBgClass = "bg-emerald-500/10 border-emerald-500/20";
+                
+                if (breakdown.cmvRealPercent > window.settings.targetCMV) {
+                    cmvColorClass = "text-rose-400";
+                    cmvBgClass = "bg-rose-500/10 border-rose-500/20";
+                } else if (breakdown.cmvRealPercent > window.settings.targetCMV - 3) {
+                    cmvColorClass = "text-amber-400";
+                    cmvBgClass = "bg-amber-500/10 border-amber-500/20";
+                }
+
+                const card = document.createElement('div');
+                card.className = `bg-stone-950 rounded-2xl border ${isIncluded ? 'border-stone-800' : 'border-stone-800/40 opacity-70'} overflow-hidden flex flex-col justify-between hover:border-stone-700 transition-all shadow-lg`;
+                
+                const chevronSvg = isExpanded ? `
+                    <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path>
+                    </svg>
+                ` : `
+                    <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                `;
+
+                const headerHtml = `
+                    <div class="p-5 flex justify-between items-center gap-3 cursor-pointer select-none hover:bg-stone-900/10" onclick="toggleComboExpand('${combo.id}')">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <div class="flex items-center gap-1.5 mr-2" onclick="event.stopPropagation()">
+                                    <input type="checkbox" id="chk-combo-cmv-${combo.id}" ${isIncluded ? 'checked' : ''} onchange="toggleComboCmvInclusion('${combo.id}')" class="w-4 h-4 rounded border-stone-800 text-tribo-500 focus:ring-tribo-500 focus:ring-offset-stone-950 bg-stone-900 cursor-pointer accent-tribo-500">
+                                    <label for="chk-combo-cmv-${combo.id}" class="text-[10px] uppercase font-bold tracking-wider text-stone-400 cursor-pointer hover:text-tribo-400">Calcular</label>
+                                </div>
+                                <h4 class="text-base font-bold text-white truncate ${isIncluded ? '' : 'line-through text-stone-500'}">🎁 ${combo.name}</h4>
+                                <span class="text-[9px] font-bold uppercase tracking-wider text-stone-500 bg-stone-900 px-2 py-0.5 rounded-md border border-stone-800">
+                                    ${combo.category || 'Combos'}
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-4 mt-1.5 text-xs text-stone-400">
+                                <div>
+                                    <span>Custo Total: </span>
+                                    <span class="font-bold text-stone-300">${formatCurrency(breakdown.cost)}</span>
+                                </div>
+                                <div>
+                                    <span>Preço Combo: </span>
+                                    <span class="font-bold text-tribo-400">${formatCurrency(breakdown.price)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2.5 shrink-0">
+                            <div class="px-2.5 py-1 rounded-lg border text-xs font-black ${isIncluded ? cmvColorClass + ' ' + cmvBgClass : 'text-stone-500 bg-stone-900 border-stone-800'}">
+                                CMV: ${breakdown.cmvRealPercent.toFixed(1)}%
+                            </div>
+                            <div class="p-1 hover:bg-stone-900 rounded-lg transition-colors">
+                                ${chevronSvg}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const detailsHtml = isExpanded ? `
+                    <div class="px-5 pb-5 pt-2 border-t border-stone-900 bg-stone-950 space-y-4">
+                        <!-- Combo integrated list of components -->
+                        <div class="space-y-1 bg-stone-900/40 p-3 rounded-xl border border-stone-800/80 text-xs">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1">Itens Integrados no Combo</span>
+                            ${combo.items ? combo.items.map(item => {
+                                if (item.type === 'recipe') {
+                                    const recipe = window.recipes.find(r => r.id === item.itemId);
+                                    if (!recipe) return '';
+                                    const costVal = calculateRecipeCost(recipe) * item.qty;
+                                    return `
+                                        <div class="flex justify-between text-stone-300 py-0.5">
+                                            <span>&bull; <span class="text-amber-400 font-semibold">🍔 Ficha:</span> ${recipe.name} <span class="text-stone-500">(${item.qty} un)</span></span>
+                                            <span class="font-semibold text-stone-400">${formatCurrency(costVal)}</span>
+                                        </div>
+                                    `;
+                                } else {
+                                    const ing = window.ingredients.find(i => i.id === item.itemId);
+                                    if (!ing) return '';
+                                    const costVal = getIngredientCost(item.itemId, item.qty);
+                                    return `
+                                        <div class="flex justify-between text-stone-300 py-0.5">
+                                            <span>&bull; <span class="text-tribo-400 font-semibold">🥩 Insumo:</span> ${ing.name} <span class="text-stone-500">(${item.qty}${ing.unit === 'kg' ? 'g' : (ing.unit === 'l' ? 'ml' : ing.unit)})</span></span>
+                                            <span class="font-semibold text-stone-400">${formatCurrency(costVal)}</span>
+                                        </div>
+                                    `;
+                                }
+                            }).join('') : ''}
+                            ${combo.packagingCost > 0 ? `
+                                <div class="flex justify-between text-stone-400 border-t border-stone-800/60 mt-1.5 pt-1.5">
+                                    <span>Embalagens & Custos Promocionais</span>
+                                    <span>${formatCurrency(combo.packagingCost)}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- Cost/Margin statistics -->
+                        <div class="grid grid-cols-2 gap-3 text-center">
+                            <div class="bg-stone-900 p-2.5 rounded-xl border border-stone-800">
+                                <span class="text-[10px] uppercase text-stone-400 font-bold tracking-wider block">Custo Integrado</span>
+                                <span class="text-sm font-bold text-white">${formatCurrency(breakdown.cost)}</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl border ${isIncluded ? cmvBgClass : 'bg-stone-900 border-stone-800'} flex flex-col justify-center">
+                                <span class="text-[10px] uppercase text-stone-400 font-bold tracking-wider block">CMV Combo (%)</span>
+                                <span class="text-sm font-black ${isIncluded ? cmvColorClass : 'text-stone-400'}">${breakdown.cmvRealPercent.toFixed(1)}%</span>
+                            </div>
+                        </div>
+
+                        <!-- Real price vs Net margin calculations -->
+                        <div class="border-t border-stone-900 pt-3 space-y-2 text-xs">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="font-semibold text-stone-300">Preço do Combo:</span>
+                                <span class="font-extrabold text-white text-base">${formatCurrency(breakdown.price)}</span>
+                            </div>
+                            <div class="flex justify-between text-stone-400">
+                                <span>Impostos (${window.settings.taxes}%):</span>
+                                <span>${formatCurrency(breakdown.taxCost)}</span>
+                            </div>
+                            <div class="flex justify-between text-stone-400">
+                                <span>Parcerias/Apps (${window.settings.platformFees}%):</span>
+                                <span>${formatCurrency(breakdown.platformCost)}</span>
+                            </div>
+                            <div class="flex justify-between text-stone-400">
+                                <span>Taxas Financeiras (${window.settings.cardFees}%):</span>
+                                <span>${formatCurrency(breakdown.cardCost)}</span>
+                            </div>
+                            
+                            <!-- Margem de Contribuição Bruta -->
+                            <div class="flex justify-between text-stone-300 font-semibold border-t border-stone-800/60 pt-2 text-sm">
+                                <span>Margem Lucro Combo:</span>
+                                <span class="${breakdown.netMarginPercent > 15 ? 'text-emerald-400' : 'text-amber-400'}">
+                                    ${formatCurrency(breakdown.netMarginAmount)} (${breakdown.netMarginPercent.toFixed(1)}%)
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Action buttons and suggestions -->
+                        <div class="pt-3 border-t border-stone-900 flex items-center justify-between gap-4">
+                            <div class="text-left">
+                                <span class="text-[10px] text-stone-500 uppercase tracking-wider block">Preço Sugerido Combo:</span>
+                                <span class="font-bold text-emerald-400 text-sm">${formatCurrency(breakdown.suggestedFullMarkupPrice)}</span>
+                            </div>
+                            <div class="flex gap-1.5">
+                                <button onclick="editCombo('${combo.id}')" class="p-2 bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-white rounded-lg transition-colors border border-stone-800 text-xs font-semibold flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                    Editar
+                                </button>
+                                <button onclick="deleteCombo('${combo.id}')" class="p-2 bg-stone-900 hover:bg-stone-800 text-rose-400 hover:text-rose-300 rounded-lg transition-colors border border-stone-800 text-xs font-semibold flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    Excluir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ` : '';
+
+                card.innerHTML = `${headerHtml}${detailsHtml}`;
+                grid.appendChild(card);
+            });
+
+            container.appendChild(grid);
         }
-    </script>
-</body>
-</html>
+
+        let currentComboRowsCount = 0;
+
+        window.openComboModal = function(id = null) {
+            const modal = document.getElementById('combo-modal');
+            const form = document.getElementById('combo-form');
+            form.reset();
+
+            document.getElementById('combo-items-rows').innerHTML = '';
+            currentComboRowsCount = 0;
+
+            if (id) {
+                document.getElementById('combo-modal-title').textContent = "Editar Ficha de Combo";
+                const combo = window.combos.find(c => c.id === id);
+                document.getElementById('combo-id').value = combo.id;
+                document.getElementById('combo-name').value = combo.name;
+                document.getElementById('combo-category').value = combo.category || 'Combos';
+                document.getElementById('combo-packaging').value = combo.packagingCost;
+                document.getElementById('combo-selling-price').value = combo.sellingPrice;
+
+                if (combo.items) {
+                    combo.items.forEach(item => {
+                        addComboItemRow(item.type, item.itemId, item.qty);
+                    });
+                }
+            } else {
+                document.getElementById('combo-modal-title').textContent = "Criar Nova Ficha de Combo";
+                document.getElementById('combo-id').value = '';
+                addComboItemRow('recipe', '', 1);
+            }
+
+            document.getElementById('combo-packaging').addEventListener('input', updateComboSimulation);
+            document.getElementById('combo-selling-price').addEventListener('input', updateComboSimulation);
+
+            modal.classList.remove('hidden');
+            updateComboSimulation();
+        };
+
+        window.closeComboModal = function() {
+            document.getElementById('combo-modal').classList.add('hidden');
+        };
+
+        window.addComboItemRow = function(selectedType = 'recipe', selectedItemId = '', qtyVal = '') {
+            const container = document.getElementById('combo-items-rows');
+            if (!container) return;
+            const rowId = `combo_row_${currentComboRowsCount++}`;
+
+            const div = document.createElement('div');
+            div.id = rowId;
+            div.className = "combo-item-row flex items-center gap-2 bg-stone-900 p-2 rounded-lg border border-stone-800/80";
+
+            div.innerHTML = `
+                <select onchange="handleComboRowTypeChange(this)" class="w-40 bg-stone-950 border border-stone-800 rounded p-1.5 text-xs text-stone-100 focus:outline-none focus:border-tribo-500 select-combo-type-target">
+                    <option value="recipe" ${selectedType === 'recipe' ? 'selected' : ''}>🍔 Ficha (Receita)</option>
+                    <option value="ingredient" ${selectedType === 'ingredient' ? 'selected' : ''}>🥩 Insumo (Ingrediente)</option>
+                </select>
+                <select onchange="updateComboSimulation()" class="flex-1 bg-stone-950 border border-stone-800 rounded p-1.5 text-xs text-stone-100 focus:outline-none focus:border-tribo-500 select-combo-item-target">
+                    <!-- Dynamically populated via updateComboItemDropdown -->
+                </select>
+                <div class="w-24 relative">
+                    <input type="number" step="any" oninput="updateComboSimulation()" value="${qtyVal}" required placeholder="Qtd" class="w-full bg-stone-950 border border-stone-800 rounded p-1.5 text-xs text-stone-100 focus:outline-none focus:border-tribo-500 input-combo-qty-target">
+                </div>
+                <button type="button" onclick="removeComboItemRow('${rowId}')" class="text-stone-500 hover:text-rose-400 p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+            `;
+
+            container.appendChild(div);
+
+            const itemSelect = div.querySelector('.select-combo-item-target');
+            updateComboItemDropdown(itemSelect, selectedType, selectedItemId);
+        };
+
+        window.removeComboItemRow = function(rowId) {
+            const row = document.getElementById(rowId);
+            if (row) row.remove();
+            updateComboSimulation();
+        };
+
+        window.handleComboRowTypeChange = function(typeSelectEl) {
+            const row = typeSelectEl.closest('.combo-item-row');
+            const itemSelect = row.querySelector('.select-combo-item-target');
+            const selectedType = typeSelectEl.value;
+            updateComboItemDropdown(itemSelect, selectedType);
+        };
+
+        function updateComboItemDropdown(selectEl, type, selectedValue = '') {
+            selectEl.innerHTML = '';
+            if (type === 'recipe') {
+                let opts = '<option value="">-- Selecione a Receita --</option>';
+                window.recipes.forEach(r => {
+                    const b = calculateBreakdown(r);
+                    opts += `<option value="${r.id}" ${r.id === selectedValue ? 'selected' : ''}>🍔 ${r.name} (Custo: ${formatCurrency(b.cost)})</option>`;
+                });
+                selectEl.innerHTML = opts;
+            } else {
+                let opts = '<option value="">-- Selecione o Insumo --</option>';
+                window.ingredients.forEach(ing => {
+                    opts += `<option value="${ing.id}" ${ing.id === selectedValue ? 'selected' : ''}>🥩 ${ing.name} (Custo: ${formatCurrency(ing.unitCost, 4)}/${ing.unit === 'kg' ? 'g' : (ing.unit === 'l' ? 'ml' : ing.unit)})</option>`;
+                });
+                selectEl.innerHTML = opts;
+            }
+            updateComboSimulation();
+        }
+
+        window.updateComboSimulation = function() {
+            const rows = document.querySelectorAll('#combo-items-rows > div');
+            let costAccumulator = 0;
+
+            rows.forEach(row => {
+                const typeSelect = row.querySelector('.select-combo-type-target');
+                const itemSelect = row.querySelector('.select-combo-item-target');
+                const input = row.querySelector('.input-combo-qty-target');
+
+                const type = typeSelect.value;
+                const itemId = itemSelect.value;
+                const qty = Number(input.value || 0);
+
+                if (itemId) {
+                    if (type === 'recipe') {
+                        const recipe = window.recipes.find(r => r.id === itemId);
+                        if (recipe) {
+                            costAccumulator += calculateRecipeCost(recipe) * qty;
+                        }
+                    } else if (type === 'ingredient') {
+                        costAccumulator += getIngredientCost(itemId, qty);
+                    }
+                }
+            });
+
+            const packCost = Number(document.getElementById('combo-packaging').value || 0);
+            const totalCost = costAccumulator + packCost;
+            const sellingPrice = Number(document.getElementById('combo-selling-price').value || 0);
+            const cmv = sellingPrice > 0 ? (totalCost / sellingPrice) * 100 : 0;
+
+            const taxCost = sellingPrice * (window.settings.taxes / 100);
+            const platformCost = sellingPrice * (window.settings.platformFees / 100);
+            const cardCost = sellingPrice * (window.settings.cardFees / 100);
+            const profit = sellingPrice - totalCost - taxCost - platformCost - cardCost;
+            const margin = sellingPrice > 0 ? (profit / sellingPrice) * 100 : 0;
+
+            const previewCost = document.getElementById('combo-preview-cost');
+            const previewCMV = document.getElementById('combo-preview-cmv');
+            const previewMargin = document.getElementById('combo-preview-margin');
+
+            if (previewCost) previewCost.textContent = formatCurrency(totalCost);
+            if (previewCMV) {
+                previewCMV.textContent = `${cmv.toFixed(1)}%`;
+                if (cmv > window.settings.targetCMV) {
+                    previewCMV.className = 'font-bold text-rose-400';
+                } else {
+                    previewCMV.className = 'font-bold text-emerald-400';
+                }
+            }
+            if (previewMargin) previewMargin.textContent = `${margin.toFixed(1)}%`;
+        };
+
+        window.handleComboSubmit = async function(event) {
+            event.preventDefault();
+            const id = document.getElementById('combo-id').value;
+            const name = document.getElementById('combo-name').value;
+            const category = document.getElementById('combo-category').value;
+            const packagingCost = Number(document.getElementById('combo-packaging').value || 0);
+            const sellingPrice = Number(document.getElementById('combo-selling-price').value || 0);
+
+            const existingCombo = window.combos ? window.combos.find(c => c.id === id) : null;
+            const includeInCmv = existingCombo ? (existingCombo.includeInCmv !== false) : true;
+
+            const comboItems = [];
+            const rows = document.querySelectorAll('#combo-items-rows > div');
+            rows.forEach(row => {
+                const typeSelect = row.querySelector('.select-combo-type-target');
+                const itemSelect = row.querySelector('.select-combo-item-target');
+                const input = row.querySelector('.input-combo-qty-target');
+
+                const type = typeSelect.value;
+                const itemId = itemSelect.value;
+                const qty = Number(input.value || 0);
+
+                if (itemId && qty > 0) {
+                    comboItems.push({ type, itemId, qty });
+                }
+            });
+
+            if (comboItems.length === 0) {
+                showCustomAlert("Aviso", "Adicione pelo menos um item (Receita ou Insumo) no Combo!");
+                return;
+            }
+
+            const updatedCombo = {
+                id: id || `combo_${Date.now()}`,
+                name,
+                category,
+                packagingCost,
+                sellingPrice,
+                items: comboItems,
+                includeInCmv
+            };
+
+            if (window.cloudSaveCombo) {
+                await window.cloudSaveCombo(updatedCombo);
+            }
+            closeComboModal();
+        };
+
+        function deleteCombo(id) {
+            showCustomConfirm(
+                "Deletar Ficha de Combo", 
+                "Deseja deletar esta ficha de combo permanentemente?", 
+                async () => {
+                    if (window.cloudDeleteCombo) {
+                        await window.cloudDeleteCombo(id);
+                    }
+                }
+            );
+        }
+
+        function editCombo(id) {
+            openComboModal(id);
+        }
+
+        // Fixed Costs rendering and functions
+        function renderFixedCosts() {
