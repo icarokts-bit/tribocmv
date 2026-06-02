@@ -458,7 +458,6 @@
                     <!-- Custom Categories Management Card -->
                     <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 space-y-4">
                         <h3 class="text-lg font-bold text-white border-b border-stone-800 pb-3">Categorias do Cardápio</h3>
-                        <p class="text-xs text-stone-400">Cadastre novas divisões de cardápio para classificar as fichas técnicas.</p>
                         
                         <!-- List of tags -->
                         <div id="settings-categories-list" class="flex flex-wrap gap-2 py-1">
@@ -469,6 +468,25 @@
                         <div class="flex gap-2 pt-2 border-t border-stone-800/60">
                             <input type="text" id="new-category-input" placeholder="Ex: Sobremesas, Combos, Especiais" class="flex-1 bg-stone-900 border border-stone-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-tribo-500">
                             <button onclick="addCustomCategory()" class="bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2 rounded-lg text-sm transition-colors shrink-0">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Custom Ingredient Categories Management Card -->
+                    <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 space-y-4">
+                        <h3 class="text-lg font-bold text-white border-b border-stone-800 pb-3">Categorias de Insumos</h3>
+                        <p class="text-xs text-stone-400">Gerencie as categorias de insumos para organizar sua matéria-prima.</p>
+                        
+                        <!-- List of tags -->
+                        <div id="settings-ingredient-categories-list" class="flex flex-wrap gap-2 py-1">
+                            <!-- Dynamic category badges loaded from Firestore -->
+                        </div>
+
+                        <!-- Add category field -->
+                        <div class="flex gap-2 pt-2 border-t border-stone-800/60">
+                            <input type="text" id="new-ingredient-category-input" placeholder="Ex: Bebidas, Molhos, Embalagens" class="flex-1 bg-stone-900 border border-stone-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-tribo-500">
+                            <button onclick="addCustomIngredientCategory()" class="bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2 rounded-lg text-sm transition-colors shrink-0">
                                 Adicionar
                             </button>
                         </div>
@@ -521,13 +539,7 @@
                     <div>
                         <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Categoria</label>
                         <select id="ingredient-category" required class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2 text-white focus:outline-none focus:border-tribo-500">
-                            <option value="Proteína">Proteína</option>
-                            <option value="Laticínios">Laticínios</option>
-                            <option value="Hortifrúti">Hortifrúti</option>
-                            <option value="Pães">Pães</option>
-                            <option value="Molhos & Temperos">Molhos & Temperos</option>
-                            <option value="Embalagem">Embalagem</option>
-                            <option value="Outros">Outros</option>
+                            <!-- Populated dynamically via JS -->
                         </select>
                     </div>
                     <div>
@@ -1001,6 +1013,13 @@
             }
         }
 
+        async function seedDefaultIngredientCategories() {
+            if (!userId) return;
+            for (const cat of window.defaultIngredientCategories) {
+                await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'ingredient_categories', cat.id), cat);
+            }
+        }
+
         async function seedDefaultFixedCosts() {
             if (!userId) return;
             for (const fc of window.defaultFixedCosts) {
@@ -1016,6 +1035,7 @@
             const pathRecipes = collection(db, 'artifacts', appId, 'users', userId, 'recipes');
             const pathCombos = collection(db, 'artifacts', appId, 'users', userId, 'combos');
             const pathCategories = collection(db, 'artifacts', appId, 'users', userId, 'categories');
+            const pathIngredientCategories = collection(db, 'artifacts', appId, 'users', userId, 'ingredient_categories');
             const pathSettings = collection(db, 'artifacts', appId, 'users', userId, 'config');
             const pathFixedCosts = collection(db, 'artifacts', appId, 'users', userId, 'fixed_costs');
 
@@ -1066,6 +1086,23 @@
                     window.recipeCategories = cloudCategories;
                     window.renderCategoriesInSettings();
                     window.populateRecipeCategoryDropdown();
+                    window.renderAll();
+                }
+            });
+
+            // Listening to Ingredient Categories
+            onSnapshot(pathIngredientCategories, (snapshot) => {
+                const cloudIngredientCategories = [];
+                snapshot.forEach(doc => {
+                    cloudIngredientCategories.push({ id: doc.id, ...doc.data() });
+                });
+                
+                if (cloudIngredientCategories.length === 0 && snapshot.metadata.fromCache === false) {
+                    seedDefaultIngredientCategories();
+                } else {
+                    window.ingredientCategories = cloudIngredientCategories;
+                    window.renderIngredientCategoriesInSettings();
+                    window.populateIngredientCategoryDropdown();
                     window.renderAll();
                 }
             });
@@ -1244,6 +1281,24 @@
             }
         };
 
+        window.cloudSaveIngredientCategory = async function(cat) {
+            if (!userId) return;
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'ingredient_categories', cat.id), cat);
+            } catch (e) {
+                console.error("Erro salvando categoria de insumo na nuvem:", e);
+            }
+        };
+
+        window.cloudDeleteIngredientCategory = async function(id) {
+            if (!userId) return;
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'ingredient_categories', id));
+            } catch (e) {
+                console.error("Erro deletando categoria de insumo da nuvem:", e);
+            }
+        };
+
         window.cloudSaveSettings = async function(settingsData) {
             if (!userId) return;
             try {
@@ -1272,6 +1327,9 @@
                 for (const cat of window.recipeCategories) {
                     await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'categories', cat.id));
                 }
+                for (const cat of window.ingredientCategories) {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'ingredient_categories', cat.id));
+                }
                 // Upload defaults
                 for (const ing of window.defaultIngredients) {
                     await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'insumos', ing.id), ing);
@@ -1284,6 +1342,9 @@
                 }
                 for (const cat of window.defaultCategories) {
                     await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'categories', cat.id), cat);
+                }
+                for (const cat of window.defaultIngredientCategories) {
+                    await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'ingredient_categories', cat.id), cat);
                 }
                 await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'config', 'global'), window.defaultSettings);
             } catch (e) {
@@ -1303,9 +1364,12 @@
             window.combos = [];
             window.fixedCosts = window.defaultFixedCosts;
             window.recipeCategories = window.defaultCategories;
+            window.ingredientCategories = window.defaultIngredientCategories;
             window.settings = window.defaultSettings;
             window.renderCategoriesInSettings();
+            window.renderIngredientCategoriesInSettings();
             window.populateRecipeCategoryDropdown();
+            window.populateIngredientCategoryDropdown();
             window.renderAll();
         }
 
@@ -1394,6 +1458,16 @@
             { id: "cat_5", name: "Bebidas" }
         ];
 
+        window.defaultIngredientCategories = [
+            { id: "ingcat_1", name: "Proteína", icon: "🥩" },
+            { id: "ingcat_2", name: "Laticínios", icon: "🧀" },
+            { id: "ingcat_3", name: "Hortifrúti", icon: "🥬" },
+            { id: "ingcat_4", name: "Pães", icon: "🍞" },
+            { id: "ingcat_5", name: "Molhos & Temperos", icon: "🥫" },
+            { id: "ingcat_6", name: "Embalagem", icon: "📦" },
+            { id: "ingcat_7", name: "Outros", icon: "🏷️" }
+        ];
+
         window.defaultSettings = {
             targetCMV: 30,
             taxes: 6.0,
@@ -1408,6 +1482,7 @@
         window.combos = [];
         window.fixedCosts = [];
         window.recipeCategories = [];
+        window.ingredientCategories = [];
         window.settings = window.defaultSettings;
         let myChart = null;
 
@@ -1493,6 +1568,24 @@
             });
         };
 
+        window.renderIngredientCategoriesInSettings = function() {
+            const container = document.getElementById('settings-ingredient-categories-list');
+            if (!container) return;
+            container.innerHTML = '';
+
+            window.ingredientCategories.forEach(cat => {
+                const tag = document.createElement('div');
+                tag.className = "flex items-center gap-2 bg-stone-900 text-stone-200 border border-stone-800 rounded-full px-3 py-1.5 text-xs font-semibold";
+                tag.innerHTML = `
+                    <span>${cat.icon || '🏷️'} ${cat.name}</span>
+                    <button onclick="removeCustomIngredientCategory('${cat.id}', '${cat.name}')" class="text-stone-500 hover:text-rose-400 font-bold ml-1 transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                `;
+                container.appendChild(tag);
+            });
+        };
+
         window.populateRecipeCategoryDropdown = function() {
             const select = document.getElementById('recipe-category');
             if (!select) return;
@@ -1504,6 +1597,81 @@
                 opt.textContent = cat.name;
                 select.appendChild(opt);
             });
+        };
+
+        window.populateIngredientCategoryDropdown = function() {
+            const select = document.getElementById('ingredient-category');
+            if (!select) return;
+            select.innerHTML = '';
+            
+            window.ingredientCategories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat.name;
+                opt.textContent = `${cat.icon || '🏷️'} ${cat.name}`;
+                select.appendChild(opt);
+            });
+        };
+
+        function getEmojiForIngredientCategory(name) {
+            const lower = name.toLowerCase();
+            if (lower.includes('carne') || lower.includes('proteina') || lower.includes('proteína') || lower.includes('frango') || lower.includes('bacon') || lower.includes('blend') || lower.includes('hamburguer') || lower.includes('hambúrguer')) return '🥩';
+            if (lower.includes('queijo') || lower.includes('cheddar') || lower.includes('leite') || lower.includes('laticinio') || lower.includes('laticínio')) return '🧀';
+            if (lower.includes('pão') || lower.includes('pao') || lower.includes('brioche')) return '🍞';
+            if (lower.includes('salada') || lower.includes('alface') || lower.includes('tomate') || lower.includes('horti') || lower.includes('fruta') || lower.includes('cebola') || lower.includes('picles')) return '🥬';
+            if (lower.includes('molho') || lower.includes('tempero') || lower.includes('ketchup') || lower.includes('maionese') || lower.includes('sal') || lower.includes('pimenta')) return '🥫';
+            if (lower.includes('embalagem') || lower.includes('caixa') || lower.includes('sacola') || lower.includes('copo') || lower.includes('pote') || lower.includes('termic') || lower.includes('térmic') || lower.includes('fita') || lower.includes('papel')) return '📦';
+            if (lower.includes('bebida') || lower.includes('refrigerante') || lower.includes('suco') || lower.includes('cerveja') || lower.includes('agua') || lower.includes('água') || lower.includes('chá')) return '🥤';
+            if (lower.includes('doce') || lower.includes('sobremesa') || lower.includes('sorvete') || lower.includes('chocolate')) return '🍨';
+            return '🏷️';
+        }
+
+        window.addCustomIngredientCategory = async function() {
+            const input = document.getElementById('new-ingredient-category-input');
+            const name = input.value.trim();
+
+            if (!name) {
+                showCustomAlert("Erro", "Por favor, digite o nome de uma categoria válida.");
+                return;
+            }
+
+            const exists = window.ingredientCategories.some(c => c.name.toLowerCase() === name.toLowerCase());
+            if (exists) {
+                showCustomAlert("Duplicidade", "Já existe uma categoria cadastrada com este nome.");
+                return;
+            }
+
+            const newCat = {
+                id: `ingcat_${Date.now()}`,
+                name: name,
+                icon: getEmojiForIngredientCategory(name)
+            };
+
+            if (window.cloudSaveIngredientCategory) {
+                await window.cloudSaveIngredientCategory(newCat);
+                input.value = '';
+            }
+        };
+
+        window.removeCustomIngredientCategory = function(id, name) {
+            const usingIngredients = window.ingredients.filter(i => i.category === name);
+            if (usingIngredients.length > 0) {
+                const names = usingIngredients.map(i => i.name).join(', ');
+                showCustomAlert(
+                    "Categoria em Uso", 
+                    `Não é possível remover a categoria "${name}" pois ela está associada aos insumos: ${names}. Modifique os insumos antes de excluí-la.`
+                );
+                return;
+            }
+
+            showCustomConfirm(
+                "Remover Categoria de Insumo", 
+                `Tem certeza de que deseja excluir a categoria de insumo "${name}" de forma permanente?`,
+                async () => {
+                    if (window.cloudDeleteIngredientCategory) {
+                        await window.cloudDeleteIngredientCategory(id);
+                    }
+                }
+            );
         };
 
         window.addCustomCategory = async function() {
@@ -1571,6 +1739,10 @@
             if (tabId === 'dashboard') {
                 setTimeout(renderDashboardChart, 50);
                 setTimeout(calculateSalesGoalProfit, 50);
+            }
+            if (tabId === 'config') {
+                window.renderCategoriesInSettings();
+                window.renderIngredientCategoriesInSettings();
             }
         };
 
@@ -2033,19 +2205,28 @@
                 return;
             }
 
-            const categories = ["Proteína", "Laticínios", "Hortifrúti", "Pães", "Molhos & Temperos", "Embalagem", "Outros"];
-            const categoryIcons = {
-                "Proteína": "🥩",
-                "Laticínios": "🧀",
-                "Hortifrúti": "🥬",
-                "Pães": "🍞",
-                "Molhos & Temperos": "🥫",
-                "Embalagem": "📦",
-                "Outros": "🏷️"
-            };
+            // Get categories dynamically
+            const categories = [];
+            window.ingredientCategories.forEach(cat => {
+                categories.push(cat.name);
+            });
+            // Fallback for ingredients with categories that were deleted or custom-assigned
+            filteredIngredients.forEach(i => {
+                if (i.category && !categories.includes(i.category)) {
+                    categories.push(i.category);
+                }
+            });
+            if (categories.length === 0) {
+                categories.push('Outros');
+            }
+
+            const categoryIcons = {};
+            window.ingredientCategories.forEach(cat => {
+                categoryIcons[cat.name] = cat.icon || '🏷️';
+            });
 
             categories.forEach(cat => {
-                const catIngredients = filteredIngredients.filter(i => i.category === cat);
+                const catIngredients = filteredIngredients.filter(i => (i.category || 'Outros') === cat);
                 if (catIngredients.length === 0) return; 
 
                 const catDiv = document.createElement('div');
@@ -2111,6 +2292,8 @@
             const modal = document.getElementById('ingredient-modal');
             const form = document.getElementById('ingredient-form');
             form.reset();
+
+            window.populateIngredientCategoryDropdown();
 
             if (id) {
                 document.getElementById('ingredient-modal-title').textContent = "Editar Insumo";
