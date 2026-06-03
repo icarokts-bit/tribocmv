@@ -124,7 +124,7 @@
             <div id="sync-private-content" class="space-y-2 text-xs text-brand-textMuted">
                 <p class="text-[9px] leading-relaxed"><i class="fa-solid fa-circle-info text-brand-accent mr-1"></i> Sincronizando automaticamente com a sua conta pessoal no Firestore.</p>
                 <div class="bg-brand-gray/40 border border-brand-border p-2 rounded text-[9px] text-brand-light font-mono truncate">
-                    ID: <span id="user-id-display" class="text-brand-textMuted">A detetar...</span>
+                    ID Ativo: <span id="user-id-display" class="text-brand-textMuted font-bold">A detetar...</span>
                 </div>
             </div>
 
@@ -450,6 +450,55 @@
                     </button>
                 </div>
 
+                <!-- NOVO: FERRAMENTA DE RECUPERAÇÃO DE DADOS DE CONTA ANTIGA (MIGRAÇÃO) -->
+                <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
+                    <div>
+                        <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1 flex items-center gap-2">
+                            <i class="fa-solid fa-file-import text-brand-accent"></i> Recuperar Dados de Conta Antiga
+                        </h3>
+                        <p class="text-xs text-brand-textMuted">Se perdeu o acesso ao seu ID antigo (devido a mudança de navegador ou limpeza de cache), pode resgatar e migrar os dados para a sua nova conta ativa atual.</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">ID do Utilizador Antigo (UID)</label>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <input id="recovery-old-uid" type="text" placeholder="Bs7ZZdJ2UoOYPg41YT8k20KhlFH3" class="bg-brand-gray border border-brand-border text-brand-light p-2.5 rounded text-xs w-full focus:outline-none focus:border-brand-accent font-mono">
+                                <button onclick="attemptDataRecovery()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-black px-5 py-2.5 rounded text-xs transition-colors whitespace-nowrap flex items-center justify-center gap-1.5">
+                                    <i class="fa-solid fa-download"></i> Recuperar & Sincronizar
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-brand-textMuted space-y-2.5 leading-relaxed">
+                            <span class="font-bold text-yellow-500 flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation text-sm"></i> Atenção (Passo de Segurança Requerido)</span>
+                            <p>O Cloud Firestore bloqueia por padrão o acesso de leitura a pastas privadas de outros utilizadores. Para que o sistema consiga ler o ID antigo e migrar para si, siga estes passos rápidos:</p>
+                            <ol class="list-decimal pl-4 space-y-2 text-brand-light">
+                                <li>Abra o painel do seu Firebase Console em <strong class="text-brand-accent">Cloud Firestore</strong>.</li>
+                                <li>Vá na guia <strong class="text-brand-accent">Rules</strong> (Regras).</li>
+                                <li>Substitua a regra temporariamente por esta versão livre para permitir a cópia:
+                                    <pre class="bg-brand-black p-3 rounded border border-brand-border/80 text-[10px] text-yellow-400 font-mono overflow-x-auto mt-1 leading-normal">
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /artifacts/tribo-burger-pricing-system/users/{userId}/{document=**} {
+      allow read: if true; // PERMITE LER TEMPORARIAMENTE PARA A MIGRAÇÃO
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /artifacts/tribo-burger-pricing-system/public/data/shared_syncs/{syncId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</pre>
+                                </li>
+                                <li>Clique em <strong>Publish</strong> (Publicar).</li>
+                                <li>Insira o ID antigo <code class="bg-brand-black px-1 rounded font-mono text-brand-accent">Bs7ZZdJ2UoOYPg41YT8k20KhlFH3</code> no campo acima e clique em <strong>Recuperar & Sincronizar</strong>.</li>
+                                <li>Após o sucesso da migração, <strong>restaure a regra original anterior</strong> para manter o banco totalmente seguro contra acessos de terceiros.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- PAINEL EXTRA: CREDENCIAIS DO FIREBASE PERSONALIZADAS -->
                 <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
                     <div>
@@ -682,7 +731,7 @@ service cloud.firestore {
         </div>
     </div>
 
-    <!-- MODAL: CUSTO FIXO -->
+    <!-- MODAL: CUSTO FICHO -->
     <div id="modal-fixed-cost" class="fixed inset-0 bg-brand-black/80 backdrop-blur-sm z-50 items-center justify-center p-4 hidden no-print">
         <div class="bg-brand-dark border border-brand-border rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
             <div class="p-5 border-b border-brand-border flex justify-between items-center bg-brand-black/20">
@@ -2078,6 +2127,71 @@ service cloud.firestore {
                 console.warn("Erro ao sincronizar com o servidor:", e);
             }
         }
+
+        // ----------------- RECURSO ADICIONAL: SCRIPT DE MIGRAÇÃO MANUAL DE DADOS -----------------
+        window.attemptDataRecovery = async function() {
+            const oldUid = document.getElementById('recovery-old-uid').value.trim();
+            if (!oldUid) {
+                showCustomAlert('Campo Vazio', 'Por favor, insira o ID antigo (ex: Bs7ZZdJ2UoOYPg41YT8k20KhlFH3).', true);
+                return;
+            }
+
+            if (!isFirebaseActive || !db) {
+                showCustomAlert('Firebase Inativo', 'A conexão com o Firebase precisa estar ativa para realizar a migração.', true);
+                return;
+            }
+
+            showCustomConfirm('Confirmar Migração', 'Isso irá substituir TODOS os seus dados locais atuais pelas fichas técnicas e insumos encontrados na conta antiga. Deseja prosseguir?', async (approved) => {
+                if (!approved) return;
+
+                const badge = document.getElementById('cloud-badge');
+                if (badge) {
+                    badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Recuperando...`;
+                    badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20";
+                }
+
+                try {
+                    // Tenta obter o documento da conta antiga do Firestore de forma assíncrona
+                    const oldDocRef = doc(db, 'artifacts', defaultAppId, 'users', oldUid, 'user_data', 'state');
+                    const snap = await getDoc(oldDocRef);
+
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        
+                        // Atualiza o estado da memória
+                        appState = {
+                            ingredients: data.ingredients || [],
+                            recipes: data.recipes || [],
+                            combos: data.combos || [],
+                            fixedCosts: data.fixedCosts || [],
+                            settings: {
+                                targetCMV: data.settings?.targetCMV ?? 30,
+                                tax: data.settings?.tax ?? 6,
+                                apps: data.settings?.apps ?? 12,
+                                card: data.settings?.card ?? 2.5
+                            }
+                        };
+                        
+                        // Grava localmente no browser e sincroniza para a nova pasta ativa (novo UID) na nuvem
+                        saveLocalBackup();
+                        window.renderAll();
+                        await syncStateToCloud();
+
+                        showCustomAlert('Sucesso!', 'Os dados antigos foram recuperados e migrados com sucesso para a sua sessão ativa atual!');
+                    } else {
+                        showCustomAlert('Não Encontrado', 'Não foi possível encontrar nenhum registro para o ID antigo inserido. Confirme se os dados realmente pertencem a este projeto e servidor.', true);
+                    }
+                } catch (err) {
+                    console.error("Erro na recuperação de dados:", err);
+                    showCustomAlert('Erro de Permissão', 'Acesso negado. Certifique-se de que editou a aba "Rules" no console do Firebase para "allow read: if true;" temporariamente antes de clicar neste botão.', true);
+                } finally {
+                    if (badge) {
+                        badge.innerHTML = `<i class="fa-solid fa-cloud mr-1"></i> Nuvem Ativa`;
+                        badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20";
+                    }
+                }
+            });
+        };
 
         function fallbackToOfflineBadge() {
             const badge = document.getElementById('cloud-badge');
