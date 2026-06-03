@@ -48,37 +48,37 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #f2831b;
         }
+        
+        /* Estilos dedicados de impressão */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            ::-webkit-scrollbar {
+                display: none !important;
+            }
+        }
+        @media screen {
+            .print-only {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-stone-900 text-stone-100 min-h-screen font-sans flex flex-col md:flex-row">
 
-    <!-- SIDEBAR -->
-    <aside class="w-full md:w-64 bg-stone-950 border-b md:border-b-0 md:border-r border-stone-800 flex flex-col justify-between shrink-0 z-10">
-        <div>
-            <!-- Header Logo -->
-            <div class="p-6 border-b border-stone-800 flex items-center gap-3">
-                <div class="bg-tribo-500 text-stone-950 p-2 rounded-xl font-bold text-xl tracking-wider flex items-center justify-center shadow-lg shadow-tribo-500/20">
-                    TB
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg tracking-tight text-white">TRIBO BURGER</h1>
-                    <p class="text-xs text-stone-400">Gestão de Custos & CMV</p>
-                </div>
-            </div>
+    <!-- PRINT ONLY CONTAINER -->
+    <div id="print-section" class="print-only"></div>
 
-            <!-- Connection Status Widget inside Sidebar -->
-            <div class="p-4 mx-3 my-3 bg-stone-900/50 rounded-xl border border-stone-800 text-xs">
-                <div class="flex items-center gap-2 mb-1">
-                    <span id="cloud-status-dot" class="w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse"></span>
-                    <span id="cloud-status-text" class="font-bold text-stone-300">Conectando...</span>
-                </div>
-                <div class="flex items-center justify-between text-[10px] text-stone-500 mt-1.5">
-                    <span id="cloud-user-id" class="truncate max-w-[120px]">ID: ...</span>
-                    <button onclick="copyUserId()" class="hover:text-tribo-400 font-semibold uppercase text-[9px] transition-colors">Copiar</button>
-                </div>
-                <button onclick="window.runDatabaseDiagnostic()" class="w-full mt-3 py-1.5 bg-stone-900 hover:bg-stone-800 text-stone-300 font-semibold text-[10px] uppercase tracking-wider rounded-lg border border-stone-800 hover:border-tribo-500/50 transition-colors">
-                    🔍 Testar Conexão
-                </button>
+    <!-- SIDEBAR -->
+    <aside class="w-full md:w-64 bg-stone-950 border-b md:border-b-0 md:border-r border-stone-800 flex flex-col justify-between shrink-0 z-10 no-print">
             </div>
 
             <!-- Navigation -->
@@ -126,7 +126,7 @@
     </aside>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 overflow-y-auto p-4 md:p-8 max-w-7xl w-full mx-auto space-y-8">
+    <main class="flex-1 overflow-y-auto p-4 md:p-8 max-w-7xl w-full mx-auto space-y-8 no-print">
         
         <!-- ==================== TAB: DASHBOARD ==================== -->
         <section id="tab-dashboard" class="space-y-6">
@@ -374,7 +374,11 @@
                     <h2 class="text-2xl font-extrabold text-white tracking-tight">Análise Consolidada de Margens</h2>
                     <p class="text-stone-400">Relatório geral de custos e margens de lucro de todos os produtos por categoria.</p>
                 </div>
-                <div class="flex gap-2 text-xs">
+                <div class="flex gap-2 text-xs flex-wrap items-center">
+                    <button onclick="window.printAnaliseGeral()" class="flex items-center justify-center gap-2 bg-stone-950 hover:bg-stone-900 border border-stone-800 text-tribo-400 hover:text-tribo-300 font-bold px-3 py-1.5 rounded-lg text-xs transition-all shadow-md mr-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Imprimir Relatório
+                    </button>
                     <span class="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg font-bold">Excelente (&gt;15%)</span>
                     <span class="px-2.5 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg font-bold">Atenção (0% - 15%)</span>
                     <span class="px-2.5 py-1 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg font-bold">Prejuízo (&lt;0%)</span>
@@ -2636,7 +2640,13 @@
                                     <span class="text-[10px] text-stone-500 uppercase tracking-wider block">Preço Sugerido (Ideal):</span>
                                     <span class="font-bold text-emerald-400 text-sm">${formatCurrency(breakdown.suggestedFullMarkupPrice)}</span>
                                 </div>
-                                <div class="flex gap-1.5">
+                                <div class="flex gap-1.5 flex-wrap">
+                                    <button onclick="window.printRecipe('${recipe.id}')" class="p-2 bg-stone-900 hover:bg-stone-800 text-tribo-400 hover:text-tribo-300 rounded-lg transition-colors border border-stone-800 text-xs font-semibold flex items-center gap-1" title="Imprimir Ficha Técnica">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                                        </svg>
+                                        Imprimir
+                                    </button>
                                     <button onclick="duplicateRecipe('${recipe.id}')" class="p-2 bg-stone-900 hover:bg-stone-800 text-amber-500 hover:text-amber-400 rounded-lg transition-colors border border-stone-800 text-xs font-semibold flex items-center gap-1" title="Duplicar">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
                                         Duplicar
@@ -2852,7 +2862,13 @@
                                 <span class="text-[10px] text-stone-500 uppercase tracking-wider block">Preço Sugerido (Ideal):</span>
                                 <span class="font-bold text-emerald-400 text-sm">${formatCurrency(breakdown.suggestedFullMarkupPrice)}</span>
                             </div>
-                            <div class="flex gap-1.5">
+                            <div class="flex gap-1.5 flex-wrap">
+                                <button onclick="window.printCombo('${combo.id}')" class="p-2 bg-stone-900 hover:bg-stone-800 text-tribo-400 hover:text-tribo-300 rounded-lg transition-colors border border-stone-800 text-xs font-semibold flex items-center gap-1" title="Imprimir Ficha de Combo">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                                    </svg>
+                                    Imprimir
+                                </button>
                                 <button onclick="duplicateCombo('${combo.id}')" class="p-2 bg-stone-900 hover:bg-stone-800 text-amber-500 hover:text-amber-400 rounded-lg transition-colors border border-stone-800 text-xs font-semibold flex items-center gap-1" title="Duplicar">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
                                     Duplicar
@@ -3588,6 +3604,342 @@
         window.addEventListener('load', () => {
             setupLiveCalculationListeners();
         });
-    </script>
-</body>
-</html>
+
+        window.printRecipe = function(id) {
+            const recipe = window.recipes.find(r => r.id === id);
+            if (!recipe) return;
+            const breakdown = calculateBreakdown(recipe);
+            
+            let ingredientsHtml = '';
+            recipe.ingredients.forEach(item => {
+                const ing = window.ingredients.find(i => i.id === item.ingredientId);
+                if (ing) {
+                    const costVal = getIngredientCost(item.ingredientId, item.qty);
+                    ingredientsHtml += `
+                        <tr style="border-bottom: 1px solid #e7e5e4;">
+                            <td style="padding: 10px 0; font-weight: bold; color: #1c1917;">${ing.name}</td>
+                            <td style="padding: 10px 0; text-align: center; color: #44403c;">${item.qty} ${ing.unit === 'kg' ? 'g' : (ing.unit === 'l' ? 'ml' : ing.unit)}</td>
+                            <td style="padding: 10px 0; text-align: right; font-family: monospace; font-weight: bold;">${formatCurrency(costVal, 4)}</td>
+                        </tr>
+                    `;
+                }
+            });
+
+            const printContainer = document.getElementById('print-section');
+            printContainer.innerHTML = `
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1c1917; line-height: 1.6; padding: 20px;">
+                    <!-- Header -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #f2831b; padding-bottom: 15px; margin-bottom: 25px;">
+                        <div>
+                            <h1 style="margin: 0; color: #d95f10; font-size: 32px; font-weight: 900; letter-spacing: -0.5px;">TRIBO BURGER</h1>
+                            <p style="margin: 4px 0 0 0; font-size: 13px; color: #78716c; text-transform: uppercase; font-weight: bold; letter-spacing: 1.5px;">Ficha Técnica Operacional</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="margin: 0; font-size: 11px; color: #78716c;">Data de Impressão: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</p>
+                            <span style="display: inline-block; background: #fbe5d6; color: #d95f10; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 6px; margin-top: 6px; text-transform: uppercase;">
+                                ${recipe.category}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Title -->
+                    <div style="margin-bottom: 25px;">
+                        <h2 style="margin: 0 0 5px 0; font-size: 24px; font-weight: 800; color: #1c1917;">${recipe.name}</h2>
+                        <p style="margin: 0; font-size: 13px; color: #78716c;">Composição detalhada de insumos, rendimentos e análise de custos.</p>
+                    </div>
+
+                    <!-- Quick Indicators -->
+                    <div style="display: grid; grid-template-cols: repeat(4, 1fr); gap: 15px; margin-bottom: 30px;">
+                        <div style="background: #fafaf9; border: 1px solid #e7e5e4; padding: 12px; border-radius: 12px; text-align: center;">
+                            <span style="font-size: 10px; color: #78716c; text-transform: uppercase; font-weight: bold; display: block;">Custo do Alimento</span>
+                            <strong style="font-size: 18px; color: #1c1917; display: block; margin-top: 4px; font-family: monospace;">${formatCurrency(breakdown.cost)}</strong>
+                        </div>
+                        <div style="background: #fafaf9; border: 1px solid #e7e5e4; padding: 12px; border-radius: 12px; text-align: center;">
+                            <span style="font-size: 10px; color: #78716c; text-transform: uppercase; font-weight: bold; display: block;">Preço de Venda</span>
+                            <strong style="font-size: 18px; color: #d95f10; display: block; margin-top: 4px; font-family: monospace;">${formatCurrency(breakdown.price)}</strong>
+                        </div>
+                        <div style="background: #fafaf9; border: 1px solid #e7e5e4; padding: 12px; border-radius: 12px; text-align: center;">
+                            <span style="font-size: 10px; color: #78716c; text-transform: uppercase; font-weight: bold; display: block;">CMV Real</span>
+                            <strong style="font-size: 18px; color: ${breakdown.cmvRealPercent > window.settings.targetCMV ? '#ef4444' : '#10b981'}; display: block; margin-top: 4px; font-family: monospace;">${breakdown.cmvRealPercent.toFixed(1)}%</strong>
+                        </div>
+                        <div style="background: #fafaf9; border: 1px solid #e7e5e4; padding: 12px; border-radius: 12px; text-align: center;">
+                            <span style="font-size: 10px; color: #78716c; text-transform: uppercase; font-weight: bold; display: block;">Lucratividade Est.</span>
+                            <strong style="font-size: 18px; color: ${breakdown.netMarginPercent > 15 ? '#10b981' : '#f59e0b'}; display: block; margin-top: 4px; font-family: monospace;">${breakdown.netMarginPercent.toFixed(1)}%</strong>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <h3 style="font-size: 15px; font-weight: bold; color: #44403c; border-bottom: 2px solid #e7e5e4; padding-bottom: 6px; margin: 0 0 12px 0;">Composição e Pesagem</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 13px;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #a8a29e; text-align: left; color: #78716c;">
+                                <th style="padding: 8px 0; font-weight: bold;">Insumo</th>
+                                <th style="padding: 8px 0; text-align: center; font-weight: bold;">Rendimento / Quantidade</th>
+                                <th style="padding: 8px 0; text-align: right; font-weight: bold;">Custo Estimado (R$)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${ingredientsHtml}
+                            ${recipe.packagingCost > 0 ? `
+                                <tr style="font-weight: bold; border-bottom: 1px solid #e7e5e4;">
+                                    <td style="padding: 10px 0; color: #57524e;">Outros Custos Diretos / Embalagem Fixa</td>
+                                    <td style="padding: 10px 0; text-align: center;">-</td>
+                                    <td style="padding: 10px 0; text-align: right; font-family: monospace;">${formatCurrency(recipe.packagingCost)}</td>
+                                </tr>
+                            ` : ''}
+                        </tbody>
+                    </table>
+
+                    <!-- Financial Breakdown Panel -->
+                    <h3 style="font-size: 15px; font-weight: bold; color: #44403c; border-bottom: 2px solid #e7e5e4; padding-bottom: 6px; margin: 0 0 12px 0;">Demonstrativo Financeiro e Sugestões</h3>
+                    <div style="background: #fafaf9; border: 1px solid #e7e5e4; padding: 20px; border-radius: 12px; font-size: 13px; display: grid; grid-template-cols: 1fr 1fr; gap: 20px; margin-bottom: 35px;">
+                        <div>
+                            <p style="margin: 6px 0;"><strong>Preço de Cardápio Ativo:</strong> <span style="font-family: monospace;">${formatCurrency(breakdown.price)}</span></p>
+                            <p style="margin: 6px 0; color: #78716c;">Impostos Simples Nacional (${window.settings.taxes}%): <span style="font-family: monospace;">${formatCurrency(breakdown.taxCost)}</span></p>
+                            <p style="margin: 6px 0; color: #78716c;">Comissão Delivery (${window.settings.platformFees}%): <span style="font-family: monospace;">${formatCurrency(breakdown.platformCost)}</span></p>
+                        </div>
+                        <div>
+                            <p style="margin: 6px 0; color: #78716c;">Taxas de Transação Financeira (${window.settings.cardFees}%): <span style="font-family: monospace;">${formatCurrency(breakdown.cardCost)}</span></p>
+                            <p style="margin: 6px 0;"><strong>Margem de Contribuição Bruta:</strong> <span style="font-weight: bold; color: ${breakdown.netMarginPercent > 15 ? '#10b981' : '#f59e0b'}; font-family: monospace;">${formatCurrency(breakdown.netMarginAmount)} (${breakdown.netMarginPercent.toFixed(1)}%)</span></p>
+                            <p style="margin: 6px 0; color: #10b981; font-weight: bold;">Preço Sugerido para CMV ideal de ${window.settings.targetCMV}%: <span style="font-family: monospace;">${formatCurrency(breakdown.suggestedFullMarkupPrice)}</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div style="text-align: center; border-top: 1px solid #e7e5e4; padding-top: 20px; font-size: 11px; color: #a8a29e; font-weight: 500;">
+                        Ficha gerada eletronicamente pelo Sistema de Custos Tribo Burger. Uso Interno de Treinamento e Produção.
+                    </div>
+                </div>
+            `;
+            window.print();
+        };
+
+        window.printCombo = function(id) {
+            const combo = window.combos.find(c => c.id === id);
+            if (!combo) return;
+            const breakdown = calculateComboBreakdown(combo);
+            
+            let itemsHtml = '';
+            if (combo.items) {
+                combo.items.forEach(item => {
+                    if (item.type === 'recipe') {
+                        const rec = window.recipes.find(r => r.id === item.itemId);
+                        if (rec) {
+                            itemsHtml += `
+                                <tr style="border-bottom: 1px solid #e7e5e4;">
+                                    <td style="padding: 10px 0; font-weight: bold; color: #1c1917;">🍔 Ficha: ${rec.name}</td>
+                                    <td style="padding: 10px 0; text-align: center; color: #44403c;">x ${item.qty}</td>
+                                    <td style="padding: 10px 0; text-align: right; font-family: monospace; font-weight: bold;">${formatCurrency(calculateRecipeCost(rec) * item.qty)}</td>
+                                </tr>
+                            `;
+                        }
+                    } else if (item.type === 'ingredient') {
+                        const ing = window.ingredients.find(i => i.id === item.itemId);
+                        if (ing) {
+                            itemsHtml += `
+                                <tr style="border-bottom: 1px solid #e7e5e4;">
+                                    <td style="padding: 10px 0; font-weight: bold; color: #1c1917;">🥩 Insumo: ${ing.name}</td>
+                                    <td style="padding: 10px 0; text-align: center; color: #44403c;">${item.qty} ${ing.unit === 'kg' ? 'g' : (ing.unit === 'l' ? 'ml' : ing.unit)}</td>
+                                    <td style="padding: 10px 0; text-align: right; font-family: monospace; font-weight: bold;">${formatCurrency(getIngredientCost(item.itemId, item.qty))}</td>
+                                </tr>
+                            `;
+                        }
+                    }
+                });
+            }
+
+            const printContainer = document.getElementById('print-section');
+            printContainer.innerHTML = `
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1c1917; line-height: 1.6; padding: 20px;">
+                    <!-- Header -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #f2831b; padding-bottom: 15px; margin-bottom: 25px;">
+                        <div>
+                            <h1 style="margin: 0; color: #d95f10; font-size: 32px; font-weight: 900; letter-spacing: -0.5px;">TRIBO BURGER</h1>
+                            <p style="margin: 4px 0 0 0; font-size: 13px; color: #78716c; text-transform: uppercase; font-weight: bold; letter-spacing: 1.5px;">Ficha Técnica de Combo Promocional</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="margin: 0; font-size: 11px; color: #78716c;">Data de Impressão: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</p>
+                            <span style="display: inline-block; background: #fbe5d6; color: #d95f10; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 6px; margin-top: 6px; text-transform: uppercase;">
+                                Combos
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Title -->
+                    <div style="margin-bottom: 25px;">
+                        <h2 style="margin: 0 0 5px 0; font-size: 24px; font-weight: 800; color: #1c1917;">${combo.name}</h2>
+                        <p style="margin: 0; font-size: 13px; color: #78716c;">Configurações e rentabilidade consolidada do combo promocional do cardápio.</p>
+                    </div>
+
+                    <!-- Quick Indicators -->
+                    <div style="display: grid; grid-template-cols: repeat(4, 1fr); gap: 15px; margin-bottom: 30px;">
+                        <div style="background: #fafaf9; border: 1px solid #e7e5e4; padding: 12px; border-radius: 12px; text-align: center;">
+                            <span style="font-size: 10px; color: #78716c; text-transform: uppercase; font-weight: bold; display: block;">Custo do Combo</span>
+                            <strong style="font-size: 18px; color: #1c1917; display: block; margin-top: 4px; font-family: monospace;">${formatCurrency(breakdown.cost)}</strong>
+                        </div>
+                        <div style="background: #fafaf9; border: 1px solid #e7e5e4; padding: 12px; border-radius: 12px; text-align: center;">
+                            <span style="font-size: 10px; color: #78716c; text-transform: uppercase; font-weight: bold; display: block;">Preço de Venda</span>
+                            <strong style="font-size: 18px; color: #d95f10; display: block; margin-top: 4px; font-family: monospace;">${formatCurrency(breakdown.price)}</strong>
+                        </div>
+                        <div style="background: #fafaf9; border: 1px solid #e7e5e4; padding: 12px; border-radius: 12px; text-align: center;">
+                            <span style="font-size: 10px; color: #78716c; text-transform: uppercase; font-weight: bold; display: block;">CMV Combo</span>
+                            <strong style="font-size: 18px; color: ${breakdown.cmvRealPercent > window.settings.targetCMV ? '#ef4444' : '#10b981'}; display: block; margin-top: 4px; font-family: monospace;">${breakdown.cmvRealPercent.toFixed(1)}%</strong>
+                        </div>
+                        <div style="background: #fafaf9; border: 1px solid #e7e5e4; padding: 12px; border-radius: 12px; text-align: center;">
+                            <span style="font-size: 10px; color: #78716c; text-transform: uppercase; font-weight: bold; display: block;">Lucratividade Combo</span>
+                            <strong style="font-size: 18px; color: ${breakdown.netMarginPercent > 15 ? '#10b981' : '#f59e0b'}; display: block; margin-top: 4px; font-family: monospace;">${breakdown.netMarginPercent.toFixed(1)}%</strong>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <h3 style="font-size: 15px; font-weight: bold; color: #44403c; border-bottom: 2px solid #e7e5e4; padding-bottom: 6px; margin: 0 0 12px 0;">Composição e Itens do Pacote</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 13px;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #a8a29e; text-align: left; color: #78716c;">
+                                <th style="padding: 8px 0; font-weight: bold;">Item do Combo</th>
+                                <th style="padding: 8px 0; text-align: center; font-weight: bold;">Rendimento / Quantidade</th>
+                                <th style="padding: 8px 0; text-align: right; font-weight: bold;">Custo Individual Proporcional (R$)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsHtml}
+                            ${combo.packagingCost > 0 ? `
+                                <tr style="font-weight: bold; border-bottom: 1px solid #e7e5e4;">
+                                    <td style="padding: 10px 0; color: #57524e;">Adicionais / Outras Embalagens Combo</td>
+                                    <td style="padding: 10px 0; text-align: center;">-</td>
+                                    <td style="padding: 10px 0; text-align: right; font-family: monospace;">${formatCurrency(combo.packagingCost)}</td>
+                                </tr>
+                            ` : ''}
+                        </tbody>
+                    </table>
+
+                    <!-- Financial Breakdown Panel -->
+                    <h3 style="font-size: 15px; font-weight: bold; color: #44403c; border-bottom: 2px solid #e7e5e4; padding-bottom: 6px; margin: 0 0 12px 0;">Análise Geral de Venda e Margem</h3>
+                    <div style="background: #fafaf9; border: 1px solid #e7e5e4; padding: 20px; border-radius: 12px; font-size: 13px; display: grid; grid-template-cols: 1fr 1fr; gap: 20px; margin-bottom: 35px;">
+                        <div>
+                            <p style="margin: 6px 0;"><strong>Preço de Venda Praticado:</strong> <span style="font-family: monospace;">${formatCurrency(breakdown.price)}</span></p>
+                            <p style="margin: 6px 0; color: #78716c;">Impostos Globais (${window.settings.taxes}%): <span style="font-family: monospace;">${formatCurrency(breakdown.taxCost)}</span></p>
+                            <p style="margin: 6px 0; color: #78716c;">Comissão Plataforma (${window.settings.platformFees}%): <span style="font-family: monospace;">${formatCurrency(breakdown.platformCost)}</span></p>
+                        </div>
+                        <div>
+                            <p style="margin: 6px 0; color: #78716c;">Taxas Cartão (${window.settings.cardFees}%): <span style="font-family: monospace;">${formatCurrency(breakdown.cardCost)}</span></p>
+                            <p style="margin: 6px 0;"><strong>Lucro Líquido Operacional do Combo:</strong> <span style="font-weight: bold; color: ${breakdown.netMarginPercent > 15 ? '#10b981' : '#f59e0b'}; font-family: monospace;">${formatCurrency(breakdown.netMarginAmount)} (${breakdown.netMarginPercent.toFixed(1)}%)</span></p>
+                            <p style="margin: 6px 0; color: #10b981; font-weight: bold;">Preço Sugerido (CMV Alvo de ${window.settings.targetCMV}%): <span style="font-family: monospace;">${formatCurrency(breakdown.suggestedFullMarkupPrice)}</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div style="text-align: center; border-top: 1px solid #e7e5e4; padding-top: 20px; font-size: 11px; color: #a8a29e; font-weight: 500;">
+                        Ficha gerada eletronicamente pelo Sistema de Custos Tribo Burger. Uso Interno de Treinamento e Produção.
+                    </div>
+                </div>
+            `;
+            window.print();
+        };
+
+        window.printAnaliseGeral = function() {
+            if (window.recipes.length === 0 && window.combos.length === 0) {
+                showCustomAlert("Aviso", "Não há produtos cadastrados para gerar o relatório impresso.");
+                return;
+            }
+
+            let reportHtml = `
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1c1917; line-height: 1.5; padding: 20px;">
+                    <!-- Header -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #f2831b; padding-bottom: 15px; margin-bottom: 30px;">
+                        <div>
+                            <h1 style="margin: 0; color: #d95f10; font-size: 32px; font-weight: 900; letter-spacing: -0.5px;">TRIBO BURGER</h1>
+                            <p style="margin: 4px 0 0 0; font-size: 13px; color: #78716c; text-transform: uppercase; font-weight: bold; letter-spacing: 1.5px;">Relatório Analítico Consolidado de Margens & CMV</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="margin: 0; font-size: 11px; color: #78716c;">Emissão: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</p>
+                            <span style="display: inline-block; background: #f2831b; color: white; font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 4px; margin-top: 4px;">Gerencial</span>
+                        </div>
+                    </div>
+            `;
+
+            const categories = [];
+            window.recipeCategories.forEach(cat => categories.push(cat.name));
+            window.recipes.forEach(r => {
+                const cat = r.category || 'Outros';
+                if (!categories.includes(cat)) categories.push(cat);
+            });
+            window.combos.forEach(c => {
+                const cat = c.category || 'Combos';
+                if (!categories.includes(cat)) categories.push(cat);
+            });
+
+            categories.forEach(catName => {
+                const catRecipes = window.recipes.filter(r => (r.category || 'Outros') === catName);
+                const catCombos = window.combos.filter(c => (c.category || 'Combos') === catName);
+
+                if (catRecipes.length === 0 && catCombos.length === 0) return;
+
+                reportHtml += `
+                    <div style="margin-bottom: 35px; page-break-inside: avoid;">
+                        <h3 style="font-size: 16px; font-weight: 800; color: #d95f10; text-transform: uppercase; border-bottom: 2px solid #f2831b; padding-bottom: 4px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                            <span>📂</span> ${catName}
+                        </h3>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 11px; text-align: left;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid #a8a29e; background: #fafaf9; color: #57524e; font-weight: bold;">
+                                    <th style="padding: 10px; font-weight: bold;">Tipo / Item</th>
+                                    <th style="padding: 10px; font-weight: bold;">Custo Unit.</th>
+                                    <th style="padding: 10px; font-weight: bold;">Preço Venda</th>
+                                    <th style="padding: 10px; font-weight: bold;">CMV %</th>
+                                    <th style="padding: 10px; font-weight: bold;">Imp (${window.settings.taxes}%)</th>
+                                    <th style="padding: 10px; font-weight: bold;">Apps (${window.settings.platformFees}%)</th>
+                                    <th style="padding: 10px; font-weight: bold;">Finan (${window.settings.cardFees}%)</th>
+                                    <th style="padding: 10px; font-weight: bold;">Margem Lucro Operacional R$ (%)</th>
+                                    <th style="padding: 10px; font-weight: bold;">Preço Sugerido</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                const appendRow = (item, type) => {
+                    const breakdown = type === 'recipe' ? calculateBreakdown(item) : calculateComboBreakdown(item);
+                    const badge = type === 'recipe' ? '🍔 FICHA' : '📦 COMBO';
+                    const marginColor = breakdown.netMarginPercent > 15 ? '#10b981' : (breakdown.netMarginPercent < 0 ? '#ef4444' : '#f59e0b');
+
+                    reportHtml += `
+                        <tr style="border-bottom: 1px solid #e7e5e4;">
+                            <td style="padding: 8px 10px; vertical-align: middle;">
+                                <span style="font-size: 8px; font-weight: bold; color: #78716c; border: 1px solid #e7e5e4; padding: 2px 4px; border-radius: 4px; margin-right: 6px; background: #fafaf9;">${badge}</span>
+                                <strong style="color: #1c1917;">${item.name}</strong>
+                            </td>
+                            <td style="padding: 8px 10px; font-family: monospace;">${formatCurrency(breakdown.cost)}</td>
+                            <td style="padding: 8px 10px; font-weight: bold; color: #d95f10; font-family: monospace;">${formatCurrency(breakdown.price)}</td>
+                            <td style="padding: 8px 10px; font-weight: bold; font-family: monospace; color: ${breakdown.cmvRealPercent > window.settings.targetCMV ? '#ef4444' : '#10b981'}">${breakdown.cmvRealPercent.toFixed(1)}%</td>
+                            <td style="padding: 8px 10px; color: #78716c; font-family: monospace;">${formatCurrency(breakdown.taxCost)}</td>
+                            <td style="padding: 8px 10px; color: #78716c; font-family: monospace;">${formatCurrency(breakdown.platformCost)}</td>
+                            <td style="padding: 8px 10px; color: #78716c; font-family: monospace;">${formatCurrency(breakdown.cardCost)}</td>
+                            <td style="padding: 8px 10px; font-weight: bold; font-family: monospace; color: ${marginColor}">
+                                ${formatCurrency(breakdown.netMarginAmount)} (${breakdown.netMarginPercent.toFixed(1)}%)
+                            </td>
+                            <td style="padding: 8px 10px; font-weight: bold; color: #10b981; font-family: monospace;">${formatCurrency(breakdown.suggestedFullMarkupPrice)}</td>
+                        </tr>
+                    `;
+                };
+
+                catRecipes.forEach(rec => appendRow(rec, 'recipe'));
+                catCombos.forEach(combo => appendRow(combo, 'combo'));
+
+                reportHtml += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            });
+
+            reportHtml += `
+                    <div style="text-align: center; border-top: 1px solid #e7e5e4; padding-top: 25px; font-size: 11px; color: #78716c; margin-top: 50px; font-weight: bold;">
+                        Documento gerado para controle e auditoria interna de TRIBO BURGER.
+                    </div>
+                </div>
+            `;
+
+            const printContainer = document.getElementById('print-section');
+            printContainer.innerHTML = reportHtml;
+            window.print();
+        };
