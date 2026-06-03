@@ -99,6 +99,10 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                     Fichas de Combos
                 </button>
+                <button onclick="switchTab('analise-geral')" id="nav-analise-geral" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    Análise Geral
+                </button>
                 <button onclick="switchTab('custos-fixos')" id="nav-custos-fixos" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                     Custos Fixos
@@ -127,7 +131,7 @@
         <!-- ==================== TAB: DASHBOARD ==================== -->
         <section id="tab-dashboard" class="space-y-6">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
+                <div class="text-left">
                     <h2 class="text-2xl font-extrabold text-white tracking-tight">Painel Executivo</h2>
                     <p class="text-stone-400">Visão consolidada da rentabilidade, CMV do cardápio e simulação de lucros.</p>
                 </div>
@@ -140,7 +144,7 @@
             <!-- KPI Row (Expanded to 5 columns on large screens) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <!-- KPI 1 -->
-                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between">
+                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between text-left">
                     <span class="text-xs font-bold uppercase tracking-wider text-stone-400">CMV Médio Real</span>
                     <div class="flex items-baseline gap-2 mt-2">
                         <span id="kpi-avg-cmv" class="text-3xl font-black text-white">0%</span>
@@ -149,7 +153,7 @@
                     <p class="text-xs text-stone-500 mt-2">Média ponderada no preço de venda.</p>
                 </div>
                 <!-- KPI 2 -->
-                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between">
+                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between text-left">
                     <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Meta de CMV</span>
                     <div class="flex items-baseline gap-2 mt-2">
                         <span id="kpi-target-cmv" class="text-3xl font-black text-tribo-400">30%</span>
@@ -158,7 +162,7 @@
                     <p class="text-xs text-stone-500 mt-2">Alvo recomendado pela Tribo.</p>
                 </div>
                 <!-- KPI 3 -->
-                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between">
+                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between text-left">
                     <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Total de Insumos</span>
                     <div class="flex items-baseline gap-2 mt-2">
                         <span id="kpi-total-ingredients" class="text-3xl font-black text-white">0</span>
@@ -167,7 +171,7 @@
                     <p class="text-xs text-stone-500 mt-2">Ingredientes catalogados.</p>
                 </div>
                 <!-- KPI 4 -->
-                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between">
+                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between text-left">
                     <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Total Custos Fixos</span>
                     <div class="flex items-baseline gap-2 mt-2">
                         <span id="kpi-total-fixed-costs" class="text-3xl font-black text-rose-400">R$ 0,00</span>
@@ -176,7 +180,7 @@
                     <p class="text-xs text-stone-500 mt-2">Despesas mensais fixas.</p>
                 </div>
                 <!-- KPI 5 -->
-                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between">
+                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between text-left">
                     <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Fichas no CMV</span>
                     <div class="flex items-baseline gap-2 mt-2">
                         <span id="kpi-total-recipes" class="text-3xl font-black text-white">0</span>
@@ -363,6 +367,25 @@
             </div>
         </section>
 
+        <!-- ==================== TAB: ANÁLISE GERAL (NEW) ==================== -->
+        <section id="tab-analise-geral" class="space-y-6 hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="text-left">
+                    <h2 class="text-2xl font-extrabold text-white tracking-tight">Análise Consolidada de Margens</h2>
+                    <p class="text-stone-400">Relatório geral de custos e margens de lucro de todos os produtos por categoria.</p>
+                </div>
+                <div class="flex gap-2 text-xs">
+                    <span class="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg font-bold">Excelente (&gt;15%)</span>
+                    <span class="px-2.5 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg font-bold">Atenção (0% - 15%)</span>
+                    <span class="px-2.5 py-1 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg font-bold">Prejuízo (&lt;0%)</span>
+                </div>
+            </div>
+
+            <div id="analise-geral-container" class="space-y-8">
+                <!-- Grouped tables injected via JS -->
+            </div>
+        </section>
+
         <!-- ==================== TAB: CUSTOS FIXOS ==================== -->
         <section id="tab-custos-fixos" class="space-y-6 hidden">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -504,7 +527,7 @@
                         </div>
                         <div class="bg-stone-900 p-3 rounded-lg border-l-4 border-amber-500">
                             <strong class="text-white block mb-1">2. Como precificar corretamente?</strong>
-                            Para atingir o CMV Alvo ideal (ex: 30%), o preço de venda é calculado diretamente a partir do custo dos ingredientes. O Markup correto do preço de venda garante que as despesas de venda e a lucratividade do cardápio estejam equilibradas.
+                            Para atingir o CMV Alvo ideal (ex: 30%), o preço de venda é calculated diretamente a partir do custo dos ingredientes. O Markup correto do preço de venda garante que as despesas de venda e a lucratividade do cardápio estejam equilibradas.
                         </div>
                         <div class="bg-stone-900 p-3 rounded-lg border-l-4 border-emerald-500">
                             <strong class="text-white block mb-1">3. Margem de Contribuição Bruta</strong>
@@ -1729,7 +1752,10 @@
                 btn.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white";
             });
 
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const targetSection = document.getElementById(`tab-${tabId}`);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
             
             const activeBtn = document.getElementById(`nav-${tabId}`);
             if (activeBtn) {
@@ -1743,6 +1769,9 @@
             if (tabId === 'config') {
                 window.renderCategoriesInSettings();
                 window.renderIngredientCategoriesInSettings();
+            }
+            if (tabId === 'analise-geral') {
+                setTimeout(renderAnaliseGeral, 50);
             }
         };
 
@@ -1861,6 +1890,7 @@
             renderRecipes();
             renderCombos();
             renderFixedCosts();
+            renderAnaliseGeral();
             renderDashboardStats();
             renderDashboardChart();
             calculateSalesGoalProfit();
@@ -1913,7 +1943,7 @@
                     const alertCard = document.createElement('div');
                     alertCard.className = "flex items-start gap-3 bg-rose-950/40 p-3 rounded-lg border border-rose-900/50 text-left";
                     alertCard.innerHTML = `
-                        <div class="text-rose-400 mt-0.5">
+                        <div class="text-rose-400 mt-0.5 animate-pulse">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                         </div>
                         <div class="flex-1 min-w-0">
@@ -1942,7 +1972,7 @@
                     const alertCard = document.createElement('div');
                     alertCard.className = "flex items-start gap-3 bg-rose-950/40 p-3 rounded-lg border border-rose-900/50 text-left";
                     alertCard.innerHTML = `
-                        <div class="text-rose-400 mt-0.5">
+                        <div class="text-rose-400 mt-0.5 animate-pulse">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                         </div>
                         <div class="flex-1 min-w-0">
@@ -2205,12 +2235,10 @@
                 return;
             }
 
-            // Get categories dynamically
             const categories = [];
             window.ingredientCategories.forEach(cat => {
                 categories.push(cat.name);
             });
-            // Fallback for ingredients with categories that were deleted or custom-assigned
             filteredIngredients.forEach(i => {
                 if (i.category && !categories.includes(i.category)) {
                     categories.push(i.category);
@@ -2268,7 +2296,7 @@
                         </span>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
+                        <table class="w-full text-left border-collapse border-spacing-0">
                             <thead>
                                 <tr class="border-b border-stone-800 text-stone-400 text-xs font-bold uppercase bg-stone-900/20">
                                     <th class="p-4">Nome do Insumo</th>
@@ -2545,7 +2573,7 @@
 
                     const detailsHtml = isExpanded ? `
                         <div class="px-5 pb-5 pt-2 border-t border-stone-900 bg-stone-950 space-y-4">
-                            <div class="space-y-1 bg-stone-900/40 p-3 rounded-xl border border-stone-800/80 text-xs">
+                            <div class="space-y-1 bg-stone-900/40 p-3 rounded-xl border border-stone-800/80 text-xs text-left">
                                 <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1">Ingredientes Principais</span>
                                 ${recipe.ingredients.map(item => {
                                     const ing = window.ingredients.find(i => i.id === item.ingredientId);
@@ -2559,7 +2587,7 @@
                                     `;
                                 }).join('')}
                                 ${recipe.packagingCost > 0 ? `
-                                    <div class="flex justify-between text-stone-400 border-t border-stone-800/60 mt-1.5 pt-1.5">
+                                    <div class="flex justify-between text-stone-400 border-t border-stone-800/60 mt-1.5 pt-1.5 font-medium">
                                         <span>Embalagem & Despesas Fichas</span>
                                         <span>${formatCurrency(recipe.packagingCost)}</span>
                                     </div>
@@ -2577,7 +2605,7 @@
                                 </div>
                             </div>
 
-                            <div class="border-t border-stone-900 pt-3 space-y-2 text-xs">
+                            <div class="border-t border-stone-900 pt-3 space-y-2 text-xs text-left">
                                 <div class="flex justify-between items-center text-sm">
                                     <span class="font-semibold text-stone-300">Preço Atual de Venda:</span>
                                     <span class="font-extrabold text-white text-base">${formatCurrency(breakdown.price)}</span>
@@ -2750,7 +2778,7 @@
 
                 const detailsHtml = isExpanded ? `
                     <div class="px-5 pb-5 pt-2 border-t border-stone-900 bg-stone-950 space-y-4">
-                        <div class="space-y-1 bg-stone-900/40 p-3 rounded-xl border border-stone-800/80 text-xs">
+                        <div class="space-y-1 bg-stone-900/40 p-3 rounded-xl border border-stone-800/80 text-xs text-left">
                             <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1">Composição do Combo</span>
                             ${combo.items ? combo.items.map(item => {
                                 if (item.type === 'recipe') {
@@ -2775,7 +2803,7 @@
                                 return '';
                             }).join('') : ''}
                             ${combo.packagingCost > 0 ? `
-                                <div class="flex justify-between text-stone-400 border-t border-stone-800/60 mt-1.5 pt-1.5">
+                                <div class="flex justify-between text-stone-400 border-t border-stone-800/60 mt-1.5 pt-1.5 font-medium">
                                     <span>Adicionais e Embalagens Combo</span>
                                     <span>${formatCurrency(combo.packagingCost)}</span>
                                 </div>
@@ -2793,7 +2821,7 @@
                             </div>
                         </div>
 
-                        <div class="border-t border-stone-900 pt-3 space-y-2 text-xs">
+                        <div class="border-t border-stone-900 pt-3 space-y-2 text-xs text-left">
                             <div class="flex justify-between items-center text-sm">
                                 <span class="font-semibold text-stone-300">Preço do Combo:</span>
                                 <span class="font-extrabold text-white text-base">${formatCurrency(breakdown.price)}</span>
@@ -2819,7 +2847,6 @@
                             </div>
                         </div>
 
-                        <!-- Action buttons and suggestions -->
                         <div class="pt-3 border-t border-stone-900 flex items-center justify-between gap-4 flex-wrap sm:flex-nowrap">
                             <div class="text-left">
                                 <span class="text-[10px] text-stone-500 uppercase tracking-wider block">Preço Sugerido (Ideal):</span>
@@ -2847,6 +2874,138 @@
                 container.appendChild(card);
             });
         }
+
+        // Consolidated Margin and Product Analysis tab rendering
+        window.renderAnaliseGeral = function() {
+            const container = document.getElementById('analise-geral-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (window.recipes.length === 0 && window.combos.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center p-12 bg-stone-950 rounded-2xl border border-stone-800 text-stone-500">
+                        Nenhum produto cadastrado para análise. Crie receitas ou combos primeiro.
+                    </div>
+                `;
+                return;
+            }
+
+            // Group all products by Category
+            const categories = [];
+            window.recipeCategories.forEach(cat => {
+                categories.push(cat.name);
+            });
+
+            // Fallbacks for any missing categories
+            window.recipes.forEach(r => {
+                const cat = r.category || 'Outros';
+                if (!categories.includes(cat)) {
+                    categories.push(cat);
+                }
+            });
+            window.combos.forEach(c => {
+                const cat = c.category || 'Combos';
+                if (!categories.includes(cat)) {
+                    categories.push(cat);
+                }
+            });
+
+            categories.forEach(catName => {
+                const catRecipes = window.recipes.filter(r => (r.category || 'Outros') === catName);
+                const catCombos = window.combos.filter(c => (c.category || 'Combos') === catName);
+
+                if (catRecipes.length === 0 && catCombos.length === 0) return;
+
+                const catBlock = document.createElement('div');
+                catBlock.className = "bg-stone-950 rounded-2xl border border-stone-800 overflow-hidden text-left shadow-lg";
+
+                let rowsHtml = '';
+
+                const renderRow = (item, type) => {
+                    const breakdown = type === 'recipe' ? calculateBreakdown(item) : calculateComboBreakdown(item);
+                    
+                    // Determine warning colors for net margin
+                    let marginColorClass = "text-amber-400";
+                    let marginBgClass = "bg-amber-500/10";
+                    if (breakdown.netMarginPercent > 15) {
+                        marginColorClass = "text-emerald-400";
+                        marginBgClass = "bg-emerald-500/10";
+                    } else if (breakdown.netMarginPercent < 0) {
+                        marginColorClass = "text-rose-400";
+                        marginBgClass = "bg-rose-500/10";
+                    }
+
+                    // Determine warning colors for CMV
+                    let cmvColorClass = "text-emerald-400";
+                    if (breakdown.cmvRealPercent > window.settings.targetCMV) {
+                        cmvColorClass = "text-rose-400";
+                    } else if (breakdown.cmvRealPercent > window.settings.targetCMV - 3) {
+                        cmvColorClass = "text-amber-400";
+                    }
+
+                    const badge = type === 'recipe' ? '🍔 Ficha' : '📦 Combo';
+
+                    return `
+                        <tr class="hover:bg-stone-900/30 transition-colors border-b border-stone-900">
+                            <td class="p-4 font-semibold text-white">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-stone-900 border border-stone-800 text-stone-400">${badge}</span>
+                                    <span>${item.name}</span>
+                                </div>
+                            </td>
+                            <td class="p-4 font-semibold text-stone-300 font-mono">${formatCurrency(breakdown.cost)}</td>
+                            <td class="p-4 font-bold text-tribo-400 font-mono">${formatCurrency(breakdown.price)}</td>
+                            <td class="p-4 font-black font-mono ${cmvColorClass}">${breakdown.cmvRealPercent.toFixed(1)}%</td>
+                            <td class="p-4 font-medium text-stone-400 font-mono">${formatCurrency(breakdown.taxCost)}</td>
+                            <td class="p-4 font-medium text-stone-400 font-mono">${formatCurrency(breakdown.platformCost)}</td>
+                            <td class="p-4 font-medium text-stone-400 font-mono">${formatCurrency(breakdown.cardCost)}</td>
+                            <td class="p-4 font-mono font-bold">
+                                <div class="px-2.5 py-1 rounded ${marginBgClass} ${marginColorClass} w-fit">
+                                    ${formatCurrency(breakdown.netMarginAmount)} (${breakdown.netMarginPercent.toFixed(1)}%)
+                                </div>
+                            </td>
+                            <td class="p-4 font-black text-emerald-400 font-mono">${formatCurrency(breakdown.suggestedFullMarkupPrice)}</td>
+                        </tr>
+                    `;
+                };
+
+                catRecipes.forEach(rec => { rowsHtml += renderRow(rec, 'recipe'); });
+                catCombos.forEach(combo => { rowsHtml += renderRow(combo, 'combo'); });
+
+                catBlock.innerHTML = `
+                    <div class="p-4 bg-stone-900/50 border-b border-stone-800 flex justify-between items-center">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-tribo-400 flex items-center gap-2">
+                            <span>📂</span>
+                            <span>${catName}</span>
+                        </h3>
+                        <span class="text-xs text-stone-400 font-semibold px-2.5 py-1 bg-stone-900 rounded-full border border-stone-800">
+                            ${catRecipes.length + catCombos.length} itens cadastrados
+                        </span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse border-spacing-0">
+                            <thead>
+                                <tr class="border-b border-stone-800 text-stone-400 text-[10px] font-bold uppercase bg-stone-900/20 tracking-wider">
+                                    <th class="p-4 min-w-[200px]">Item</th>
+                                    <th class="p-4">Preço Custo</th>
+                                    <th class="p-4">Preço Venda</th>
+                                    <th class="p-4">CMV %</th>
+                                    <th class="p-4">Impostos (${window.settings.taxes}%)</th>
+                                    <th class="p-4">Parcerias (${window.settings.platformFees}%)</th>
+                                    <th class="p-4">Taxas (${window.settings.cardFees}%)</th>
+                                    <th class="p-4">Margem Operacional R$ / %</th>
+                                    <th class="p-4">Preço Sugerido (Ideal)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-xs divide-y divide-stone-900 bg-stone-950">
+                                ${rowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                container.appendChild(catBlock);
+            });
+        };
 
         function renderFixedCosts() {
             const container = document.getElementById('fixed-costs-categories-container');
@@ -2924,7 +3083,7 @@
                         </span>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
+                        <table class="w-full text-left border-collapse border-spacing-0">
                             <thead>
                                 <tr class="border-b border-stone-800 text-stone-400 text-xs font-bold uppercase bg-stone-900/20">
                                     <th class="p-4">Identificação da Despesa</th>
