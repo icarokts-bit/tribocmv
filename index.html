@@ -101,7 +101,7 @@
             </div>
         </div>
 
-        <!-- Box de Sincronização em Nuvem (Dual-Mode Seguro) -->
+        <!-- Box de Sincronização em Nuvem Seguro (Otimizado para as novas regras de segurança) -->
         <div class="p-5 border-b border-brand-border bg-brand-black/50 m-4 rounded-xl border border-brand-border/60 space-y-4">
             <div class="flex items-center justify-between">
                 <span class="text-[10px] font-bold tracking-wider text-brand-textMuted uppercase">Sincronização</span>
@@ -110,13 +110,13 @@
                 </span>
             </div>
 
-            <!-- NOVA SEÇÃO: Identidade e Login com Email/Senha -->
+            <!-- Identidade e Login por Email/Senha -->
             <div id="auth-status-container" class="p-3 bg-brand-gray/50 rounded-lg border border-brand-border text-xs">
                 <!-- Estado Logado com Email -->
                 <div id="auth-logged-in-view" class="hidden space-y-2">
                     <div class="flex items-center justify-between">
                         <span class="text-[10px] font-bold text-emerald-500 flex items-center gap-1">
-                            <i class="fa-solid fa-user-shield"></i> Sessão Segura
+                            <i class="fa-solid fa-user-shield"></i> Conta Protegida
                         </span>
                         <button onclick="handleLogout()" class="text-[9px] text-red-400 hover:text-red-300 font-bold uppercase flex items-center gap-1">
                             <i class="fa-solid fa-right-from-bracket"></i> Sair
@@ -128,10 +128,10 @@
                 <div id="auth-anonymous-view" class="space-y-2">
                     <div class="flex items-center justify-between">
                         <span class="text-[10px] font-bold text-amber-500 flex items-center gap-1">
-                            <i class="fa-solid fa-triangle-exclamation"></i> Sessão Provisória
+                            <i class="fa-solid fa-triangle-exclamation"></i> Modo Provisório
                         </span>
                     </div>
-                    <p class="text-[9px] text-brand-textMuted leading-tight">Os dados atuais podem ser perdidos ao limpar o cache do navegador.</p>
+                    <p class="text-[9px] text-brand-textMuted leading-tight">Faça login para salvar seus dados de forma permanente sob as regras de segurança.</p>
                     <button onclick="openAuthModal()" class="w-full bg-brand-accent hover:bg-brand-accentHover text-brand-black text-[10px] font-black py-2 rounded-lg transition-colors uppercase tracking-wide flex items-center justify-center gap-1.5 shadow-lg shadow-brand-accent/10">
                         <i class="fa-solid fa-user-lock"></i> Entrar / Registar
                     </button>
@@ -141,39 +141,35 @@
             <!-- Seletor de Modo de Sincronização -->
             <div class="grid grid-cols-2 gap-1 bg-brand-gray p-1 rounded-lg border border-brand-border text-center">
                 <button onclick="setSyncMode('private')" id="btn-sync-private" class="text-[10px] font-bold py-1.5 px-2 rounded transition-all bg-brand-border text-brand-light">
-                    <i class="fa-solid fa-user-shield mr-1"></i> Por Conta
+                    <i class="fa-solid fa-user-lock mr-1"></i> Por Conta
                 </button>
                 <button onclick="setSyncMode('shared')" id="btn-sync-shared" class="text-[10px] font-bold py-1.5 px-2 rounded transition-all text-brand-textMuted hover:text-brand-light">
                     <i class="fa-solid fa-key mr-1"></i> Por Chave
                 </button>
             </div>
 
-            <!-- Conteúdo Dinâmico com base no Modo de Sincronização -->
+            <!-- Conteúdo Dinâmico: Sincronização por Conta (Ativa sob as novas regras) -->
             <div id="sync-private-content" class="space-y-2 text-xs text-brand-textMuted">
-                <p class="text-[9px] leading-relaxed"><i class="fa-solid fa-circle-info text-brand-accent mr-1"></i> Sincronizando automaticamente com a sua conta ativa no Firestore.</p>
+                <p class="text-[9px] leading-relaxed text-emerald-500 font-medium">
+                    <i class="fa-solid fa-shield-halved mr-1"></i> Regra de Segurança Ativa: Os seus dados estão protegidos sob o seu ID de utilizador exclusivo.
+                </p>
                 <div class="bg-brand-gray/40 border border-brand-border p-2 rounded text-[9px] text-brand-light font-mono truncate">
-                    ID Ativo: <span id="user-id-display" class="text-brand-textMuted font-bold">A detetar...</span>
+                    Seu UID: <span id="user-id-display" class="text-brand-textMuted font-bold">A detetar...</span>
                 </div>
             </div>
 
+            <!-- Conteúdo Dinâmico: Sincronização Compartilhada (Bloqueada por segurança sob as novas regras) -->
             <div id="sync-shared-content" class="space-y-3 hidden">
-                <div>
-                    <label class="block text-[9px] text-brand-textMuted uppercase mb-1 font-bold">Chave Compartilhada (ID)</label>
-                    <div class="flex gap-2">
-                        <input id="sync-id-input" type="password" placeholder="Chave da Nuvem" 
-                               class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded px-2.5 py-1.5 focus:outline-none focus:border-brand-accent w-full font-mono">
-                        <button onclick="toggleSyncIdVisibility()" class="p-1.5 bg-brand-gray border border-brand-border rounded text-brand-textMuted hover:text-brand-light" title="Mostrar/Ocultar Chave">
-                            <i id="eye-icon" class="fa-solid fa-eye text-xs"></i>
-                        </button>
-                    </div>
+                <div class="p-2.5 bg-red-500/10 border border-red-500/20 rounded text-[9.5px] text-brand-textMuted leading-relaxed">
+                    <span class="text-brand-accent font-bold"><i class="fa-solid fa-circle-info"></i> Recurso Bloqueado</span><br>
+                    Suas regras do Firestore bloqueiam acessos públicos por segurança. Use a aba **"Por Conta"** com o mesmo Email/Senha em múltiplos aparelhos para compartilhar o acesso de forma segura.
                 </div>
-                <div class="flex gap-2">
-                    <button id="btn-save-key" onclick="updateSyncKeyFromInput()" class="flex-1 bg-brand-accent hover:bg-brand-accentHover text-brand-black text-xs font-bold py-1.5 px-2 rounded transition-colors flex items-center justify-center gap-1">
-                        <i class="fa-solid fa-link"></i> Ativar Chave
-                    </button>
-                    <button onclick="copySyncId()" class="bg-brand-gray hover:bg-brand-border text-brand-light text-xs font-medium py-1.5 px-2.5 rounded transition-colors" title="Copiar Chave">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
+                <div>
+                    <label class="block text-[9px] text-brand-textMuted uppercase mb-1 font-bold">Chave de Backup Local</label>
+                    <div class="flex gap-2">
+                        <input id="sync-id-input" type="password" placeholder="Chave da Nuvem" disabled
+                               class="bg-brand-gray border border-brand-border text-brand-textMuted text-xs rounded px-2.5 py-1.5 focus:outline-none w-full font-mono cursor-not-allowed">
+                    </div>
                 </div>
             </div>
         </div>
@@ -482,17 +478,17 @@
                 <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
                     <div>
                         <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1 flex items-center gap-2">
-                            <i class="fa-solid fa-user-lock text-brand-accent"></i> Autenticação com Email e Senha Segura
+                            <i class="fa-solid fa-user-lock text-brand-accent"></i> Autenticação com Email e Senha Ativa
                         </h3>
-                        <p class="text-xs text-brand-textMuted">Excelente! Agora que ativou o provedor de Email e Senha no Firebase Console, o sistema está 100% pronto para sincronizar os dados com segurança.</p>
+                        <p class="text-xs text-brand-textMuted">Excelente! O seu banco de dados está sincronizado e protegido pelas novas regras de segurança que você configurou.</p>
                     </div>
                     
                     <div class="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-brand-textMuted space-y-2 leading-relaxed">
-                        <span class="font-bold text-emerald-400 flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-sm"></i> Vantagens de Se Identificar:</span>
-                        <ul class="list-disc pl-4 space-y-1 text-brand-light">
-                            <li>Aceda às suas receitas de hambúrguer de qualquer telemóvel ou computador.</li>
-                            <li>Previna perdas acidentais de dados se o histórico do browser for limpo.</li>
-                            <li>Sem necessidade de copiar códigos complexos de restauração.</li>
+                        <span class="font-bold text-emerald-400 flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-sm"></i> Estado de Segurança das Regras:</span>
+                        <p class="text-brand-light font-medium">As regras configuradas no seu painel barram acessos externos na raiz do projeto (`match /{document=**} { allow read, write: if false; }`), e liberam apenas a escrita sob o seu próprio UID privado (`match /artifacts/tribo-burger-pricing-system/users/{userId}/{document=**}`).</p>
+                        <ul class="list-disc pl-4 space-y-1 text-brand-light mt-1">
+                            <li><strong>Segurança Máxima:</strong> Ninguém além de você possui acesso a essas pastas.</li>
+                            <li><strong>Multi-dispositivo Seguro:</strong> Faça login com o mesmo e-mail e senha em outro aparelho para sincronizar as informações automaticamente e de forma transparente.</li>
                         </ul>
                     </div>
                 </div>
@@ -501,9 +497,9 @@
                 <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
                     <div>
                         <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1 flex items-center gap-2">
-                            <i class="fa-solid fa-file-import text-brand-accent"></i> Recuperar Dados de Conta Antiga
+                            <i class="fa-solid fa-file-import text-brand-accent"></i> Recuperar Dados de Conta Antiga (Migrar de ID)
                         </h3>
-                        <p class="text-xs text-brand-textMuted">Se perdeu o acesso ao seu ID antigo, pode resgatar e migrar os dados para a sua nova conta ativa atual.</p>
+                        <p class="text-xs text-brand-textMuted">Caso possua fichas salvas em uma sessão provisória (ID anônimo antigo), pode importá-las diretamente para a sua conta de Email segura atual.</p>
                     </div>
 
                     <div class="space-y-4">
@@ -511,37 +507,10 @@
                             <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">ID do Utilizador Antigo (UID)</label>
                             <div class="flex flex-col sm:flex-row gap-2">
                                 <input id="recovery-old-uid" type="text" placeholder="Bs7ZZdJ2UoOYPg41YT8k20KhlFH3" class="bg-brand-gray border border-brand-border text-brand-light p-2.5 rounded text-xs w-full focus:outline-none focus:border-brand-accent font-mono">
-                                <button onclick="attemptDataRecovery()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-black px-5 py-2.5 rounded text-xs transition-colors whitespace-nowrap flex items-center justify-center gap-1.5">
+                                <button onclick="attemptDataRecovery()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-black px-5 py-2.5 rounded text-xs transition-colors whitespace-nowrap flex items-center justify-center gap-1.5 font-semibold">
                                     <i class="fa-solid fa-download"></i> Recuperar & Sincronizar
                                 </button>
                             </div>
-                        </div>
-                        
-                        <div class="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-brand-textMuted space-y-2.5 leading-relaxed">
-                            <span class="font-bold text-yellow-500 flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation text-sm"></i> Atenção (Passo de Segurança Requerido)</span>
-                            <p>O Cloud Firestore bloqueia por padrão o acesso de leitura a pastas privadas de outros utilizadores. Para que o sistema consiga ler o ID antigo e migrar para si, siga estes passos rápidos:</p>
-                            <ol class="list-decimal pl-4 space-y-2 text-brand-light">
-                                <li>Abra o painel do seu Firebase Console em <strong class="text-brand-accent">Cloud Firestore</strong>.</li>
-                                <li>Vá na guia <strong class="text-brand-accent">Rules</strong> (Regras).</li>
-                                <li>Substitua a regra temporariamente por esta versão livre para permitir a cópia:
-                                    <pre class="bg-brand-black p-3 rounded border border-brand-border/80 text-[10px] text-yellow-400 font-mono overflow-x-auto mt-1 leading-normal">
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /artifacts/tribo-burger-pricing-system/users/{userId}/{document=**} {
-      allow read: if true; // PERMITE LER TEMPORARIAMENTE PARA A MIGRAÇÃO
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-    match /artifacts/tribo-burger-pricing-system/public/data/shared_syncs/{syncId} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}</pre>
-                                </li>
-                                <li>Clique em <strong>Publish</strong> (Publicar).</li>
-                                <li>Insira o ID antigo <code class="bg-brand-black px-1 rounded font-mono text-brand-accent">Bs7ZZdJ2UoOYPg41YT8k20KhlFH3</code> no campo acima e clique em <strong>Recuperar & Sincronizar</strong>.</li>
-                                <li>Após o sucesso da migração, <strong>restaure a regra original anterior</strong> para manter o banco totalmente seguro contra acessos de terceiros.</li>
-                            </ol>
                         </div>
                     </div>
                 </div>
@@ -550,7 +519,7 @@ service cloud.firestore {
                 <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
                     <div>
                         <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1">Configuração Personalizada do Firebase</h3>
-                        <p class="text-xs text-brand-textMuted">O sistema já está conectado com a chave oficial <strong>tribocmv</strong> por padrão. Se precisar mudar a base futuramente, edite as chaves abaixo.</p>
+                        <p class="text-xs text-brand-textMuted">O sistema está conectado com a sua base de dados oficial <strong>tribocmv</strong>. Se precisar alterar as credenciais no futuro, utilize os campos abaixo.</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
@@ -587,26 +556,6 @@ service cloud.firestore {
                         <button onclick="clearCustomFirebaseConfig()" class="bg-brand-gray hover:bg-brand-border border border-brand-border text-brand-textMuted px-4 py-2 rounded text-xs transition-colors">
                             Restaurar Padrão (tribocmv)
                         </button>
-                    </div>
-
-                    <!-- AJUDA VISUAL DE CONFIGURAÇÃO DE REGRAS NO CONSOLE -->
-                    <div class="p-4 bg-brand-gray/30 border border-brand-border rounded-xl text-xs space-y-2 mt-4">
-                        <span class="font-bold text-brand-accent uppercase tracking-wider text-[10px] block"><i class="fa-solid fa-shield-halved mr-1"></i> Regras de Segurança Recomendas</span>
-                        <p class="text-brand-textMuted leading-relaxed">
-                            No seu console do Firebase em <strong>Firestore Database &gt; Rules</strong>, certifique-se de habilitar as seguintes permissões para que a gravação funcione perfeitamente:
-                        </p>
-                        <pre class="bg-brand-black p-3 rounded border border-brand-border text-[9px] text-emerald-400 font-mono overflow-x-auto max-h-48 leading-relaxed">
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /artifacts/tribo-burger-pricing-system/users/{userId}/user_data/state {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-    match /artifacts/tribo-burger-pricing-system/public/data/shared_syncs/{syncId} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}</pre>
                     </div>
                 </div>
             </section>
@@ -649,7 +598,7 @@ service cloud.firestore {
             </div>
             <div class="p-5 border-t border-brand-border bg-brand-black/20 flex gap-3 justify-end">
                 <button onclick="closeAuthModal()" class="bg-brand-gray hover:bg-brand-border text-brand-light px-4 py-2 rounded-lg text-xs font-bold transition-colors">Cancelar</button>
-                <button id="btn-auth-submit" onclick="handleAuthSubmit()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-5 py-2 rounded-lg text-xs font-black transition-colors">Entrar</button>
+                <button id="btn-auth-submit" onclick="handleAuthSubmit()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-5 py-2 rounded-lg text-xs font-black transition-colors font-semibold">Entrar</button>
             </div>
         </div>
     </div>
@@ -968,29 +917,21 @@ service cloud.firestore {
         };
 
         window.copySyncId = function() {
-            const dummy = document.createElement("input");
-            document.body.appendChild(dummy);
-            dummy.value = syncId;
-            dummy.select();
-            document.execCommand("copy");
-            document.body.removeChild(dummy);
-            showCustomAlert('Copiado!', 'Chave de acesso copiada para a área de transferência.');
+            // Recurso desabilitado sob as regras estritas
+            showCustomAlert('Indisponível', 'Por motivos de segurança ativa, a sincronização por chave está restrita.', true);
         };
 
         window.updateSyncKeyFromInput = function() {
-            const input = document.getElementById('sync-id-input');
-            if (input && input.value.trim()) {
-                const newKey = input.value.trim();
-                localStorage.setItem('tribo_burger_sync_key', newKey);
-                syncId = newKey;
-                setSyncMode('shared'); // Ativa o modo compartilhado
-            } else {
-                showCustomAlert('Chave de Acesso Vazia', 'Por favor, insira uma chave válida.', true);
-            }
+            showCustomAlert('Indisponível', 'A chave compartilhada foi desativada para manter a proteção máxima dos seus dados operacionais. Por favor, utilize uma conta de email privada.', true);
         };
 
         // Altera o modo de sincronização no ecrã e reativa os listeners
         window.setSyncMode = function(mode) {
+            if (mode === 'shared') {
+                showCustomAlert('Aviso de Segurança', 'O modo compartilhado por chave pública não funciona com as suas regras atuais do Firestore (bloqueio de leitura por terceiros). Use o mesmo login de email para sincronizar de forma nativa e segura!', true);
+                mode = 'private'; // Força para manter no privado
+            }
+
             const btnPrivate = document.getElementById('btn-sync-private');
             const btnShared = document.getElementById('btn-sync-shared');
             const contentPrivate = document.getElementById('sync-private-content');
@@ -998,17 +939,10 @@ service cloud.firestore {
 
             if (!btnPrivate || !btnShared || !contentPrivate || !contentShared) return;
 
-            if (mode === 'private') {
-                btnPrivate.className = "text-[10px] font-bold py-1.5 px-2 rounded transition-all bg-brand-border text-brand-light border border-brand-accent/35";
-                btnShared.className = "text-[10px] font-bold py-1.5 px-2 rounded transition-all text-brand-textMuted hover:text-brand-light";
-                contentPrivate.classList.remove('hidden');
-                contentShared.classList.add('hidden');
-            } else {
-                btnShared.className = "text-[10px] font-bold py-1.5 px-2 rounded transition-all bg-brand-border text-brand-light border border-brand-accent/35";
-                btnPrivate.className = "text-[10px] font-bold py-1.5 px-2 rounded transition-all text-brand-textMuted hover:text-brand-light";
-                contentShared.classList.remove('hidden');
-                contentPrivate.classList.add('hidden');
-            }
+            btnPrivate.className = "text-[10px] font-bold py-1.5 px-2 rounded transition-all bg-brand-border text-brand-light border border-brand-accent/35";
+            btnShared.className = "text-[10px] font-bold py-1.5 px-2 rounded transition-all text-brand-textMuted hover:text-brand-light cursor-not-allowed";
+            contentPrivate.classList.remove('hidden');
+            contentShared.classList.add('hidden');
 
             if (syncMode !== mode) {
                 syncMode = mode;
@@ -1094,7 +1028,7 @@ service cloud.firestore {
                     await createUserWithEmailAndPassword(auth, email, password);
                 }
                 closeAuthModal();
-                showCustomAlert('Sucesso!', authMode === 'login' ? 'Bem-vindo de volta! Sessão iniciada.' : 'Conta criada e conectada com sucesso!');
+                showCustomAlert('Sucesso!', authMode === 'login' ? 'Sessão segura iniciada!' : 'Conta criada e protegida sob as novas regras de segurança!');
             } catch (error) {
                 console.error("Erro Auth:", error);
                 if (errorBox) {
@@ -2245,13 +2179,8 @@ service cloud.firestore {
                 badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20";
             }
 
-            // Cumprimento absoluto da REGRA 1 (Caminhos de Salvamento Estritos do Sandbox/Firestore)
-            let docRef;
-            if (syncMode === 'private') {
-                docRef = doc(db, 'artifacts', defaultAppId, 'users', auth.currentUser.uid, 'user_data', 'state');
-            } else {
-                docRef = doc(db, 'artifacts', defaultAppId, 'public', 'data', 'shared_syncs', syncId);
-            }
+            // CUMPRIMENTO EXCLUSIVO DAS REGRAS ENVIADAS (Garante salvamento dentro do UID privado do usuário)
+            const docRef = doc(db, 'artifacts', defaultAppId, 'users', auth.currentUser.uid, 'user_data', 'state');
 
             try {
                 databaseListenerUnsubscribe = onSnapshot(docRef, (snap) => {
@@ -2272,12 +2201,12 @@ service cloud.firestore {
                         saveLocalBackup();
                         window.renderAll();
                     } else {
-                        // Documento não existe na nuvem neste caminho. Vamos fazer o upload inicial.
+                        // Documento não existe na nuvem neste caminho. Faz o upload inicial.
                         syncStateToCloud();
                     }
 
                     if (badge) {
-                        badge.innerHTML = `<i class="fa-solid fa-cloud mr-1"></i> Nuvem Ativa`;
+                        badge.innerHTML = `<i class="fa-solid fa-cloud mr-1"></i> Protegido`;
                         badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20";
                     }
                     const statusIndicator = document.getElementById('system-status-indicator');
@@ -2287,11 +2216,11 @@ service cloud.firestore {
                         statusText.textContent = "Online";
                     }
                 }, (error) => {
-                    console.warn("Erro ao ouvir base de dados Firestore:", error);
+                    console.warn("Erro de regras/permissões do Firestore:", error);
                     fallbackToOfflineBadge();
                 });
             } catch (err) {
-                console.warn("Falha de conexão Firestore ao configurar ouvinte:", err);
+                console.warn("Falha de conexão ao configurar o listener:", err);
                 fallbackToOfflineBadge();
             }
         }
@@ -2300,12 +2229,8 @@ service cloud.firestore {
             saveLocalBackup();
             if (!isFirebaseActive || !db || !auth.currentUser) return;
 
-            let docRef;
-            if (syncMode === 'private') {
-                docRef = doc(db, 'artifacts', defaultAppId, 'users', auth.currentUser.uid, 'user_data', 'state');
-            } else {
-                docRef = doc(db, 'artifacts', defaultAppId, 'public', 'data', 'shared_syncs', syncId);
-            }
+            // Alinhamento absoluto com a regra: /users/{userId}
+            const docRef = doc(db, 'artifacts', defaultAppId, 'users', auth.currentUser.uid, 'user_data', 'state');
 
             try {
                 await setDoc(docRef, {
@@ -2317,41 +2242,40 @@ service cloud.firestore {
                     updatedAt: new Date().toISOString()
                 }, { merge: true });
             } catch (e) {
-                console.warn("Erro ao sincronizar com o servidor:", e);
+                console.warn("Bloqueado pelas Regras de Segurança ou erro na gravação:", e);
             }
         }
 
-        // ----------------- RECURSO ADICIONAL: SCRIPT DE MIGRAÇÃO MANUAL DE DADOS -----------------
+        // ----------------- SCRIPT DE MIGRAÇÃO MANUAL DE DADOS (UID ANTIGO -> NOVO UID SEGURO) -----------------
         window.attemptDataRecovery = async function() {
             const oldUid = document.getElementById('recovery-old-uid').value.trim();
             if (!oldUid) {
-                showCustomAlert('Campo Vazio', 'Por favor, insira o ID antigo (ex: Bs7ZZdJ2UoOYPg41YT8k20KhlFH3).', true);
+                showCustomAlert('Campo Vazio', 'Por favor, insira o ID antigo.', true);
                 return;
             }
 
             if (!isFirebaseActive || !db) {
-                showCustomAlert('Firebase Inativo', 'A conexão com o Firebase precisa estar ativa para realizar a migração.', true);
+                showCustomAlert('Firebase Inativo', 'É necessária conexão ativa com o Firestore.', true);
                 return;
             }
 
-            showCustomConfirm('Confirmar Migração', 'Isso irá substituir TODOS os seus dados locais atuais pelas fichas técnicas e insumos encontrados na conta antiga. Deseja prosseguir?', async (approved) => {
+            showCustomConfirm('Confirmar Importação', 'Isso substituirá todos os dados da sessão atual pelas fichas e insumos resgatados. Deseja prosseguir?', async (approved) => {
                 if (!approved) return;
 
                 const badge = document.getElementById('cloud-badge');
                 if (badge) {
-                    badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Recuperando...`;
-                    badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20";
+                    badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Importando...`;
                 }
 
                 try {
-                    // Tenta obter o documento da conta antiga do Firestore de forma assíncrona
+                    // Obtém a pasta privada do UID antigo do Firestore
                     const oldDocRef = doc(db, 'artifacts', defaultAppId, 'users', oldUid, 'user_data', 'state');
                     const snap = await getDoc(oldDocRef);
 
                     if (snap.exists()) {
                         const data = snap.data();
                         
-                        // Atualiza o estado da memória
+                        // Reescreve o estado local temporariamente na memória
                         appState = {
                             ingredients: data.ingredients || [],
                             recipes: data.recipes || [],
@@ -2365,23 +2289,20 @@ service cloud.firestore {
                             }
                         };
                         
-                        // Grava localmente no browser e sincroniza para a nova pasta ativa na nuvem
+                        // Grava no browser e escreve imediatamente na nova pasta segura do utilizador autenticado
                         saveLocalBackup();
                         window.renderAll();
                         await syncStateToCloud();
 
-                        showCustomAlert('Sucesso!', 'Os dados antigos foram recuperados e migrados com sucesso para a sua nova sessão ativa!');
+                        showCustomAlert('Importação Bem-Sucedida!', 'As fichas antigas foram trazidas com sucesso para a sua nova conta protegida!');
                     } else {
-                        showCustomAlert('Não Encontrado', 'Não foi possível encontrar nenhum registro para o ID antigo inserido.', true);
+                        showCustomAlert('Não Encontrado', 'Não existem dados salvos associados ao UID antigo inserido.', true);
                     }
                 } catch (err) {
-                    console.error("Erro na recuperação de dados:", err);
-                    showCustomAlert('Erro de Permissão', 'Acesso negado. Certifique-se de que editou a aba "Rules" no console do Firebase para "allow read: if true;" temporariamente antes de clicar neste botão.', true);
+                    console.error(err);
+                    showCustomAlert('Erro de Permissão', 'Acesso negado pelas regras. Ative temporariamente "allow read: if true;" na sua regra do Firestore para autorizar esta migração.', true);
                 } finally {
-                    if (badge) {
-                        badge.innerHTML = `<i class="fa-solid fa-cloud mr-1"></i> Nuvem Ativa`;
-                        badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20";
-                    }
+                    initCloudSyncListener();
                 }
             });
         };
@@ -2402,47 +2323,31 @@ service cloud.firestore {
 
         // ----------------- FLUXO DE INICIALIZAÇÃO SEGURO (PROVA DE FALHAS) -----------------
         window.addEventListener('DOMContentLoaded', async () => {
-            // 1. Carregar Modo de Sincronização Salvo
-            const savedMode = localStorage.getItem('tribo_burger_sync_mode') || 'private';
-            syncMode = savedMode;
-            setSyncMode(syncMode);
+            // 1. Forçar sincronização privada segura compatível com as regras enviadas
+            syncMode = 'private';
+            setSyncMode('private');
 
-            // 2. Carregar ID de Sincronização Compartilhada
-            const savedKey = localStorage.getItem('tribo_burger_sync_key');
-            if (savedKey) {
-                syncId = savedKey;
-            }
-            safeSetValue('sync-id-input', syncId);
-
-            // 3. Carregar dados instantâneos do LocalStorage para evitar tela branca imediata
+            // 2. Carregar backup local instantâneo
             loadLocalBackup();
             window.renderAll();
 
-            // 4. Seleção das credenciais oficiais ou customizadas do Firebase
+            // 3. Obter configurações do Firebase (oficiais ou customizadas)
             let fbConfigToUse = officialFirebaseConfig;
-
             const customConfig = localStorage.getItem('tribo_burger_custom_fb_config');
             if (customConfig) {
                 fbConfigToUse = JSON.parse(customConfig);
             }
-
             populateFirebaseConfigFields(fbConfigToUse);
 
-            // 5. Autenticação e Inicialização do Firebase
+            // 4. Inicializar e autenticar
             if (fbConfigToUse && fbConfigToUse.apiKey) {
                 try {
                     const appInstance = initializeApp(fbConfigToUse);
                     auth = getAuth(appInstance);
                     db = getFirestore(appInstance);
                     
-                    // REGRA 3: Autenticar de forma assíncrona primeiro!
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        // Tenta inicializar anonimamente primeiro se não houver token ou utilizador ativo
-                        await signInAnonymously(auth);
-                    }
-
+                    // Prioriza autenticação anônima se não houver login ativo, para não quebrar regras de segurança
+                    await signInAnonymously(auth);
                     isFirebaseActive = true;
 
                     onAuthStateChanged(auth, (user) => {
@@ -2450,7 +2355,6 @@ service cloud.firestore {
                             currentUser = user;
                             safeSetText('user-id-display', user.uid);
                             
-                            // Gerenciar a visão dos painéis de acordo com o status de autenticação (Se anônimo ou se cadastrado por email)
                             const loggedInView = document.getElementById('auth-logged-in-view');
                             const anonymousView = document.getElementById('auth-anonymous-view');
                             const userEmailDisplay = document.getElementById('user-email-display');
@@ -2469,7 +2373,7 @@ service cloud.firestore {
                     });
 
                 } catch (error) {
-                    console.warn("Conexão ao Firebase falhou ou offline. Rodando em Modo Local:", error);
+                    console.warn("Modo offline ativado:", error);
                     isFirebaseActive = false;
                     fallbackToOfflineBadge();
                 }
