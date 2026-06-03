@@ -122,7 +122,7 @@
 
             <!-- Conteúdo Dinâmico com base no Modo de Sincronização -->
             <div id="sync-private-content" class="space-y-2 text-xs text-brand-textMuted">
-                <p class="text-[9px] leading-relaxed"><i class="fa-solid fa-circle-info text-brand-accent mr-1"></i> Ativo na sua pasta privada de utilizador, alinhado com as suas regras de segurança originais.</p>
+                <p class="text-[9px] leading-relaxed"><i class="fa-solid fa-circle-info text-brand-accent mr-1"></i> Sincronizando automaticamente com a sua conta pessoal no Firestore.</p>
                 <div class="bg-brand-gray/40 border border-brand-border p-2 rounded text-[9px] text-brand-light font-mono truncate">
                     ID: <span id="user-id-display" class="text-brand-textMuted">A detetar...</span>
                 </div>
@@ -454,7 +454,7 @@
                 <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
                     <div>
                         <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1">Configuração Personalizada do Firebase</h3>
-                        <p class="text-xs text-brand-textMuted">Se hospedar esta aplicação no seu próprio domínio (ex: Vercel), pode registar a sua base de dados do Firestore aqui.</p>
+                        <p class="text-xs text-brand-textMuted">O sistema já está conectado com a chave oficial <strong>tribocmv</strong> por padrão. Se precisar mudar a base futuramente, edite as chaves abaixo.</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
@@ -489,27 +489,24 @@
                             Guardar Firebase & Reiniciar
                         </button>
                         <button onclick="clearCustomFirebaseConfig()" class="bg-brand-gray hover:bg-brand-border border border-brand-border text-brand-textMuted px-4 py-2 rounded text-xs transition-colors">
-                            Restaurar Padrão
+                            Restaurar Padrão (tribocmv)
                         </button>
                     </div>
 
                     <!-- AJUDA VISUAL DE CONFIGURAÇÃO DE REGRAS NO CONSOLE -->
                     <div class="p-4 bg-brand-gray/30 border border-brand-border rounded-xl text-xs space-y-2 mt-4">
-                        <span class="font-bold text-brand-accent uppercase tracking-wider text-[10px] block"><i class="fa-solid fa-shield-halved mr-1"></i> Regras recomendadas do Firebase</span>
+                        <span class="font-bold text-brand-accent uppercase tracking-wider text-[10px] block"><i class="fa-solid fa-shield-halved mr-1"></i> Regras de Segurança Recomendas</span>
                         <p class="text-brand-textMuted leading-relaxed">
-                            Se o sistema mostrar "Modo Local" ou se quiser partilhar chaves entre múltiplos telemóveis, certifique-se de que as regras no seu **Firebase Console > Firestore > Rules** estão configuradas exatamente assim:
+                            No seu console do Firebase em <strong>Firestore Database &gt; Rules</strong>, certifique-se de habilitar as seguintes permissões para que a gravação funcione perfeitamente:
                         </p>
                         <pre class="bg-brand-black p-3 rounded border border-brand-border text-[9px] text-emerald-400 font-mono overflow-x-auto max-h-48 leading-relaxed">
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if false;
-    }
-    match /artifacts/tribo-burger-pricing-system/users/{userId}/{document=**} {
+    match /artifacts/tribo-burger-pricing-system/users/{userId}/user_data/state {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
-    match /artifacts/tribo-burger-pricing-system/public/data/sync/{syncId} {
+    match /artifacts/tribo-burger-pricing-system/public/data/shared_syncs/{syncId} {
       allow read, write: if request.auth != null;
     }
   }
@@ -544,11 +541,11 @@ service cloud.firestore {
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Valor de Compra (R$)</label>
-                        <input id="ingredient-cost" type="number" step="0.01" placeholder="Ex: 50.00" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                        <input id="ingredient-cost" type="number" step="0.01" placeholder="Ex: 50.00" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent font-bold">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Unidade</label>
-                        <select id="ingredient-unit" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                        <select id="ingredient-unit" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent font-semibold">
                             <option value="kg">Quilo (kg)</option>
                             <option value="g">Grama (g)</option>
                             <option value="L">Litro (L)</option>
@@ -559,12 +556,12 @@ service cloud.firestore {
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Qtd. Total Embalagem</label>
-                    <input id="ingredient-qty" type="number" step="0.001" placeholder="Ex: 5" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                    <input id="ingredient-qty" type="number" step="0.001" placeholder="Ex: 5" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent font-bold">
                 </div>
             </div>
             <div class="p-5 border-t border-brand-border bg-brand-black/20 flex gap-3 justify-end">
                 <button onclick="closeIngredientModal()" class="bg-brand-gray hover:bg-brand-border text-brand-light px-4 py-2 rounded-lg text-xs font-bold transition-colors">Cancelar</button>
-                <button onclick="saveIngredient()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-black transition-colors">Gravar Insumo</button>
+                <button onclick="saveIngredient()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-black transition-colors font-semibold">Gravar Insumo</button>
             </div>
         </div>
     </div>
@@ -585,7 +582,7 @@ service cloud.firestore {
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Preço de Venda (R$)</label>
-                        <input id="recipe-selling-price" type="number" step="0.01" oninput="calculateRecipeModalCosts()" placeholder="Ex: 29.90" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                        <input id="recipe-selling-price" type="number" step="0.01" oninput="calculateRecipeModalCosts()" placeholder="Ex: 29.90" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent font-bold">
                     </div>
                 </div>
 
@@ -622,7 +619,7 @@ service cloud.firestore {
             </div>
             <div class="p-5 border-t border-brand-border bg-brand-black/20 flex gap-3 justify-end">
                 <button onclick="closeRecipeModal()" class="bg-brand-gray hover:bg-brand-border text-brand-light px-4 py-2 rounded-lg text-xs font-bold transition-colors">Cancelar</button>
-                <button onclick="saveRecipe()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-black transition-colors">Gravar Receita</button>
+                <button onclick="saveRecipe()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-black transition-colors font-semibold">Gravar Receita</button>
             </div>
         </div>
     </div>
@@ -639,11 +636,11 @@ service cloud.firestore {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Nome do Combo</label>
-                        <input id="combo-name" type="text" placeholder="Ex: Combo Tribo Clássico" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                        <input id="combo-name" type="text" placeholder="Ex: Combo Tribo Clássico" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent font-semibold">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Preço de Venda (R$)</label>
-                        <input id="combo-selling-price" type="number" step="0.01" oninput="calculateComboModalCosts()" placeholder="Ex: 45.00" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                        <input id="combo-selling-price" type="number" step="0.01" oninput="calculateComboModalCosts()" placeholder="Ex: 45.00" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent font-bold">
                     </div>
                 </div>
 
@@ -680,7 +677,7 @@ service cloud.firestore {
             </div>
             <div class="p-5 border-t border-brand-border bg-brand-black/20 flex gap-3 justify-end">
                 <button onclick="closeComboModal()" class="bg-brand-gray hover:bg-brand-border text-brand-light px-4 py-2 rounded-lg text-xs font-bold transition-colors">Cancelar</button>
-                <button onclick="saveCombo()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-black transition-colors">Gravar Combo</button>
+                <button onclick="saveCombo()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-black transition-colors font-semibold">Gravar Combo</button>
             </div>
         </div>
     </div>
@@ -696,21 +693,21 @@ service cloud.firestore {
                 <input type="hidden" id="fixed-cost-id">
                 <div>
                     <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Descrição</label>
-                    <input id="fixed-cost-description" type="text" placeholder="Ex: Renda comercial, Internet" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                    <input id="fixed-cost-description" type="text" placeholder="Ex: Renda comercial, Internet" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent font-semibold">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Valor Mensal (R$)</label>
-                    <input id="fixed-cost-value" type="number" step="0.01" placeholder="Ex: 1200.00" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                    <input id="fixed-cost-value" type="number" step="0.01" placeholder="Ex: 1200.00" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent font-bold">
                 </div>
             </div>
             <div class="p-5 border-t border-brand-border bg-brand-black/20 flex gap-3 justify-end">
                 <button onclick="closeFixedCostModal()" class="bg-brand-gray hover:bg-brand-border text-brand-light px-4 py-2 rounded-lg text-xs font-bold transition-colors">Cancelar</button>
-                <button onclick="saveFixedCost()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-black transition-colors">Gravar Custo</button>
+                <button onclick="saveFixedCost()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-black transition-colors font-semibold">Gravar Custo</button>
             </div>
         </div>
     </div>
 
-    <!-- DIÁLOGOS CUSTOMIZADOS (SUBSTITUI ALERT E CONFIRM NO IFRAME) -->
+    <!-- DIÁLOGOS CUSTOMIZADOS -->
     <div id="custom-alert-modal" class="fixed inset-0 bg-brand-black/85 backdrop-blur-sm z-[100] items-center justify-center p-4 hidden no-print">
         <div class="bg-brand-dark border border-brand-border rounded-xl w-full max-w-sm p-6 shadow-2xl text-center space-y-4">
             <div class="w-14 h-14 rounded-full bg-brand-accent/10 border border-brand-accent/30 text-brand-accent flex items-center justify-center text-2xl mx-auto">
@@ -769,6 +766,17 @@ service cloud.firestore {
         let syncMode = 'private'; // 'private' (por conta de utilizador) ou 'shared' (por chave pública)
         let databaseListenerUnsubscribe = null;
         const defaultAppId = 'tribo-burger-pricing-system';
+
+        // Credenciais do Firebase oficiais do utilizador como fallback absoluto
+        const officialFirebaseConfig = {
+            apiKey: "AIzaSyA1HkiCs0F4BkHeDNVNHNuhG0Ktd2VQDLU",
+            authDomain: "tribocmv.firebaseapp.com",
+            projectId: "tribocmv",
+            storageBucket: "tribocmv.firebasestorage.app",
+            messagingSenderId: "740375597526",
+            appId: "1:740375597526:web:f826bba62245da21f0d477",
+            measurementId: "G-MH1LE7T5P1"
+        };
 
         // ----------------- MAPEAMENTO DE COMPORTAMENTOS DO DOM SEGURO -----------------
         function safeSetText(id, value) {
@@ -845,7 +853,7 @@ service cloud.firestore {
                 const newKey = input.value.trim();
                 localStorage.setItem('tribo_burger_sync_key', newKey);
                 syncId = newKey;
-                setSyncMode('shared'); // Força a ativação visual do modo chave
+                setSyncMode('shared'); // Ativa o modo compartilhado
             } else {
                 showCustomAlert('Chave de Acesso Vazia', 'Por favor, insira uma chave válida.', true);
             }
@@ -1229,10 +1237,10 @@ service cloud.firestore {
                     const itemPreviews = (combo.items || []).map(ci => {
                         if (ci.type === 'recipe') {
                             const rec = appState.recipes.find(r => r.id === ci.itemId);
-                            return rec ? `• Ficha: ${rec.name} <span class="text-brand-textMuted font-normal">(${ci.qty} un)</span>` : '';
+                            return rec ? `• Ficha: ${rec.name} <span class="text-brand-textMuted font-normal font-sans">(${ci.qty} un)</span>` : '';
                         } else {
                             const ing = appState.ingredients.find(i => i.id === ci.itemId);
-                            return ing ? `• Insumo: ${ing.name} <span class="text-brand-textMuted font-normal">(${ci.qty} ${ing.unit})</span>` : '';
+                            return ing ? `• Insumo: ${ing.name} <span class="text-brand-textMuted font-normal font-sans">(${ci.qty} ${ing.unit})</span>` : '';
                         }
                     }).filter(Boolean).join('<br>');
 
@@ -1935,27 +1943,23 @@ service cloud.firestore {
             }
 
             localStorage.setItem('tribo_burger_custom_fb_config', JSON.stringify(config));
-            showCustomAlert('Reiniciando...', 'Configurações guardadas! A página irá atualizar para conectar à sua base de dados.');
+            showCustomAlert('Reiniciando...', 'Configurações guardadas! A página irá atualizar para conectar à sua nova base de dados.');
             setTimeout(() => { location.reload(); }, 1500);
         };
 
         window.clearCustomFirebaseConfig = function() {
             localStorage.removeItem('tribo_burger_custom_fb_config');
-            showCustomAlert('Reiniciando...', 'Restaurada a conexão padrão da plataforma. Atualizando...');
+            showCustomAlert('Reiniciando...', 'Conexão padrão tribocmv restaurada. Atualizando...');
             setTimeout(() => { location.reload(); }, 1500);
         };
 
-        function populateFirebaseConfigFields() {
-            const saved = localStorage.getItem('tribo_burger_custom_fb_config');
-            if (saved) {
-                const config = JSON.parse(saved);
-                safeSetValue('fb-apiKey', config.apiKey);
-                safeSetValue('fb-authDomain', config.authDomain);
-                safeSetValue('fb-projectId', config.projectId);
-                safeSetValue('fb-storageBucket', config.storageBucket);
-                safeSetValue('fb-messagingSenderId', config.messagingSenderId);
-                safeSetValue('fb-appId', config.appId);
-            }
+        function populateFirebaseConfigFields(config) {
+            safeSetValue('fb-apiKey', config.apiKey);
+            safeSetValue('fb-authDomain', config.authDomain);
+            safeSetValue('fb-projectId', config.projectId);
+            safeSetValue('fb-storageBucket', config.storageBucket);
+            safeSetValue('fb-messagingSenderId', config.messagingSenderId);
+            safeSetValue('fb-appId', config.appId);
         }
 
         // ----------------- COORDENAÇÃO DE SINCRONIZAÇÃO NUVEM E LOCAL CACHE -----------------
@@ -1995,18 +1999,16 @@ service cloud.firestore {
 
             const badge = document.getElementById('cloud-badge');
             if (badge) {
-                badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> A sincronizar...`;
+                badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Sincronizando...`;
                 badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20";
             }
 
-            // Definição do documento Firestore de acordo com o Modo de Sincronização
+            // Cumprimento absoluto da REGRA 1 (Caminhos de Salvamento Estritos do Sandbox/Firestore)
             let docRef;
             if (syncMode === 'private') {
-                // Modo ultra seguro e compatível com as regras de segurança padrão do utilizador (/users/{userId})
-                docRef = doc(db, 'artifacts', defaultAppId, 'users', auth.currentUser.uid, 'settings', 'state');
+                docRef = doc(db, 'artifacts', defaultAppId, 'users', auth.currentUser.uid, 'user_data', 'state');
             } else {
-                // Modo chave pública compartilhada (/public/data/sync/{syncId})
-                docRef = doc(db, 'artifacts', defaultAppId, 'public', 'data', 'sync', syncId);
+                docRef = doc(db, 'artifacts', defaultAppId, 'public', 'data', 'shared_syncs', syncId);
             }
 
             try {
@@ -2028,7 +2030,7 @@ service cloud.firestore {
                         saveLocalBackup();
                         window.renderAll();
                     } else {
-                        // Se não houver documento na nuvem para este caminho/chave, fazemos o upload do estado local atual
+                        // Documento não existe na nuvem neste caminho. Vamos fazer o upload inicial.
                         syncStateToCloud();
                     }
 
@@ -2043,11 +2045,11 @@ service cloud.firestore {
                         statusText.textContent = "Online";
                     }
                 }, (error) => {
-                    console.warn("Erro ao ouvir Firestore (permissões ou offline):", error);
+                    console.warn("Erro ao ouvir base de dados Firestore:", error);
                     fallbackToOfflineBadge();
                 });
             } catch (err) {
-                console.warn("Falha de conexão Firestore:", err);
+                console.warn("Falha de conexão Firestore ao configurar ouvinte:", err);
                 fallbackToOfflineBadge();
             }
         }
@@ -2058,9 +2060,9 @@ service cloud.firestore {
 
             let docRef;
             if (syncMode === 'private') {
-                docRef = doc(db, 'artifacts', defaultAppId, 'users', auth.currentUser.uid, 'settings', 'state');
+                docRef = doc(db, 'artifacts', defaultAppId, 'users', auth.currentUser.uid, 'user_data', 'state');
             } else {
-                docRef = doc(db, 'artifacts', defaultAppId, 'public', 'data', 'sync', syncId);
+                docRef = doc(db, 'artifacts', defaultAppId, 'public', 'data', 'shared_syncs', syncId);
             }
 
             try {
@@ -2073,7 +2075,7 @@ service cloud.firestore {
                     updatedAt: new Date().toISOString()
                 }, { merge: true });
             } catch (e) {
-                console.warn("Upload falhou, mantido localmente:", e);
+                console.warn("Erro ao sincronizar com o servidor:", e);
             }
         }
 
@@ -2091,7 +2093,7 @@ service cloud.firestore {
             }
         }
 
-        // ----------------- FLUXO DE INCIAÇÃO SEGURO (PROVA DE FALHAS) -----------------
+        // ----------------- FLUXO DE INICIALIZAÇÃO SEGURO (PROVA DE FALHAS) -----------------
         window.addEventListener('DOMContentLoaded', async () => {
             // 1. Carregar Modo de Sincronização Salvo
             const savedMode = localStorage.getItem('tribo_burger_sync_mode') || 'private';
@@ -2105,32 +2107,28 @@ service cloud.firestore {
             }
             safeSetValue('sync-id-input', syncId);
 
-            // 3. Preencher formulários auxiliares das credenciais
-            populateFirebaseConfigFields();
-
-            // 4. Carregar dados instantâneos do LocalStorage para evitar tela branca
+            // 3. Carregar dados instantâneos do LocalStorage para evitar tela branca imediata
             loadLocalBackup();
             window.renderAll();
 
-            // 5. Processar Configuração de Inicialização Firebase
-            let fbConfigToUse = null;
+            // 4. Seleção das credenciais oficiais ou customizadas do Firebase
+            let fbConfigToUse = officialFirebaseConfig; // Usamos as credenciais que partilhou por padrão!
 
             const customConfig = localStorage.getItem('tribo_burger_custom_fb_config');
             if (customConfig) {
                 fbConfigToUse = JSON.parse(customConfig);
-            } else if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                const parsed = JSON.parse(__firebase_config);
-                if (parsed && parsed.apiKey) {
-                    fbConfigToUse = parsed;
-                }
             }
 
+            populateFirebaseConfigFields(fbConfigToUse);
+
+            // 5. Autenticação e Inicialização do Firebase
             if (fbConfigToUse && fbConfigToUse.apiKey) {
                 try {
                     const appInstance = initializeApp(fbConfigToUse);
                     auth = getAuth(appInstance);
                     db = getFirestore(appInstance);
                     
+                    // REGRA 3: Autenticar de forma assíncrona primeiro!
                     if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                         await signInWithCustomToken(auth, __initial_auth_token);
                     } else {
@@ -2148,7 +2146,7 @@ service cloud.firestore {
                     });
 
                 } catch (error) {
-                    console.warn("Erro de configuração Firebase, a rodar em Modo Local:", error);
+                    console.warn("Conexão ao Firebase falhou (Regras de segurança ou API key desativada). Rodando em Modo Local:", error);
                     isFirebaseActive = false;
                     fallbackToOfflineBadge();
                 }
