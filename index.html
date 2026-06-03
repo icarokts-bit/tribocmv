@@ -101,82 +101,56 @@
             </div>
         </div>
 
-        <!-- Box de Sincronização em Nuvem Seguro (Otimizado para as novas regras de segurança) -->
+        <!-- PAINEL DE PERFIL DO UTILIZADOR (DINÂMICO) -->
         <div class="p-5 border-b border-brand-border bg-brand-black/50 m-4 rounded-xl border border-brand-border/60 space-y-4">
             <div class="flex items-center justify-between">
-                <span class="text-[10px] font-bold tracking-wider text-brand-textMuted uppercase">Sincronização</span>
+                <span class="text-[10px] font-bold tracking-wider text-brand-textMuted uppercase">Utilizador</span>
                 <span id="cloud-badge" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">
                     <i class="fa-solid fa-spinner fa-spin mr-1"></i> A carregar...
                 </span>
             </div>
 
-            <!-- Identidade e Login por Email/Senha -->
+            <!-- Identidade e Opções de Login/Logout -->
             <div id="auth-status-container" class="p-3 bg-brand-gray/50 rounded-lg border border-brand-border text-xs">
-                <!-- Estado Logado com Email -->
-                <div id="auth-logged-in-view" class="hidden space-y-2">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-bold text-emerald-500 flex items-center gap-1">
-                            <i class="fa-solid fa-user-shield"></i> Conta Protegida
-                        </span>
-                        <button onclick="handleLogout()" class="text-[9px] text-red-400 hover:text-red-300 font-bold uppercase flex items-center gap-1">
-                            <i class="fa-solid fa-right-from-bracket"></i> Sair
-                        </button>
+                <!-- Logado com Sucesso -->
+                <div id="auth-logged-in-view" class="hidden space-y-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold text-xs uppercase" id="user-avatar-initials">
+                            U
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-wide">Acesso Autorizado</p>
+                            <p id="user-email-display" class="font-semibold text-brand-light truncate text-[11px]">email@tribo.com</p>
+                        </div>
                     </div>
-                    <p id="user-email-display" class="font-semibold text-brand-light truncate text-[11px] bg-brand-black/40 px-2 py-1 rounded border border-brand-border/50">email@tribo.com</p>
-                </div>
-                <!-- Estado Anônimo / Provisório -->
-                <div id="auth-anonymous-view" class="space-y-2">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-bold text-amber-500 flex items-center gap-1">
-                            <i class="fa-solid fa-triangle-exclamation"></i> Modo Provisório
-                        </span>
-                    </div>
-                    <p class="text-[9px] text-brand-textMuted leading-tight">Faça login para salvar seus dados de forma permanente sob as regras de segurança.</p>
-                    <button onclick="openAuthModal()" class="w-full bg-brand-accent hover:bg-brand-accentHover text-brand-black text-[10px] font-black py-2 rounded-lg transition-colors uppercase tracking-wide flex items-center justify-center gap-1.5 shadow-lg shadow-brand-accent/10">
-                        <i class="fa-solid fa-user-lock"></i> Entrar / Registar
+                    
+                    <button onclick="handleLogout()" class="w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 hover:text-red-300 text-[10px] font-black py-2 rounded-lg transition-colors uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-right-from-bracket"></i> Terminar Sessão (Sair)
                     </button>
                 </div>
-            </div>
 
-            <!-- Seletor de Modo de Sincronização -->
-            <div class="grid grid-cols-2 gap-1 bg-brand-gray p-1 rounded-lg border border-brand-border text-center">
-                <button onclick="setSyncMode('private')" id="btn-sync-private" class="text-[10px] font-bold py-1.5 px-2 rounded transition-all bg-brand-border text-brand-light">
-                    <i class="fa-solid fa-user-lock mr-1"></i> Por Conta
-                </button>
-                <button onclick="setSyncMode('shared')" id="btn-sync-shared" class="text-[10px] font-bold py-1.5 px-2 rounded transition-all text-brand-textMuted hover:text-brand-light">
-                    <i class="fa-solid fa-key mr-1"></i> Por Chave
-                </button>
-            </div>
-
-            <!-- Conteúdo Dinâmico: Sincronização por Conta (Ativa sob as novas regras) -->
-            <div id="sync-private-content" class="space-y-2 text-xs text-brand-textMuted">
-                <p class="text-[9px] leading-relaxed text-emerald-500 font-medium">
-                    <i class="fa-solid fa-shield-halved mr-1"></i> Regra de Segurança Ativa: Os seus dados estão protegidos sob o seu ID de utilizador exclusivo.
-                </p>
-                <div class="bg-brand-gray/40 border border-brand-border p-2 rounded text-[9px] text-brand-light font-mono truncate">
-                    Seu UID: <span id="user-id-display" class="text-brand-textMuted font-bold">A detetar...</span>
-                </div>
-            </div>
-
-            <!-- Conteúdo Dinâmico: Sincronização Compartilhada (Bloqueada por segurança sob as novas regras) -->
-            <div id="sync-shared-content" class="space-y-3 hidden">
-                <div class="p-2.5 bg-red-500/10 border border-red-500/20 rounded text-[9.5px] text-brand-textMuted leading-relaxed">
-                    <span class="text-brand-accent font-bold"><i class="fa-solid fa-circle-info"></i> Recurso Bloqueado</span><br>
-                    As suas regras do Firestore bloqueiam acessos públicos por segurança. Use a aba **"Por Conta"** com o mesmo Email/Senha em múltiplos aparelhos para compartilhar o acesso de forma segura.
-                </div>
-                <div>
-                    <label class="block text-[9px] text-brand-textMuted uppercase mb-1 font-bold">Chave de Backup Local</label>
-                    <div class="flex gap-2">
-                        <input id="sync-id-input" type="password" placeholder="Chave da Nuvem" disabled
-                               class="bg-brand-gray border border-brand-border text-brand-textMuted text-xs rounded px-2.5 py-1.5 focus:outline-none w-full font-mono cursor-not-allowed">
+                <!-- Não Logado (Estado Bloqueado) -->
+                <div id="auth-anonymous-view" class="space-y-2 text-center py-2">
+                    <div class="inline-flex w-8 h-8 rounded-full bg-brand-accent/10 border border-brand-accent/20 text-brand-accent items-center justify-center mb-1">
+                        <i class="fa-solid fa-lock text-xs"></i>
                     </div>
+                    <p class="text-[11px] text-brand-light font-bold">Acesso Bloqueado</p>
+                    <p class="text-[9px] text-brand-textMuted leading-tight px-1">Inicie sessão com a sua conta segura para visualizar as fichas técnicas.</p>
+                </div>
+            </div>
+
+            <!-- Exibição do ID Exclusivo do Utilizador -->
+            <div id="user-uid-box" class="hidden space-y-1">
+                <span class="text-[9px] font-bold text-brand-textMuted uppercase tracking-wider">O Seu ID de Utilizador:</span>
+                <div class="bg-brand-gray/40 border border-brand-border p-2 rounded text-[9px] text-brand-light font-mono truncate select-all">
+                    UID: <span id="user-id-display" class="text-brand-textMuted font-bold">Não Autenticado</span>
                 </div>
             </div>
         </div>
 
-        <!-- Menu de Navegação -->
-        <nav class="flex-1 px-4 space-y-1.5 py-2 overflow-y-auto">
-            <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all bg-brand-accent text-brand-black shadow-lg shadow-brand-accent/10">
+        <!-- Menu de Navegação (Desabilitado quando deslogado) -->
+        <nav id="sidebar-navigation" class="flex-1 px-4 space-y-1.5 py-2 overflow-y-auto pointer-events-none opacity-40">
+            <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-brand-textMuted hover:bg-brand-gray/50 hover:text-brand-light">
                 <i class="fa-solid fa-chart-pie w-5"></i> Painel Geral
             </button>
             <button onclick="switchTab('ingredients')" id="btn-tab-ingredients" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-brand-textMuted hover:bg-brand-gray/50 hover:text-brand-light">
@@ -209,7 +183,7 @@
         
         <!-- TOPBAR -->
         <header class="h-16 border-b border-brand-border bg-brand-dark/50 flex items-center justify-between px-6 shrink-0 no-print">
-            <h2 id="header-title" class="font-extrabold text-lg text-brand-light uppercase tracking-wide">Painel Executivo</h2>
+            <h2 id="header-title" class="font-extrabold text-lg text-brand-light uppercase tracking-wide">Controlo de Acesso</h2>
             <div class="flex items-center gap-4">
                 <div class="text-right hidden sm:block">
                     <p class="text-[10px] text-brand-textMuted uppercase font-bold tracking-wider">Unidade Ativa</p>
@@ -217,349 +191,391 @@
                 </div>
                 <div class="h-8 w-px bg-brand-border hidden sm:block"></div>
                 <div class="flex items-center gap-2 bg-brand-gray/60 border border-brand-border px-3 py-1.5 rounded-lg">
-                    <span id="system-status-indicator" class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                    <span id="system-status-text" class="text-xs font-bold text-brand-light">Modo Local (Offline)</span>
+                    <span id="system-status-indicator" class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+                    <span id="system-status-text" class="text-xs font-bold text-brand-light">Acesso Bloqueado</span>
                 </div>
             </div>
         </header>
 
-        <!-- ÁREA DE CONTEÚDO PRINCIPAL -->
+        <!-- ÁREA DE CONTEÚDO PRINCIPAL (BLOQUEIO VS DADOS) -->
         <div class="flex-1 p-6 overflow-y-auto space-y-6">
 
-            <!-- TAB 1: DASHBOARD -->
-            <section id="tab-dashboard" class="tab-content space-y-6">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bg-brand-dark border border-brand-border p-5 rounded-xl shadow-lg">
-                        <p class="text-xs text-brand-textMuted font-bold uppercase tracking-wider">CMV Médio Geral</p>
-                        <h3 id="kpi-cmv-medio" class="text-3xl font-black text-brand-accent mt-2">0%</h3>
-                        <p class="text-[10px] text-brand-textMuted mt-1">Média do cardápio ativo</p>
-                    </div>
-                    <div class="bg-brand-dark border border-brand-border p-5 rounded-xl shadow-lg">
-                        <p class="text-xs text-brand-textMuted font-bold uppercase tracking-wider">Meta de CMV</p>
-                        <h3 id="kpi-cmv-meta" class="text-3xl font-black text-yellow-500 mt-2">30%</h3>
-                        <p class="text-[10px] text-brand-textMuted mt-1">Definida nos Parâmetros</p>
-                    </div>
-                    <div class="bg-brand-dark border border-brand-border p-5 rounded-xl shadow-lg">
-                        <p class="text-xs text-brand-textMuted font-bold uppercase tracking-wider">Insumos Cadastrados</p>
-                        <h3 id="kpi-insumos-qtd" class="text-3xl font-black text-brand-light mt-2">0</h3>
-                        <p class="text-[10px] text-brand-textMuted mt-1">Matérias-primas</p>
-                    </div>
-                    <div class="bg-brand-dark border border-brand-border p-5 rounded-xl shadow-lg">
-                        <p class="text-xs text-brand-textMuted font-bold uppercase tracking-wider">Fichas e Combos</p>
-                        <h3 id="kpi-receitas-qtd" class="text-3xl font-black text-brand-light mt-2">0</h3>
-                        <p class="text-[10px] text-brand-textMuted mt-1">Produtos ativos</p>
-                    </div>
+            <!-- TELA DE BLOQUEIO / LOGIN MANDATÓRIO -->
+            <section id="locked-state-screen" class="flex flex-col items-center justify-center py-12 px-4 max-w-md mx-auto space-y-6 text-center">
+                <div class="w-16 h-16 rounded-2xl bg-brand-accent/10 border border-brand-accent/20 text-brand-accent flex items-center justify-center text-3xl shadow-xl shadow-brand-accent/5">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-black uppercase text-brand-light tracking-wide">Acesso Restrito</h3>
+                    <p class="text-xs text-brand-textMuted mt-1.5 leading-relaxed">Por motivos de segurança e integridade das fichas técnicas do Tribo Burger, os dados estão protegidos. Insira os seus dados de acesso abaixo.</p>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 bg-brand-dark border border-brand-border rounded-xl p-6 shadow-xl">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-extrabold text-brand-light uppercase text-sm tracking-wider">Relação de Margens (Insumo vs Venda)</h3>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs">
-                                <thead>
-                                    <tr class="border-b border-brand-border text-brand-textMuted">
-                                        <th class="py-3 px-2">Produto</th>
-                                        <th class="py-3 px-2">Custo CMV</th>
-                                        <th class="py-3 px-2">Preço de Venda</th>
-                                        <th class="py-3 px-2">CMV Real</th>
-                                        <th class="py-3 px-2 text-right">Análise</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="dashboard-items-summary" class="divide-y divide-brand-border/40">
-                                    <!-- Preenchido via JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="bg-brand-dark border border-brand-border rounded-xl p-6 shadow-xl flex flex-col justify-between">
+                <!-- Formulário de Login Direto -->
+                <div class="bg-brand-dark border border-brand-border rounded-xl p-6 w-full shadow-2xl space-y-4 text-left">
+                    <div id="locked-error-box" class="hidden p-3 bg-red-500/10 border border-red-500/20 text-brand-accent text-xs rounded-lg font-bold"></div>
+                    
+                    <div class="space-y-4" id="direct-auth-form">
                         <div>
-                            <h3 class="font-extrabold text-brand-light uppercase text-sm tracking-wider mb-4">Gestão Estratégica</h3>
-                            <p class="text-xs text-brand-textMuted leading-relaxed">
-                                Manter o CMV abaixo de <strong class="text-brand-accent">30%</strong> garante uma operação saudável. Atualize o custo dos insumos sempre que houver variação do fornecedor.
-                            </p>
-                            <div class="mt-6 p-4 bg-brand-black border border-brand-border rounded-lg text-center">
-                                <p class="text-xs text-brand-textMuted">Custos Fixos Totais</p>
-                                <p id="dashboard-total-fixed-costs" class="text-xl font-bold text-brand-light mt-1">R$ 0,00</p>
-                            </div>
+                            <label class="block text-[10px] font-bold text-brand-light uppercase mb-1.5 tracking-wider">Endereço de Email</label>
+                            <input id="direct-email" type="email" placeholder="Ex: gestao@triboburger.com" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
                         </div>
-                        <div class="mt-6">
-                            <button onclick="switchTab('recipes')" class="w-full bg-brand-gray border border-brand-border hover:bg-brand-border text-brand-light font-bold py-2.5 rounded-lg text-xs transition-colors flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-plus text-brand-accent"></i> Criar Nova Ficha Técnica
+                        <div>
+                            <label class="block text-[10px] font-bold text-brand-light uppercase mb-1.5 tracking-wider">Palavra-passe (Senha)</label>
+                            <input id="direct-password" type="password" placeholder="Mínimo 6 caracteres" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                        </div>
+                        
+                        <div class="flex items-center justify-between pt-1">
+                            <span class="text-[10px] text-brand-textMuted" id="direct-auth-toggle-label">Ainda não tem conta?</span>
+                            <button onclick="toggleDirectAuthMode()" class="text-[10px] text-brand-accent font-extrabold hover:underline bg-transparent border-0 cursor-pointer uppercase tracking-wider" id="btn-toggle-direct">
+                                Criar Conta
                             </button>
                         </div>
+
+                        <button id="btn-direct-submit" onclick="handleDirectAuthSubmit()" class="w-full bg-brand-accent hover:bg-brand-accentHover text-brand-black font-black py-3 rounded-lg text-xs uppercase tracking-wider transition-all transform hover:scale-[1.01] active:scale-95 shadow-lg shadow-brand-accent/15">
+                            Entrar no Sistema
+                        </button>
                     </div>
                 </div>
             </section>
 
-            <!-- TAB 2: INSUMOS -->
-            <section id="tab-ingredients" class="tab-content space-y-6 hidden">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-4 rounded-xl">
-                    <div>
-                        <h3 class="font-extrabold text-brand-light uppercase tracking-wide">Insumos & Ingredientes</h3>
-                        <p class="text-xs text-brand-textMuted">Cadastre e ajuste os preços de custo de todas as matérias-primas.</p>
-                    </div>
-                    <button onclick="openIngredientModal()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-4 py-2.5 rounded-lg text-xs tracking-wide transition-colors flex items-center gap-2">
-                        <i class="fa-solid fa-plus text-sm"></i> Novo Insumo
-                    </button>
-                </div>
+            <!-- CONTAINER GERAL DOS DADOS (APENAS FICA VISÍVEL QUANDO LOGADO) -->
+            <div id="authenticated-data-container" class="hidden space-y-6">
 
-                <div class="bg-brand-dark border border-brand-border rounded-xl shadow-xl overflow-hidden">
-                    <div class="p-4 border-b border-brand-border bg-brand-black/20 flex gap-2">
-                        <input type="text" id="search-ingredients" oninput="renderIngredients()" placeholder="Filtrar por nome de ingrediente..." class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2 w-full max-w-sm focus:outline-none focus:border-brand-accent">
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-brand-black/30 border-b border-brand-border text-brand-textMuted">
-                                <tr>
-                                    <th class="py-3 px-4 font-bold uppercase tracking-wider">Ingrediente</th>
-                                    <th class="py-3 px-4 font-bold uppercase tracking-wider">Preço de Compra</th>
-                                    <th class="py-3 px-4 font-bold uppercase tracking-wider">Quantidade Embalagem</th>
-                                    <th class="py-3 px-4 font-bold uppercase tracking-wider">Custo Unitário Calculado</th>
-                                    <th class="py-3 px-4 font-bold uppercase tracking-wider text-right">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="ingredients-table-body" class="divide-y divide-brand-border/40">
-                                <!-- JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- TAB 3: FICHAS TÉCNICAS -->
-            <section id="tab-recipes" class="tab-content space-y-6 hidden">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-4 rounded-xl">
-                    <div>
-                        <h3 class="font-extrabold text-brand-light uppercase tracking-wide">Fichas Técnicas</h3>
-                        <p class="text-xs text-brand-textMuted">Construa e precifique as receitas individuais de burgers e porções.</p>
-                    </div>
-                    <button onclick="openRecipeModal()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-4 py-2.5 rounded-lg text-xs tracking-wide transition-colors flex items-center gap-2">
-                        <i class="fa-solid fa-plus text-sm"></i> Criar Ficha
-                    </button>
-                </div>
-
-                <div id="recipes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Cards dinâmicos -->
-                </div>
-            </section>
-
-            <!-- TAB 4: COMBOS -->
-            <section id="tab-combos" class="tab-content space-y-6 hidden">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-4 rounded-xl">
-                    <div>
-                        <h3 class="font-extrabold text-brand-light uppercase tracking-wide">Fichas de Combos</h3>
-                        <p class="text-xs text-brand-textMuted">Reúna várias fichas e insumos adicionais em combos promocionais.</p>
-                    </div>
-                    <button onclick="openComboModal()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-4 py-2.5 rounded-lg text-xs tracking-wide transition-colors flex items-center gap-2">
-                        <i class="fa-solid fa-plus text-sm"></i> Criar Combo
-                    </button>
-                </div>
-
-                <div id="combos-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Cards -->
-                </div>
-            </section>
-
-            <!-- TAB 5: ANÁLISE GERAL -->
-            <section id="tab-analysis" class="tab-content space-y-6 hidden">
-                <div class="hidden print:block mb-8 text-center border-b-2 border-black pb-4">
-                    <h1 class="text-3xl font-black uppercase text-black">Tribo Burger</h1>
-                    <p class="text-sm font-semibold text-gray-600">Relatório Consolidado de CMV & Margens</p>
-                    <p id="print-date" class="text-xs text-gray-500 mt-2">Data de Geração: --/--/----</p>
-                </div>
-
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-5 rounded-xl no-print shadow-lg">
-                    <div>
-                        <h3 class="font-extrabold text-brand-light uppercase tracking-wide text-base">Relatório Consolidado de Rentabilidade</h3>
-                        <p class="text-xs text-brand-textMuted">Auditoria geral de custos, taxas, descontos e margem de lucro de todo o menu.</p>
-                    </div>
-                    <button onclick="window.print()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-black px-5 py-3 rounded-lg text-xs tracking-wider transition-all transform hover:scale-105 shadow-lg flex items-center gap-2">
-                        <i class="fa-solid fa-print text-sm"></i> IMPRIMIR RELATÓRIO
-                    </button>
-                </div>
-
-                <div class="bg-brand-dark border border-brand-border rounded-xl shadow-xl overflow-hidden print-card">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs min-w-[800px]">
-                            <thead class="bg-brand-black/30 border-b border-brand-border text-brand-textMuted">
-                                <tr>
-                                    <th class="py-4 px-4 font-bold uppercase tracking-wider">Tipo</th>
-                                    <th class="py-4 px-4 font-bold uppercase tracking-wider">Nome do Item</th>
-                                    <th class="py-4 px-4 font-bold uppercase tracking-wider text-right">Custo Insumo</th>
-                                    <th class="py-4 px-4 font-bold uppercase tracking-wider text-right">Preço de Venda</th>
-                                    <th class="py-4 px-4 font-bold uppercase tracking-wider text-center">CMV (%)</th>
-                                    <th class="py-4 px-4 font-bold uppercase tracking-wider text-center">Deduções (%)</th>
-                                    <th class="py-4 px-4 font-bold uppercase tracking-wider text-right">Margem Op. (R$)</th>
-                                    <th class="py-4 px-4 font-bold uppercase tracking-wider text-center">Margem (%)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="analysis-table-body" class="divide-y divide-brand-border/40 text-brand-light print-text">
-                                <!-- JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- TAB 6: CUSTOS FIXOS -->
-            <section id="tab-fixed-costs" class="tab-content space-y-6 hidden">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-4 rounded-xl">
-                    <div>
-                        <h3 class="font-extrabold text-brand-light uppercase tracking-wide">Custos Fixos Mensais</h3>
-                        <p class="text-xs text-brand-textMuted">Registe despesas operacionais recorrentes (ex: salários, rendas, energia).</p>
-                    </div>
-                    <button onclick="openFixedCostModal()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-4 py-2.5 rounded-lg text-xs tracking-wide transition-colors flex items-center gap-2">
-                        <i class="fa-solid fa-plus text-sm"></i> Adicionar Despesa
-                    </button>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 bg-brand-dark border border-brand-border rounded-xl shadow-xl overflow-hidden">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-brand-black/30 border-b border-brand-border text-brand-textMuted">
-                                <tr>
-                                    <th class="py-3 px-4 font-bold uppercase tracking-wider">Descrição</th>
-                                    <th class="py-3 px-4 font-bold uppercase tracking-wider">Custo Mensal (R$)</th>
-                                    <th class="py-3 px-4 font-bold uppercase tracking-wider text-right">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="fixed-costs-table-body" class="divide-y divide-brand-border/40">
-                                <!-- JS -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="bg-brand-dark border border-brand-border rounded-xl p-6 shadow-xl h-fit">
-                        <h3 class="font-extrabold text-brand-light uppercase text-sm tracking-wider mb-4">Total de Encargos</h3>
-                        <div class="p-5 bg-brand-black border border-brand-border rounded-lg text-center">
-                            <span class="text-xs text-brand-textMuted block">Custo Fixo Acumulado</span>
-                            <span id="summary-total-fixed-costs" class="text-2xl font-black text-brand-accent block mt-1">R$ 0,00</span>
+                <!-- TAB 1: DASHBOARD -->
+                <section id="tab-dashboard" class="tab-content space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-brand-dark border border-brand-border p-5 rounded-xl shadow-lg">
+                            <p class="text-xs text-brand-textMuted font-bold uppercase tracking-wider">CMV Médio Geral</p>
+                            <h3 id="kpi-cmv-medio" class="text-3xl font-black text-brand-accent mt-2">0%</h3>
+                            <p class="text-[10px] text-brand-textMuted mt-1">Média do cardápio ativo</p>
                         </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- TAB 7: PARÂMETROS & TAXAS -->
-            <section id="tab-settings" class="tab-content space-y-6 hidden">
-                <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-6">
-                    <div>
-                        <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1">Parâmetros Comerciais</h3>
-                        <p class="text-xs text-brand-textMuted">Configure as médias de impostos e taxas cobradas para obter margens reais precisas.</p>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
-                        <div>
-                            <label class="block text-xs font-bold text-brand-light uppercase mb-2">Meta de CMV (%)</label>
-                            <input id="setting-target-cmv" type="number" step="0.1" class="bg-brand-gray border border-brand-border text-brand-light text-sm rounded-lg px-4 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                        <div class="bg-brand-dark border border-brand-border p-5 rounded-xl shadow-lg">
+                            <p class="text-xs text-brand-textMuted font-bold uppercase tracking-wider">Meta de CMV</p>
+                            <h3 id="kpi-cmv-meta" class="text-3xl font-black text-yellow-500 mt-2">30%</h3>
+                            <p class="text-[10px] text-brand-textMuted mt-1">Definida nos Parâmetros</p>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-brand-light uppercase mb-2">Impostos Globais (%)</label>
-                            <input id="setting-tax" type="number" step="0.01" class="bg-brand-gray border border-brand-border text-brand-light text-sm rounded-lg px-4 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                        <div class="bg-brand-dark border border-brand-border p-5 rounded-xl shadow-lg">
+                            <p class="text-xs text-brand-textMuted font-bold uppercase tracking-wider">Insumos Cadastrados</p>
+                            <h3 id="kpi-insumos-qtd" class="text-3xl font-black text-brand-light mt-2">0</h3>
+                            <p class="text-[10px] text-brand-textMuted mt-1">Matérias-primas</p>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-brand-light uppercase mb-2">Taxa Média Apps Delivery (%)</label>
-                            <input id="setting-apps" type="number" step="0.01" class="bg-brand-gray border border-brand-border text-brand-light text-sm rounded-lg px-4 py-2.5 w-full focus:outline-none focus:border-brand-accent">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-brand-light uppercase mb-2">Taxa Operação Cartões (%)</label>
-                            <input id="setting-card" type="number" step="0.01" class="bg-brand-gray border border-brand-border text-brand-light text-sm rounded-lg px-4 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                        <div class="bg-brand-dark border border-brand-border p-5 rounded-xl shadow-lg">
+                            <p class="text-xs text-brand-textMuted font-bold uppercase tracking-wider">Fichas e Combos</p>
+                            <h3 id="kpi-receitas-qtd" class="text-3xl font-black text-brand-light mt-2">0</h3>
+                            <p class="text-[10px] text-brand-textMuted mt-1">Produtos ativos</p>
                         </div>
                     </div>
 
-                    <button onclick="saveSettings()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-6 py-3 rounded-lg text-xs tracking-wider transition-colors">
-                        Salvar Taxas
-                    </button>
-                </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 bg-brand-dark border border-brand-border rounded-xl p-6 shadow-xl">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-extrabold text-brand-light uppercase text-sm tracking-wider">Relação de Margens (Insumo vs Venda)</h3>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead>
+                                        <tr class="border-b border-brand-border text-brand-textMuted">
+                                            <th class="py-3 px-2">Produto</th>
+                                            <th class="py-3 px-2">Custo CMV</th>
+                                            <th class="py-3 px-2">Preço de Venda</th>
+                                            <th class="py-3 px-2">CMV Real</th>
+                                            <th class="py-3 px-2 text-right">Análise</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dashboard-items-summary" class="divide-y divide-brand-border/40">
+                                        <!-- Preenchido via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
 
-                <!-- INFO CARD: AUTENTICAÇÃO ATIVA -->
-                <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
-                    <div>
-                        <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1 flex items-center gap-2">
-                            <i class="fa-solid fa-user-lock text-brand-accent"></i> Autenticação com Email e Senha Ativa
-                        </h3>
-                        <p class="text-xs text-brand-textMuted">Excelente! O seu banco de dados está sincronizado e protegido pelas regras de segurança configuradas.</p>
-                    </div>
-                    
-                    <div class="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-brand-textMuted space-y-2 leading-relaxed">
-                        <span class="font-bold text-emerald-400 flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-sm"></i> Estado de Segurança das Regras:</span>
-                        <p class="text-brand-light font-medium">As regras configuradas no seu painel barram acessos externos na raiz do projeto, e libertam apenas a gravação sob o seu próprio UID privado.</p>
-                        <ul class="list-disc pl-4 space-y-1 text-brand-light mt-1">
-                            <li><strong>Segurança Máxima:</strong> Apenas o utilizador autenticado consegue visualizar as suas próprias pastas.</li>
-                            <li><strong>Multi-dispositivo Seguro:</strong> Inicie sessão com o mesmo e-mail e palavra-passe em outro telemóvel para partilhar o acesso de forma segura e transparente.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- FERRAMENTA DE RECUPERAÇÃO DE DADOS DE CONTA ANTIGA (MIGRAÇÃO) -->
-                <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
-                    <div>
-                        <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1 flex items-center gap-2">
-                            <i class="fa-solid fa-file-import text-brand-accent"></i> Recuperar Dados de Conta Antiga (Migrar de ID)
-                        </h3>
-                        <p class="text-xs text-brand-textMuted">Caso possua fichas salvas numa sessão antiga (ID provisório/anónimo anterior), pode importá-las diretamente para a sua conta de Email ativa atual.</p>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">ID do Utilizador Antigo (UID)</label>
-                            <div class="flex flex-col sm:flex-row gap-2">
-                                <input id="recovery-old-uid" type="text" placeholder="Bs7ZZdJ2UoOYPg41YT8k20KhlFH3" class="bg-brand-gray border border-brand-border text-brand-light p-2.5 rounded text-xs w-full focus:outline-none focus:border-brand-accent font-mono">
-                                <button onclick="attemptDataRecovery()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-black px-5 py-2.5 rounded text-xs transition-colors whitespace-nowrap flex items-center justify-center gap-1.5 font-semibold">
-                                    <i class="fa-solid fa-download"></i> Recuperar & Sincronizar
+                        <div class="bg-brand-dark border border-brand-border rounded-xl p-6 shadow-xl flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-extrabold text-brand-light uppercase text-sm tracking-wider mb-4">Gestão Estratégica</h3>
+                                <p class="text-xs text-brand-textMuted leading-relaxed">
+                                    Manter o CMV abaixo de <strong class="text-brand-accent">30%</strong> garante uma operação saudável. Atualize o custo dos insumos sempre que houver variação do fornecedor.
+                                </p>
+                                <div class="mt-6 p-4 bg-brand-black border border-brand-border rounded-lg text-center">
+                                    <p class="text-xs text-brand-textMuted">Custos Fixos Totais</p>
+                                    <p id="dashboard-total-fixed-costs" class="text-xl font-bold text-brand-light mt-1">R$ 0,00</p>
+                                </div>
+                            </div>
+                            <div class="mt-6">
+                                <button onclick="switchTab('recipes')" class="w-full bg-brand-gray border border-brand-border hover:bg-brand-border text-brand-light font-bold py-2.5 rounded-lg text-xs transition-colors flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-plus text-brand-accent"></i> Criar Nova Ficha Técnica
                                 </button>
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <!-- PAINEL EXTRA: CREDENCIAIS DO FIREBASE PERSONALIZADAS -->
-                <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
-                    <div>
-                        <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1">Configuração Personalizada do Firebase</h3>
-                        <p class="text-xs text-brand-textMuted">O sistema está conectado com a sua base de dados oficial <strong>tribocmv</strong>. Se precisar alterar as credenciais no futuro, utilize os campos abaixo.</p>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <!-- TAB 2: INSUMOS -->
+                <section id="tab-ingredients" class="tab-content space-y-6 hidden">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-4 rounded-xl">
                         <div>
-                            <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">API Key</label>
-                            <input id="fb-apiKey" type="password" placeholder="AIzaSy..." class="bg-brand-gray border border-brand-border text-brand-light p-2 rounded w-full focus:outline-none focus:border-brand-accent">
+                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide">Insumos & Ingredientes</h3>
+                            <p class="text-xs text-brand-textMuted">Cadastre e ajuste os preços de custo de todas as matérias-primas.</p>
                         </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">Auth Domain</label>
-                            <input id="fb-authDomain" type="text" placeholder="seu-projeto.firebaseapp.com" class="bg-brand-gray border border-brand-border text-brand-light p-2 rounded w-full focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">Project ID</label>
-                            <input id="fb-projectId" type="text" placeholder="seu-projeto" class="bg-brand-gray border border-brand-border text-brand-light p-2 rounded w-full focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">Storage Bucket</label>
-                            <input id="fb-storageBucket" type="text" placeholder="seu-projeto.appspot.com" class="bg-brand-gray border border-brand-border text-brand-light p-2 rounded w-full focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">Messaging Sender ID</label>
-                            <input id="fb-messagingSenderId" type="text" placeholder="1234567890" class="bg-brand-gray border border-brand-border text-brand-light p-2 rounded w-full focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">App ID</label>
-                            <input id="fb-appId" type="text" placeholder="1:12345:web:abcd" class="bg-brand-gray border border-brand-border text-brand-light p-2 rounded w-full focus:outline-none">
-                        </div>
-                    </div>
-
-                    <div class="flex gap-3 pt-2">
-                        <button onclick="saveCustomFirebaseConfig()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded text-xs transition-colors">
-                            Guardar Firebase & Reiniciar
-                        </button>
-                        <button onclick="clearCustomFirebaseConfig()" class="bg-brand-gray hover:bg-brand-border border border-brand-border text-brand-textMuted px-4 py-2 rounded text-xs transition-colors">
-                            Restaurar Padrão (tribocmv)
+                        <button onclick="openIngredientModal()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-4 py-2.5 rounded-lg text-xs tracking-wide transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-plus text-sm"></i> Novo Insumo
                         </button>
                     </div>
-                </div>
-            </section>
 
+                    <div class="bg-brand-dark border border-brand-border rounded-xl shadow-xl overflow-hidden">
+                        <div class="p-4 border-b border-brand-border bg-brand-black/20 flex gap-2">
+                            <input type="text" id="search-ingredients" oninput="renderIngredients()" placeholder="Filtrar por nome de ingrediente..." class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2 w-full max-w-sm focus:outline-none focus:border-brand-accent">
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-brand-black/30 border-b border-brand-border text-brand-textMuted">
+                                    <tr>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Ingrediente</th>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Preço de Compra</th>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Quantidade Embalagem</th>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Custo Unitário Calculado</th>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider text-right">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ingredients-table-body" class="divide-y divide-brand-border/40">
+                                    <!-- JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 3: FICHAS TÉCNICAS -->
+                <section id="tab-recipes" class="tab-content space-y-6 hidden">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-4 rounded-xl">
+                        <div>
+                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide">Fichas Técnicas</h3>
+                            <p class="text-xs text-brand-textMuted">Construa e precifique as receitas individuais de burgers e porções.</p>
+                        </div>
+                        <button onclick="openRecipeModal()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-4 py-2.5 rounded-lg text-xs tracking-wide transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-plus text-sm"></i> Criar Ficha
+                        </button>
+                    </div>
+
+                    <div id="recipes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Cards dinâmicos -->
+                    </div>
+                </section>
+
+                <!-- TAB 4: COMBOS -->
+                <section id="tab-combos" class="tab-content space-y-6 hidden">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-4 rounded-xl">
+                        <div>
+                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide">Fichas de Combos</h3>
+                            <p class="text-xs text-brand-textMuted">Reúna várias fichas e insumos adicionais em combos promocionais.</p>
+                        </div>
+                        <button onclick="openComboModal()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-4 py-2.5 rounded-lg text-xs tracking-wide transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-plus text-sm"></i> Criar Combo
+                        </button>
+                    </div>
+
+                    <div id="combos-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Cards -->
+                    </div>
+                </section>
+
+                <!-- TAB 5: ANÁLISE GERAL -->
+                <section id="tab-analysis" class="tab-content space-y-6 hidden">
+                    <div class="hidden print:block mb-8 text-center border-b-2 border-black pb-4">
+                        <h1 class="text-3xl font-black uppercase text-black">Tribo Burger</h1>
+                        <p class="text-sm font-semibold text-gray-600">Relatório Consolidado de CMV & Margens</p>
+                        <p id="print-date" class="text-xs text-gray-500 mt-2">Data de Geração: --/--/----</p>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-5 rounded-xl no-print shadow-lg">
+                        <div>
+                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide text-base">Relatório Consolidado de Rentabilidade</h3>
+                            <p class="text-xs text-brand-textMuted">Auditoria geral de custos, taxas, descontos e margem de lucro de todo o menu.</p>
+                        </div>
+                        <button onclick="window.print()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-black px-5 py-3 rounded-lg text-xs tracking-wider transition-all transform hover:scale-105 shadow-lg flex items-center gap-2">
+                            <i class="fa-solid fa-print text-sm"></i> IMPRIMIR RELATÓRIO
+                        </button>
+                    </div>
+
+                    <div class="bg-brand-dark border border-brand-border rounded-xl shadow-xl overflow-hidden print-card">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs min-w-[800px]">
+                                <thead class="bg-brand-black/30 border-b border-brand-border text-brand-textMuted">
+                                    <tr>
+                                        <th class="py-4 px-4 font-bold uppercase tracking-wider">Tipo</th>
+                                        <th class="py-4 px-4 font-bold uppercase tracking-wider">Nome do Item</th>
+                                        <th class="py-4 px-4 font-bold uppercase tracking-wider text-right">Custo Insumo</th>
+                                        <th class="py-4 px-4 font-bold uppercase tracking-wider text-right">Preço de Venda</th>
+                                        <th class="py-4 px-4 font-bold uppercase tracking-wider text-center">CMV (%)</th>
+                                        <th class="py-4 px-4 font-bold uppercase tracking-wider text-center">Deduções (%)</th>
+                                        <th class="py-4 px-4 font-bold uppercase tracking-wider text-right">Margem Op. (R$)</th>
+                                        <th class="py-4 px-4 font-bold uppercase tracking-wider text-center">Margem (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="analysis-table-body" class="divide-y divide-brand-border/40 text-brand-light print-text">
+                                    <!-- JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 6: CUSTOS FIXOS -->
+                <section id="tab-fixed-costs" class="tab-content space-y-6 hidden">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-4 rounded-xl">
+                        <div>
+                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide">Custos Fixos Mensais</h3>
+                            <p class="text-xs text-brand-textMuted">Registe despesas operacionais recorrentes (ex: salários, rendas, energia).</p>
+                        </div>
+                        <button onclick="openFixedCostModal()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-4 py-2.5 rounded-lg text-xs tracking-wide transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-plus text-sm"></i> Adicionar Despesa
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 bg-brand-dark border border-brand-border rounded-xl shadow-xl overflow-hidden">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-brand-black/30 border-b border-brand-border text-brand-textMuted">
+                                    <tr>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Descrição</th>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Custo Mensal (R$)</th>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider text-right">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fixed-costs-table-body" class="divide-y divide-brand-border/40">
+                                    <!-- JS -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="bg-brand-dark border border-brand-border rounded-xl p-6 shadow-xl h-fit">
+                            <h3 class="font-extrabold text-brand-light uppercase text-sm tracking-wider mb-4">Total de Encargos</h3>
+                            <div class="p-5 bg-brand-black border border-brand-border rounded-lg text-center">
+                                <span class="text-xs text-brand-textMuted block">Custo Fixo Acumulado</span>
+                                <span id="summary-total-fixed-costs" class="text-2xl font-black text-brand-accent block mt-1">R$ 0,00</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 7: PARÂMETROS & TAXAS -->
+                <section id="tab-settings" class="tab-content space-y-6 hidden">
+                    <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-6">
+                        <div>
+                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1">Parâmetros Comerciais</h3>
+                            <p class="text-xs text-brand-textMuted">Configure as médias de impostos e taxas cobradas para obter margens reais precisas.</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
+                            <div>
+                                <label class="block text-xs font-bold text-brand-light uppercase mb-2">Meta de CMV (%)</label>
+                                <input id="setting-target-cmv" type="number" step="0.1" class="bg-brand-gray border border-brand-border text-brand-light text-sm rounded-lg px-4 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-brand-light uppercase mb-2">Impostos Globais (%)</label>
+                                <input id="setting-tax" type="number" step="0.01" class="bg-brand-gray border border-brand-border text-brand-light text-sm rounded-lg px-4 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-brand-light uppercase mb-2">Taxa Média Apps Delivery (%)</label>
+                                <input id="setting-apps" type="number" step="0.01" class="bg-brand-gray border border-brand-border text-brand-light text-sm rounded-lg px-4 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-brand-light uppercase mb-2">Taxa Operação Cartões (%)</label>
+                                <input id="setting-card" type="number" step="0.01" class="bg-brand-gray border border-brand-border text-brand-light text-sm rounded-lg px-4 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                            </div>
+                        </div>
+
+                        <button onclick="saveSettings()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-6 py-3 rounded-lg text-xs tracking-wider transition-colors">
+                            Salvar Taxas
+                        </button>
+                    </div>
+
+                    <!-- INFO CARD: AUTENTICAÇÃO ATIVA -->
+                    <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
+                        <div>
+                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1 flex items-center gap-2">
+                                <i class="fa-solid fa-user-lock text-brand-accent"></i> Autenticação com Email e Senha Ativa
+                            </h3>
+                            <p class="text-xs text-brand-textMuted">Excelente! O seu banco de dados está sincronizado e protegido pelas regras de segurança configuradas.</p>
+                        </div>
+                        
+                        <div class="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-brand-textMuted space-y-2 leading-relaxed">
+                            <span class="font-bold text-emerald-400 flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-sm"></i> Estado de Segurança das Regras:</span>
+                            <p class="text-brand-light font-medium">As regras configuradas no seu painel barram acessos externos na raiz do projeto, e libertam apenas a gravação sob o seu próprio UID privado.</p>
+                            <ul class="list-disc pl-4 space-y-1 text-brand-light mt-1">
+                                <li><strong>Segurança Máxima:</strong> Apenas o utilizador autenticado consegue visualizar as suas próprias pastas.</li>
+                                <li><strong>Multi-dispositivo Seguro:</strong> Inicie sessão com o mesmo e-mail e palavra-passe em outro telemóvel para partilhar o acesso de forma segura e transparente.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- FERRAMENTA DE RECUPERAÇÃO DE DADOS DE CONTA ANTIGA (MIGRAÇÃO) -->
+                    <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
+                        <div>
+                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1 flex items-center gap-2">
+                                <i class="fa-solid fa-file-import text-brand-accent"></i> Recuperar Dados de Conta Antiga (Migrar de ID)
+                            </h3>
+                            <p class="text-xs text-brand-textMuted">Caso possua fichas salvas numa sessão antiga (ID provisório/anónimo anterior), pode importá-las diretamente para a sua conta de Email ativa atual.</p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">ID do Utilizador Antigo (UID)</label>
+                                <div class="flex flex-col sm:flex-row gap-2">
+                                    <input id="recovery-old-uid" type="text" placeholder="Bs7ZZdJ2UoOYPg41YT8k20KhlFH3" class="bg-brand-gray border border-brand-border text-brand-light p-2.5 rounded text-xs w-full focus:outline-none focus:border-brand-accent font-mono">
+                                    <button onclick="attemptDataRecovery()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-black px-5 py-2.5 rounded text-xs transition-colors whitespace-nowrap flex items-center justify-center gap-1.5 font-semibold">
+                                        <i class="fa-solid fa-download"></i> Recuperar & Sincronizar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PAINEL EXTRA: CREDENCIAIS DO FIREBASE PERSONALIZADAS -->
+                    <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
+                        <div>
+                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1">Configuração Personalizada do Firebase</h3>
+                            <p class="text-xs text-brand-textMuted">O sistema está conectado com a sua base de dados oficial <strong>tribocmv</strong>. Se precisar alterar as credenciais no futuro, utilize os campos abaixo.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">API Key</label>
+                                <input id="fb-apiKey" type="password" placeholder="AIzaSy..." class="bg-brand-gray border border-brand-border text-brand-light p-2 rounded w-full focus:outline-none focus:border-brand-accent">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">Auth Domain</label>
+                                <input id="fb-authDomain" type="text" placeholder="seu-projeto.firebaseapp.com" class="bg-brand-gray border border-brand-border text-brand-light p-2 rounded w-full focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">Project ID</label>
+                                <input id="fb-projectId" type="text" placeholder="seu-projeto" class="bg-brand-gray border border-brand-border text-brand-light p-2 rounded w-full focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">Storage Bucket</label>
+                                <input id="fb-storageBucket" type="text" placeholder="seu-projeto.appspot.com" class="bg-brand-gray border border-brand-border text-brand-light p-2 rounded w-full focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">Messaging Sender ID</label>
+                                <input id="fb-messagingSenderId" type="text" placeholder="1234567890" class="bg-brand-gray border border-brand-border text-brand-light p-2 rounded w-full focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">App ID</label>
+                                <input id="fb-appId" type="text" placeholder="1:12345:web:abcd" class="bg-brand-gray border border-brand-border text-brand-light p-2 rounded w-full focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3 pt-2">
+                            <button onclick="saveCustomFirebaseConfig()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded text-xs transition-colors">
+                                Guardar Firebase & Reiniciar
+                            </button>
+                            <button onclick="clearCustomFirebaseConfig()" class="bg-brand-gray hover:bg-brand-border border border-brand-border text-brand-textMuted px-4 py-2 rounded text-xs transition-colors">
+                                Restaurar Padrão (tribocmv)
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
         </div>
     </main>
 
@@ -568,39 +584,6 @@
         <button onclick="window.print()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all transform hover:scale-110 active:scale-95 duration-200 border-2 border-brand-black" title="Imprimir Relatório">
             <i class="fa-solid fa-print text-xl"></i>
         </button>
-    </div>
-
-    <!-- MODAL: AUTENTICAÇÃO (LOGIN / REGISTRO) -->
-    <div id="modal-auth" class="fixed inset-0 bg-brand-black/80 backdrop-blur-sm z-50 items-center justify-center p-4 hidden no-print">
-        <div class="bg-brand-dark border border-brand-border rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
-            <div class="p-5 border-b border-brand-border flex justify-between items-center bg-brand-black/20">
-                <h3 id="modal-auth-title" class="font-extrabold text-brand-light uppercase text-sm tracking-wide">Aceder à Minha Conta</h3>
-                <button onclick="closeAuthModal()" class="text-brand-textMuted hover:text-brand-light transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <div class="p-6 space-y-4">
-                <!-- Caixa de Alerta de Erro Interno -->
-                <div id="auth-error-box" class="hidden p-3 bg-red-500/10 border border-red-500/20 text-brand-accent text-xs rounded-lg font-bold"></div>
-                
-                <div>
-                    <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Endereço de Email</label>
-                    <input id="auth-email" type="email" placeholder="Ex: gestao@triboburger.com" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Palavra-passe (Senha)</label>
-                    <input id="auth-password" type="password" placeholder="Mínimo 6 caracteres" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
-                </div>
-                
-                <div class="text-right">
-                    <button id="btn-toggle-auth-mode" onclick="toggleAuthMode()" class="text-xs text-brand-accent font-semibold hover:underline bg-transparent border-0 cursor-pointer">
-                        Ainda não tem conta? Registar-se
-                    </button>
-                </div>
-            </div>
-            <div class="p-5 border-t border-brand-border bg-brand-black/20 flex gap-3 justify-end">
-                <button onclick="closeAuthModal()" class="bg-brand-gray hover:bg-brand-border text-brand-light px-4 py-2 rounded-lg text-xs font-bold transition-colors">Cancelar</button>
-                <button id="btn-auth-submit" onclick="handleAuthSubmit()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-5 py-2 rounded-lg text-xs font-black transition-colors font-semibold">Entrar</button>
-            </div>
-        </div>
     </div>
 
     <!-- MODAL: INSUMOS -->
@@ -844,7 +827,7 @@
         let syncMode = 'private'; // 'private' (por conta de utilizador) ou 'shared' (por chave pública)
         let databaseListenerUnsubscribe = null;
         const defaultAppId = 'tribo-burger-pricing-system';
-        let authMode = 'login'; // 'login' ou 'register'
+        let directAuthMode = 'login'; // 'login' ou 'register'
 
         // Credenciais do Firebase oficiais do utilizador como fallback absoluto
         const officialFirebaseConfig = {
@@ -875,6 +858,11 @@
         // ----------------- DEFINIÇÃO DAS FUNÇÕES GLOBAIS NO INÍCIO ABSOLUTO (À PROVA DE FALHAS) -----------------
         
         window.switchTab = function(tabId) {
+            // Se não estiver logado, não permite a troca de abas sob nenhuma circunstância
+            if (!currentUser || currentUser.isAnonymous) {
+                return;
+            }
+
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             const target = document.getElementById(`tab-${tabId}`);
             if (target) target.classList.remove('hidden');
@@ -921,7 +909,7 @@
         };
 
         window.copySyncId = function() {
-            showCustomAlert('Acesso Privado', 'As suas regras ativas do Firestore bloqueiam acessos públicos por motivos de privacidade. Use a aba "Por Conta" em múltiplos dispositivos.', true);
+            showCustomAlert('Acesso Privado', 'As suas regras ativas do Firestore bloqueiam acessos públicos por motivos de privacidade. Use o mesmo email em múltiplos dispositivos.', true);
         };
 
         window.updateSyncKeyFromInput = function() {
@@ -929,11 +917,7 @@
         };
 
         window.setSyncMode = function(mode) {
-            if (mode === 'shared') {
-                showCustomAlert('Aviso de Segurança', 'A sincronização compartilhada por chave não é permitida com as suas regras estritas atuais do Firestore. Use o mesmo login de e-mail nos dispositivos para partilhar o acesso de forma segura!', true);
-                mode = 'private';
-            }
-
+            // Força a manter no privado devido às regras de segurança estritas enviadas
             const btnPrivate = document.getElementById('btn-sync-private');
             const btnShared = document.getElementById('btn-sync-shared');
             const contentPrivate = document.getElementById('sync-private-content');
@@ -945,67 +929,37 @@
             btnShared.className = "text-[10px] font-bold py-1.5 px-2 rounded transition-all text-brand-textMuted hover:text-brand-light cursor-not-allowed";
             contentPrivate.classList.remove('hidden');
             contentShared.classList.add('hidden');
-
-            if (syncMode !== mode) {
-                syncMode = mode;
-                localStorage.setItem('tribo_burger_sync_mode', mode);
-                initCloudSyncListener();
-            }
         };
 
-        // ----------------- SISTEMA DE AUTENTICAÇÃO COM EMAIL E PALAVRA-PASSE -----------------
-        window.openAuthModal = function() {
-            const modal = document.getElementById('modal-auth');
-            const errorBox = document.getElementById('auth-error-box');
-            if (errorBox) errorBox.classList.add('hidden');
-            safeSetValue('auth-email', '');
-            safeSetValue('auth-password', '');
-            
-            authMode = 'login';
-            updateAuthModalUI();
-            
-            if (modal) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            }
+        // ----------------- SISTEMA DE AUTENTICAÇÃO INTEGRADO (SEM TRAVAMENTOS) -----------------
+        window.toggleDirectAuthMode = function() {
+            directAuthMode = directAuthMode === 'login' ? 'register' : 'login';
+            updateDirectAuthUI();
         };
 
-        window.closeAuthModal = function() {
-            const modal = document.getElementById('modal-auth');
-            if (modal) {
-                modal.classList.remove('flex');
-                modal.classList.add('hidden');
-            }
-        };
-
-        window.toggleAuthMode = function() {
-            authMode = authMode === 'login' ? 'register' : 'login';
-            updateAuthModalUI();
-        };
-
-        function updateAuthModalUI() {
-            const title = document.getElementById('modal-auth-title');
-            const submitBtn = document.getElementById('btn-auth-submit');
-            const toggleBtn = document.getElementById('btn-toggle-auth-mode');
-            const errorBox = document.getElementById('auth-error-box');
+        function updateDirectAuthUI() {
+            const submitBtn = document.getElementById('btn-direct-submit');
+            const toggleBtn = document.getElementById('btn-toggle-direct');
+            const label = document.getElementById('direct-auth-toggle-label');
+            const errorBox = document.getElementById('locked-error-box');
             
             if (errorBox) errorBox.classList.add('hidden');
 
-            if (authMode === 'login') {
-                if (title) title.textContent = 'Aceder à Minha Conta';
-                if (submitBtn) submitBtn.textContent = 'Entrar';
-                if (toggleBtn) toggleBtn.textContent = 'Ainda não tem conta? Registar-se';
+            if (directAuthMode === 'login') {
+                if (submitBtn) submitBtn.textContent = 'Entrar no Sistema';
+                if (toggleBtn) toggleBtn.textContent = 'Criar Conta';
+                if (label) label.textContent = 'Ainda não tem conta?';
             } else {
-                if (title) title.textContent = 'Criar Nova Conta';
-                if (submitBtn) submitBtn.textContent = 'Criar Conta';
-                if (toggleBtn) toggleBtn.textContent = 'Já tem uma conta? Iniciar Sessão';
+                if (submitBtn) submitBtn.textContent = 'Criar e Registar Conta';
+                if (toggleBtn) toggleBtn.textContent = 'Iniciar Sessão';
+                if (label) label.textContent = 'Já possui uma conta?';
             }
         }
 
-        window.handleAuthSubmit = async function() {
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-            const errorBox = document.getElementById('auth-error-box');
+        window.handleDirectAuthSubmit = async function() {
+            const email = document.getElementById('direct-email').value.trim();
+            const password = document.getElementById('direct-password').value;
+            const errorBox = document.getElementById('locked-error-box');
 
             if (!email || !password) {
                 if (errorBox) {
@@ -1015,24 +969,29 @@
                 return;
             }
 
+            if (password.length < 6) {
+                if (errorBox) {
+                    errorBox.textContent = 'A senha precisa de ter pelo menos 6 caracteres.';
+                    errorBox.classList.remove('hidden');
+                }
+                return;
+            }
+
             try {
-                if (authMode === 'login') {
+                if (directAuthMode === 'login') {
                     await signInWithEmailAndPassword(auth, email, password);
                 } else {
                     await createUserWithEmailAndPassword(auth, email, password);
                 }
-                closeAuthModal();
-                showCustomAlert('Sucesso!', authMode === 'login' ? 'Sessão segura iniciada!' : 'Conta criada e protegida sob as novas regras de segurança!');
+                if (errorBox) errorBox.classList.add('hidden');
             } catch (error) {
-                console.error("Erro Auth:", error);
+                console.error("Erro Auth Direto:", error);
                 if (errorBox) {
-                    let userMsg = 'Falha ao autenticar. Tente novamente.';
+                    let userMsg = 'Erro de credenciais. Verifique os dados.';
                     if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-                        userMsg = 'Credenciais inválidas. Verifique o email e senha.';
+                        userMsg = 'Dados incorretos. Verifique o email e palavra-passe.';
                     } else if (error.code === 'auth/email-already-in-use') {
-                        userMsg = 'Este email já está registado em outra conta.';
-                    } else if (error.code === 'auth/weak-password') {
-                        userMsg = 'A senha deve ter no mínimo 6 caracteres.';
+                        userMsg = 'Este email já se encontra registado.';
                     }
                     errorBox.textContent = userMsg;
                     errorBox.classList.remove('hidden');
@@ -1041,18 +1000,90 @@
         };
 
         window.handleLogout = async function() {
-            showCustomConfirm('Terminar Sessão', 'Deseja realmente sair da sua conta segura?', async (approved) => {
+            showCustomConfirm('Terminar Sessão', 'Deseja realmente sair da sua conta segura de precificação?', async (approved) => {
                 if (approved) {
                     try {
+                        // Limpa completamente os dados na memória do browser ao deslogar para não vazar informações
+                        appState = {
+                            ingredients: [],
+                            recipes: [],
+                            combos: [],
+                            fixedCosts: [],
+                            settings: { targetCMV: 30, tax: 6, apps: 12, card: 2.5 }
+                        };
+                        localStorage.removeItem('tribo_burger_offline_backup');
+                        window.renderAll();
+
+                        if (databaseListenerUnsubscribe) {
+                            databaseListenerUnsubscribe();
+                        }
+
                         await signOut(auth);
-                        await signInAnonymously(auth);
-                        showCustomAlert('Sessão Terminada', 'Terminou a sessão com sucesso!');
+                        currentUser = null;
+                        updateAuthenticationUI(null);
                     } catch (e) {
                         console.error(e);
                     }
                 }
             });
         };
+
+        // Atualiza a visualização com base no estado real de Login (E-mail verificado)
+        function updateAuthenticationUI(user) {
+            const lockScreen = document.getElementById('locked-state-screen');
+            const dataContainer = document.getElementById('authenticated-data-container');
+            const sidebarNav = document.getElementById('sidebar-navigation');
+            
+            const loggedInView = document.getElementById('auth-logged-in-view');
+            const anonymousView = document.getElementById('auth-anonymous-view');
+            const userEmailDisplay = document.getElementById('user-email-display');
+            const avatarInitials = document.getElementById('user-avatar-initials');
+            const userUidBox = document.getElementById('user-uid-box');
+
+            const statusIndicator = document.getElementById('system-status-indicator');
+            const statusText = document.getElementById('system-status-text');
+
+            // Se não houver utilizador ou for um utilizador provisório/anónimo (Sem email)
+            if (!user || user.isAnonymous) {
+                // EXIBE APENAS TELA DE BLOQUEIO (Esconde tudo)
+                if (lockScreen) lockScreen.classList.remove('hidden');
+                if (dataContainer) dataContainer.classList.add('hidden');
+                if (sidebarNav) {
+                    sidebarNav.classList.add('pointer-events-none', 'opacity-40');
+                }
+
+                if (loggedInView) loggedInView.classList.add('hidden');
+                if (anonymousView) anonymousView.classList.remove('hidden');
+                if (userUidBox) userUidBox.classList.add('hidden');
+
+                if (statusIndicator) statusIndicator.className = "w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse";
+                if (statusText) statusText.textContent = "Acesso Bloqueado";
+                safeSetText('header-title', 'Controlo de Acesso');
+            } else {
+                // UTILIZADOR LOGADO COM EMAIL (Libera tudo!)
+                if (lockScreen) lockScreen.classList.add('hidden');
+                if (dataContainer) dataContainer.classList.remove('hidden');
+                if (sidebarNav) {
+                    sidebarNav.classList.remove('pointer-events-none', 'opacity-40');
+                }
+
+                if (loggedInView) loggedInView.classList.remove('hidden');
+                if (anonymousView) anonymousView.classList.add('hidden');
+                if (userUidBox) userUidBox.classList.remove('hidden');
+                safeSetText('user-id-display', user.uid);
+
+                if (userEmailDisplay) userEmailDisplay.textContent = user.email;
+                if (avatarInitials && user.email) {
+                    avatarInitials.textContent = user.email.substring(0, 2).toUpperCase();
+                }
+
+                if (statusIndicator) statusIndicator.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                if (statusText) statusText.textContent = "Online (Protegido)";
+
+                // Direciona imediatamente para o painel principal do sistema
+                window.switchTab('dashboard');
+            }
+        }
 
         // ----------------- ALERTAS E CONFIRMAÇÕES CUSTOMIZADAS -----------------
         let currentConfirmCallback = null;
@@ -1550,7 +1581,6 @@
             safeSetValue('setting-card', appState.settings.card);
         };
 
-
         // ----------------- CRUD - INSUMOS (INGREDIENTES) -----------------
         window.openIngredientModal = function(id = null) {
             const modal = document.getElementById('modal-ingredient');
@@ -1624,7 +1654,7 @@
             });
         };
 
-        // ----------------- CRUD - RECEITAS (MÉTODO ULTRA-ROBUSTO) -----------------
+        // ----------------- CRUD - RECEITAS -----------------
         window.openRecipeModal = function(id = null) {
             const modal = document.getElementById('modal-recipe');
             if (!modal) return;
@@ -1671,7 +1701,6 @@
             addIngredientRowMarkup('', '');
         };
 
-        // Cria as linhas dos insumos programaticamente para eliminar bugs de aspas/caracteres especiais
         function addIngredientRowMarkup(selectedId = '', qtyVal = '') {
             const container = document.getElementById('recipe-ingredients-rows');
             if (!container) return;
@@ -1700,7 +1729,6 @@
 
             container.appendChild(div);
 
-            // Carregamento programático para evitar erros de compilação da consola
             const selectEl = div.querySelector('.select-recipe-ingredient-target');
             const qtyEl = div.querySelector('.input-recipe-qty');
             const removeBtn = div.querySelector('.btn-remove-recipe-row');
@@ -1811,7 +1839,7 @@
             });
         };
 
-        // ----------------- CRUD - COMBOS (MÉTODO ULTRA-ROBUSTO) -----------------
+        // ----------------- CRUD - COMBOS -----------------
         window.openComboModal = function(id = null) {
             const modal = document.getElementById('modal-combo');
             if (!modal) return;
@@ -1890,7 +1918,6 @@
             const qtyEl = div.querySelector('.combo-item-qty');
             const removeBtn = div.querySelector('.btn-remove-combo-row');
 
-            // Atribui listeners de alteração
             const updateOptions = (currentSelectedId = '') => {
                 const currentType = typeEl.value;
                 let html = '<option value="">-- Escolher --</option>';
@@ -2125,7 +2152,7 @@
             }
 
             localStorage.setItem('tribo_burger_custom_fb_config', JSON.stringify(config));
-            showCustomAlert('Reiniciando...', 'Configurações guardadas! A página irá atualizar para conectar à sua base de dados.');
+            showCustomAlert('Reiniciando...', 'Configurações guardadas! A página irá atualizar para conectar à sua nova base de dados.');
             setTimeout(() => { location.reload(); }, 1500);
         };
 
@@ -2146,6 +2173,11 @@
 
         // ----------------- COORDENAÇÃO DE SINCRONIZAÇÃO NUVEM E LOCAL CACHE -----------------
         function loadLocalBackup() {
+            // Apenas carrega dados se o utilizador estiver autenticado (Garante privacidade)
+            if (!currentUser || currentUser.isAnonymous) {
+                return;
+            }
+
             const cached = localStorage.getItem('tribo_burger_offline_backup');
             if (cached) {
                 try {
@@ -2169,11 +2201,13 @@
         }
 
         function saveLocalBackup() {
+            // Apenas salva localmente se o utilizador estiver autenticado
+            if (!currentUser || currentUser.isAnonymous) return;
             localStorage.setItem('tribo_burger_offline_backup', JSON.stringify(appState));
         }
 
         async function initCloudSyncListener() {
-            if (!isFirebaseActive || !db || !auth.currentUser) return;
+            if (!isFirebaseActive || !db || !currentUser || currentUser.isAnonymous) return;
 
             if (databaseListenerUnsubscribe) {
                 databaseListenerUnsubscribe();
@@ -2185,8 +2219,8 @@
                 badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20";
             }
 
-            // Sincronização exclusiva e estrita: /users/{userId}
-            const docRef = doc(db, 'artifacts', defaultAppId, 'users', auth.currentUser.uid, 'user_data', 'state');
+            // Sincronização exclusiva e estrita do Utilizador: /users/{userId}
+            const docRef = doc(db, 'artifacts', defaultAppId, 'users', currentUser.uid, 'user_data', 'state');
 
             try {
                 databaseListenerUnsubscribe = onSnapshot(docRef, (snap) => {
@@ -2221,7 +2255,7 @@
                         statusText.textContent = "Online (Protegido)";
                     }
                 }, (error) => {
-                    console.warn("Bloqueado por regras de leitura:", error);
+                    console.warn("Bloqueado pelas regras de segurança:", error);
                     fallbackToOfflineBadge();
                 });
             } catch (err) {
@@ -2231,10 +2265,11 @@
         }
 
         async function syncStateToCloud() {
+            if (!currentUser || currentUser.isAnonymous) return;
             saveLocalBackup();
-            if (!isFirebaseActive || !db || !auth.currentUser) return;
+            if (!isFirebaseActive || !db) return;
 
-            const docRef = doc(db, 'artifacts', defaultAppId, 'users', auth.currentUser.uid, 'user_data', 'state');
+            const docRef = doc(db, 'artifacts', defaultAppId, 'users', currentUser.uid, 'user_data', 'state');
 
             try {
                 await setDoc(docRef, {
@@ -2324,15 +2359,7 @@
 
         // ----------------- FLUXO DE INICIALIZAÇÃO SEGURO (PROVA DE FALHAS) -----------------
         window.addEventListener('DOMContentLoaded', async () => {
-            // Força a sincronização privada recomendada para as novas regras do Firestore
-            syncMode = 'private';
-            setSyncMode('private');
-
-            // Carrega instantaneamente o backup do navegador antes do Firebase inicializar (Anti-Congelamento)
-            loadLocalBackup();
-            window.renderAll();
-
-            // Determina as chaves do Firebase
+            // Inicialização isolada e segura para evitar travamentos devido ao Firebase fora de rede
             let fbConfigToUse = officialFirebaseConfig;
             const customConfig = localStorage.getItem('tribo_burger_custom_fb_config');
             if (customConfig) {
@@ -2340,45 +2367,33 @@
             }
             populateFirebaseConfigFields(fbConfigToUse);
 
-            // Inicialização isolada num bloco try/catch para garantir que erros de chave de API não parem o sistema
             try {
                 if (fbConfigToUse && fbConfigToUse.apiKey) {
                     const appInstance = initializeApp(fbConfigToUse);
                     auth = getAuth(appInstance);
                     db = getFirestore(appInstance);
-                    
-                    // Executa a autenticação inicial anónima
-                    await signInAnonymously(auth);
                     isFirebaseActive = true;
 
+                    // Escuta o estado da Autenticação de forma reativa
                     onAuthStateChanged(auth, (user) => {
-                        if (user) {
-                            currentUser = user;
-                            safeSetText('user-id-display', user.uid);
-                            
-                            const loggedInView = document.getElementById('auth-logged-in-view');
-                            const anonymousView = document.getElementById('auth-anonymous-view');
-                            const userEmailDisplay = document.getElementById('user-email-display');
-                            
-                            if (user.isAnonymous) {
-                                if (loggedInView) loggedInView.classList.add('hidden');
-                                if (anonymousView) anonymousView.classList.remove('hidden');
-                            } else {
-                                if (loggedInView) loggedInView.classList.remove('hidden');
-                                if (anonymousView) anonymousView.classList.add('hidden');
-                                if (userEmailDisplay) userEmailDisplay.textContent = user.email;
-                            }
+                        currentUser = user;
+                        updateAuthenticationUI(user);
 
+                        if (user && !user.isAnonymous) {
+                            loadLocalBackup();
+                            window.renderAll();
                             initCloudSyncListener();
                         }
                     });
                 } else {
                     isFirebaseActive = false;
+                    updateAuthenticationUI(null);
                     fallbackToOfflineBadge();
                 }
             } catch (error) {
-                console.warn("Inicialização do Firebase bloqueada:", error);
+                console.warn("Autenticação anónima indisponível ou erro nas chaves. Mantendo ecrã bloqueado para login seguro:", error);
                 isFirebaseActive = false;
+                updateAuthenticationUI(null);
                 fallbackToOfflineBadge();
             }
         });
