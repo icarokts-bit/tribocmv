@@ -77,6 +77,14 @@
     <!-- PRINT ONLY CONTAINER -->
     <div id="print-section" class="print-only"></div>
 
+    <!-- Floating Print Button for easy access on long lists -->
+    <div id="floating-print-container" class="fixed bottom-6 right-6 z-40 no-print hidden">
+        <button onclick="window.printAnaliseGeral()" class="flex items-center justify-center gap-3 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-black p-4 rounded-full transition-all shadow-2xl shadow-tribo-500/30 hover:scale-105 active:scale-95" title="Imprimir Relatório Completo">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            <span class="pr-2 text-sm hidden sm:inline">Imprimir Relatório</span>
+        </button>
+    </div>
+
     <!-- SIDEBAR -->
     <aside class="w-full md:w-64 bg-stone-950 border-b md:border-b-0 md:border-r border-stone-800 flex flex-col justify-between shrink-0 z-10 no-print">
             </div>
@@ -369,19 +377,19 @@
 
         <!-- ==================== TAB: ANÁLISE GERAL (NEW) ==================== -->
         <section id="tab-analise-geral" class="space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div class="text-left">
                     <h2 class="text-2xl font-extrabold text-white tracking-tight">Análise Consolidada de Margens</h2>
                     <p class="text-stone-400">Relatório geral de custos e margens de lucro de todos os produtos por categoria.</p>
                 </div>
-                <div class="flex gap-2 text-xs flex-wrap items-center">
-                    <button onclick="window.printAnaliseGeral()" class="flex items-center justify-center gap-2 bg-stone-950 hover:bg-stone-900 border border-stone-800 text-tribo-400 hover:text-tribo-300 font-bold px-3 py-1.5 rounded-lg text-xs transition-all shadow-md mr-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                        Imprimir Relatório
+                <div class="flex gap-2.5 text-xs flex-wrap items-center">
+                    <button onclick="window.printAnaliseGeral()" class="flex items-center justify-center gap-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-black px-5 py-3 rounded-xl text-xs transition-all shadow-lg shadow-tribo-500/15">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        IMPRIMIR RELATÓRIO GERAL
                     </button>
-                    <span class="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg font-bold">Excelente (&gt;15%)</span>
-                    <span class="px-2.5 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg font-bold">Atenção (0% - 15%)</span>
-                    <span class="px-2.5 py-1 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg font-bold">Prejuízo (&lt;0%)</span>
+                    <span class="px-2.5 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg font-bold">Excelente (&gt;15%)</span>
+                    <span class="px-2.5 py-2.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg font-bold">Atenção (0% - 15%)</span>
+                    <span class="px-2.5 py-2.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg font-bold">Prejuízo (&lt;0%)</span>
                 </div>
             </div>
 
@@ -1764,6 +1772,15 @@
             const activeBtn = document.getElementById(`nav-${tabId}`);
             if (activeBtn) {
                 activeBtn.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all bg-tribo-500 text-stone-950 font-semibold shadow-md shadow-tribo-500/10";
+            }
+
+            const floatingPrint = document.getElementById('floating-print-container');
+            if (floatingPrint) {
+                if (tabId === 'analise-geral') {
+                    floatingPrint.classList.remove('hidden');
+                } else {
+                    floatingPrint.classList.add('hidden');
+                }
             }
 
             if (tabId === 'dashboard') {
