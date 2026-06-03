@@ -102,16 +102,44 @@
         </div>
 
         <!-- Box de Sincronização em Nuvem (Dual-Mode Seguro) -->
-        <div class="p-5 border-b border-brand-border bg-brand-black/50 m-4 rounded-xl border border-brand-border/60">
-            <div class="flex items-center justify-between mb-3">
+        <div class="p-5 border-b border-brand-border bg-brand-black/50 m-4 rounded-xl border border-brand-border/60 space-y-4">
+            <div class="flex items-center justify-between">
                 <span class="text-[10px] font-bold tracking-wider text-brand-textMuted uppercase">Sincronização</span>
                 <span id="cloud-badge" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">
                     <i class="fa-solid fa-spinner fa-spin mr-1"></i> A carregar...
                 </span>
             </div>
 
+            <!-- NOVA SEÇÃO: Identidade e Login com Email/Senha -->
+            <div id="auth-status-container" class="p-3 bg-brand-gray/50 rounded-lg border border-brand-border text-xs">
+                <!-- Estado Logado com Email -->
+                <div id="auth-logged-in-view" class="hidden space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold text-emerald-500 flex items-center gap-1">
+                            <i class="fa-solid fa-user-shield"></i> Sessão Segura
+                        </span>
+                        <button onclick="handleLogout()" class="text-[9px] text-red-400 hover:text-red-300 font-bold uppercase flex items-center gap-1">
+                            <i class="fa-solid fa-right-from-bracket"></i> Sair
+                        </button>
+                    </div>
+                    <p id="user-email-display" class="font-semibold text-brand-light truncate text-[11px] bg-brand-black/40 px-2 py-1 rounded border border-brand-border/50">email@tribo.com</p>
+                </div>
+                <!-- Estado Anônimo / Provisório -->
+                <div id="auth-anonymous-view" class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold text-amber-500 flex items-center gap-1">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Sessão Provisória
+                        </span>
+                    </div>
+                    <p class="text-[9px] text-brand-textMuted leading-tight">Os dados atuais podem ser perdidos ao limpar o cache do navegador.</p>
+                    <button onclick="openAuthModal()" class="w-full bg-brand-accent hover:bg-brand-accentHover text-brand-black text-[10px] font-black py-2 rounded-lg transition-colors uppercase tracking-wide flex items-center justify-center gap-1.5 shadow-lg shadow-brand-accent/10">
+                        <i class="fa-solid fa-user-lock"></i> Entrar / Registar
+                    </button>
+                </div>
+            </div>
+
             <!-- Seletor de Modo de Sincronização -->
-            <div class="grid grid-cols-2 gap-1 bg-brand-gray p-1 rounded-lg border border-brand-border mb-3 text-center">
+            <div class="grid grid-cols-2 gap-1 bg-brand-gray p-1 rounded-lg border border-brand-border text-center">
                 <button onclick="setSyncMode('private')" id="btn-sync-private" class="text-[10px] font-bold py-1.5 px-2 rounded transition-all bg-brand-border text-brand-light">
                     <i class="fa-solid fa-user-shield mr-1"></i> Por Conta
                 </button>
@@ -122,7 +150,7 @@
 
             <!-- Conteúdo Dinâmico com base no Modo de Sincronização -->
             <div id="sync-private-content" class="space-y-2 text-xs text-brand-textMuted">
-                <p class="text-[9px] leading-relaxed"><i class="fa-solid fa-circle-info text-brand-accent mr-1"></i> Sincronizando automaticamente com a sua conta pessoal no Firestore.</p>
+                <p class="text-[9px] leading-relaxed"><i class="fa-solid fa-circle-info text-brand-accent mr-1"></i> Sincronizando automaticamente com a sua conta ativa no Firestore.</p>
                 <div class="bg-brand-gray/40 border border-brand-border p-2 rounded text-[9px] text-brand-light font-mono truncate">
                     ID Ativo: <span id="user-id-display" class="text-brand-textMuted font-bold">A detetar...</span>
                 </div>
@@ -450,13 +478,32 @@
                     </button>
                 </div>
 
-                <!-- NOVO: FERRAMENTA DE RECUPERAÇÃO DE DADOS DE CONTA ANTIGA (MIGRAÇÃO) -->
+                <!-- INFO CARD: AUTENTICAÇÃO ATIVA -->
+                <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
+                    <div>
+                        <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1 flex items-center gap-2">
+                            <i class="fa-solid fa-user-lock text-brand-accent"></i> Autenticação com Email e Senha Segura
+                        </h3>
+                        <p class="text-xs text-brand-textMuted">Excelente! Agora que ativou o provedor de Email e Senha no Firebase Console, o sistema está 100% pronto para sincronizar os dados com segurança.</p>
+                    </div>
+                    
+                    <div class="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-brand-textMuted space-y-2 leading-relaxed">
+                        <span class="font-bold text-emerald-400 flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-sm"></i> Vantagens de Se Identificar:</span>
+                        <ul class="list-disc pl-4 space-y-1 text-brand-light">
+                            <li>Aceda às suas receitas de hambúrguer de qualquer telemóvel ou computador.</li>
+                            <li>Previna perdas acidentais de dados se o histórico do browser for limpo.</li>
+                            <li>Sem necessidade de copiar códigos complexos de restauração.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- FERRAMENTA DE RECUPERAÇÃO DE DADOS DE CONTA ANTIGA (MIGRAÇÃO) -->
                 <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
                     <div>
                         <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1 flex items-center gap-2">
                             <i class="fa-solid fa-file-import text-brand-accent"></i> Recuperar Dados de Conta Antiga
                         </h3>
-                        <p class="text-xs text-brand-textMuted">Se perdeu o acesso ao seu ID antigo (devido a mudança de navegador ou limpeza de cache), pode resgatar e migrar os dados para a sua nova conta ativa atual.</p>
+                        <p class="text-xs text-brand-textMuted">Se perdeu o acesso ao seu ID antigo, pode resgatar e migrar os dados para a sua nova conta ativa atual.</p>
                     </div>
 
                     <div class="space-y-4">
@@ -572,6 +619,39 @@ service cloud.firestore {
         <button onclick="window.print()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all transform hover:scale-110 active:scale-95 duration-200 border-2 border-brand-black" title="Imprimir Relatório">
             <i class="fa-solid fa-print text-xl"></i>
         </button>
+    </div>
+
+    <!-- MODAL: AUTENTICAÇÃO (LOGIN / REGISTRO) -->
+    <div id="modal-auth" class="fixed inset-0 bg-brand-black/80 backdrop-blur-sm z-50 items-center justify-center p-4 hidden no-print">
+        <div class="bg-brand-dark border border-brand-border rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-brand-border flex justify-between items-center bg-brand-black/20">
+                <h3 id="modal-auth-title" class="font-extrabold text-brand-light uppercase text-sm tracking-wide">Aceder à Minha Conta</h3>
+                <button onclick="closeAuthModal()" class="text-brand-textMuted hover:text-brand-light transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <!-- Caixa de Alerta de Erro Interno -->
+                <div id="auth-error-box" class="hidden p-3 bg-red-500/10 border border-red-500/20 text-brand-accent text-xs rounded-lg font-bold"></div>
+                
+                <div>
+                    <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Endereço de Email</label>
+                    <input id="auth-email" type="email" placeholder="Ex: gestao@triboburger.com" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Palavra-passe (Senha)</label>
+                    <input id="auth-password" type="password" placeholder="Mínimo 6 caracteres" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                </div>
+                
+                <div class="text-right">
+                    <button id="btn-toggle-auth-mode" onclick="toggleAuthMode()" class="text-xs text-brand-accent font-semibold hover:underline bg-transparent border-0 cursor-pointer">
+                        Ainda não tem conta? Registar-se
+                    </button>
+                </div>
+            </div>
+            <div class="p-5 border-t border-brand-border bg-brand-black/20 flex gap-3 justify-end">
+                <button onclick="closeAuthModal()" class="bg-brand-gray hover:bg-brand-border text-brand-light px-4 py-2 rounded-lg text-xs font-bold transition-colors">Cancelar</button>
+                <button id="btn-auth-submit" onclick="handleAuthSubmit()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-5 py-2 rounded-lg text-xs font-black transition-colors">Entrar</button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL: INSUMOS -->
@@ -789,7 +869,7 @@ service cloud.firestore {
     <!-- CORE SCRIPT (FIREBASE + OFFLINE REPLICA) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Variáveis de Estado dos Dados do Sistema
@@ -815,6 +895,7 @@ service cloud.firestore {
         let syncMode = 'private'; // 'private' (por conta de utilizador) ou 'shared' (por chave pública)
         let databaseListenerUnsubscribe = null;
         const defaultAppId = 'tribo-burger-pricing-system';
+        let authMode = 'login'; // 'login' ou 'register'
 
         // Credenciais do Firebase oficiais do utilizador como fallback absoluto
         const officialFirebaseConfig = {
@@ -934,6 +1015,118 @@ service cloud.firestore {
                 localStorage.setItem('tribo_burger_sync_mode', mode);
                 initCloudSyncListener();
             }
+        };
+
+        // ----------------- SISTEMA DE AUTENTICAÇÃO COM EMAIL E PALAVRA-PASSE -----------------
+        window.openAuthModal = function() {
+            const modal = document.getElementById('modal-auth');
+            const errorBox = document.getElementById('auth-error-box');
+            if (errorBox) errorBox.classList.add('hidden');
+            safeSetValue('auth-email', '');
+            safeSetValue('auth-password', '');
+            
+            authMode = 'login';
+            updateAuthModalUI();
+            
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        };
+
+        window.closeAuthModal = function() {
+            const modal = document.getElementById('modal-auth');
+            if (modal) {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }
+        };
+
+        window.toggleAuthMode = function() {
+            authMode = authMode === 'login' ? 'register' : 'login';
+            updateAuthModalUI();
+        };
+
+        function updateAuthModalUI() {
+            const title = document.getElementById('modal-auth-title');
+            const submitBtn = document.getElementById('btn-auth-submit');
+            const toggleBtn = document.getElementById('btn-toggle-auth-mode');
+            const errorBox = document.getElementById('auth-error-box');
+            
+            if (errorBox) errorBox.classList.add('hidden');
+
+            if (authMode === 'login') {
+                if (title) title.textContent = 'Aceder à Minha Conta';
+                if (submitBtn) submitBtn.textContent = 'Entrar';
+                if (toggleBtn) toggleBtn.textContent = 'Ainda não tem conta? Registar-se';
+            } else {
+                if (title) title.textContent = 'Criar Nova Conta';
+                if (submitBtn) submitBtn.textContent = 'Criar Conta';
+                if (toggleBtn) toggleBtn.textContent = 'Já tem uma conta? Iniciar Sessão';
+            }
+        }
+
+        window.handleAuthSubmit = async function() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const errorBox = document.getElementById('auth-error-box');
+
+            if (!email || !password) {
+                if (errorBox) {
+                    errorBox.textContent = 'Por favor, preencha o seu email e palavra-passe.';
+                    errorBox.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (password.length < 6) {
+                if (errorBox) {
+                    errorBox.textContent = 'A palavra-passe tem de ter no mínimo 6 caracteres.';
+                    errorBox.classList.remove('hidden');
+                }
+                return;
+            }
+
+            try {
+                if (authMode === 'login') {
+                    await signInWithEmailAndPassword(auth, email, password);
+                } else {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                }
+                closeAuthModal();
+                showCustomAlert('Sucesso!', authMode === 'login' ? 'Bem-vindo de volta! Sessão iniciada.' : 'Conta criada e conectada com sucesso!');
+            } catch (error) {
+                console.error("Erro Auth:", error);
+                if (errorBox) {
+                    let userMsg = 'Falha ao autenticar. Tente novamente.';
+                    if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                        userMsg = 'Credenciais inválidas. Verifique o email e palavra-passe.';
+                    } else if (error.code === 'auth/email-already-in-use') {
+                        userMsg = 'Este email já está registado em outra conta.';
+                    } else if (error.code === 'auth/invalid-email') {
+                        userMsg = 'O formato do email fornecido é inválido.';
+                    } else if (error.code === 'auth/weak-password') {
+                        userMsg = 'A senha é fraca. Digite pelo menos 6 caracteres.';
+                    }
+                    errorBox.textContent = userMsg;
+                    errorBox.classList.remove('hidden');
+                }
+            }
+        };
+
+        window.handleLogout = async function() {
+            showCustomConfirm('Terminar Sessão', 'Deseja realmente sair da sua conta segura de precificação?', async (approved) => {
+                if (approved) {
+                    try {
+                        await signOut(auth);
+                        // Re-autentica de forma anônima para manter a ligação ativa
+                        await signInAnonymously(auth);
+                        showCustomAlert('Sessão Terminada', 'Terminou a sessão com sucesso!');
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+            });
         };
 
         // ----------------- ALERTAS E CONFIRMAÇÕES CUSTOMIZADAS -----------------
@@ -2172,14 +2365,14 @@ service cloud.firestore {
                             }
                         };
                         
-                        // Grava localmente no browser e sincroniza para a nova pasta ativa (novo UID) na nuvem
+                        // Grava localmente no browser e sincroniza para a nova pasta ativa na nuvem
                         saveLocalBackup();
                         window.renderAll();
                         await syncStateToCloud();
 
-                        showCustomAlert('Sucesso!', 'Os dados antigos foram recuperados e migrados com sucesso para a sua sessão ativa atual!');
+                        showCustomAlert('Sucesso!', 'Os dados antigos foram recuperados e migrados com sucesso para a sua nova sessão ativa!');
                     } else {
-                        showCustomAlert('Não Encontrado', 'Não foi possível encontrar nenhum registro para o ID antigo inserido. Confirme se os dados realmente pertencem a este projeto e servidor.', true);
+                        showCustomAlert('Não Encontrado', 'Não foi possível encontrar nenhum registro para o ID antigo inserido.', true);
                     }
                 } catch (err) {
                     console.error("Erro na recuperação de dados:", err);
@@ -2226,7 +2419,7 @@ service cloud.firestore {
             window.renderAll();
 
             // 4. Seleção das credenciais oficiais ou customizadas do Firebase
-            let fbConfigToUse = officialFirebaseConfig; // Usamos as credenciais que partilhou por padrão!
+            let fbConfigToUse = officialFirebaseConfig;
 
             const customConfig = localStorage.getItem('tribo_burger_custom_fb_config');
             if (customConfig) {
@@ -2246,6 +2439,7 @@ service cloud.firestore {
                     if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                         await signInWithCustomToken(auth, __initial_auth_token);
                     } else {
+                        // Tenta inicializar anonimamente primeiro se não houver token ou utilizador ativo
                         await signInAnonymously(auth);
                     }
 
@@ -2255,12 +2449,27 @@ service cloud.firestore {
                         if (user) {
                             currentUser = user;
                             safeSetText('user-id-display', user.uid);
+                            
+                            // Gerenciar a visão dos painéis de acordo com o status de autenticação (Se anônimo ou se cadastrado por email)
+                            const loggedInView = document.getElementById('auth-logged-in-view');
+                            const anonymousView = document.getElementById('auth-anonymous-view');
+                            const userEmailDisplay = document.getElementById('user-email-display');
+                            
+                            if (user.isAnonymous) {
+                                if (loggedInView) loggedInView.classList.add('hidden');
+                                if (anonymousView) anonymousView.classList.remove('hidden');
+                            } else {
+                                if (loggedInView) loggedInView.classList.remove('hidden');
+                                if (anonymousView) anonymousView.classList.add('hidden');
+                                if (userEmailDisplay) userEmailDisplay.textContent = user.email;
+                            }
+
                             initCloudSyncListener();
                         }
                     });
 
                 } catch (error) {
-                    console.warn("Conexão ao Firebase falhou (Regras de segurança ou API key desativada). Rodando em Modo Local:", error);
+                    console.warn("Conexão ao Firebase falhou ou offline. Rodando em Modo Local:", error);
                     isFirebaseActive = false;
                     fallbackToOfflineBadge();
                 }
