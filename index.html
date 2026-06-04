@@ -274,7 +274,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="dashboard-items-summary" class="divide-y divide-brand-border/40">
-                                        <!-- JS -->
+                                        <!-- Preenchido via JS -->
                                     </tbody>
                                 </table>
                             </div>
@@ -313,14 +313,26 @@
                     </div>
 
                     <div class="bg-brand-dark border border-brand-border rounded-xl shadow-xl overflow-hidden">
-                        <div class="p-4 border-b border-brand-border bg-brand-black/20 flex gap-2">
+                        <div class="p-4 border-b border-brand-border bg-brand-black/20 flex flex-col sm:flex-row gap-3">
                             <input type="text" id="search-ingredients" oninput="renderIngredients()" placeholder="Filtrar por nome de ingrediente..." class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2 w-full max-w-sm focus:outline-none focus:border-brand-accent">
+                            
+                            <select id="filter-ingredient-category" onchange="renderIngredients()" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-brand-accent font-semibold max-w-xs">
+                                <option value="">Todas as Categorias</option>
+                                <option value="Proteínas">Proteínas</option>
+                                <option value="Pães">Pães</option>
+                                <option value="Queijos">Queijos</option>
+                                <option value="Molhos">Molhos</option>
+                                <option value="Vegetais/Hortifrúti">Vegetais/Hortifrúti</option>
+                                <option value="Embalagens">Embalagens</option>
+                                <option value="Outros">Outros</option>
+                            </select>
                         </div>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs">
+                            <table class="w-full text-left text-xs text-brand-light">
                                 <thead class="bg-brand-black/30 border-b border-brand-border text-brand-textMuted">
                                     <tr>
                                         <th class="py-3 px-4 font-bold uppercase tracking-wider">Ingrediente</th>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Categoria</th>
                                         <th class="py-3 px-4 font-bold uppercase tracking-wider">Preço de Compra</th>
                                         <th class="py-3 px-4 font-bold uppercase tracking-wider">Quantidade Embalagem</th>
                                         <th class="py-3 px-4 font-bold uppercase tracking-wider">Custo Unitário Calculado</th>
@@ -345,6 +357,21 @@
                         <button onclick="openRecipeModal()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-4 py-2.5 rounded-lg text-xs tracking-wide transition-colors flex items-center gap-2">
                             <i class="fa-solid fa-plus text-sm"></i> Criar Ficha
                         </button>
+                    </div>
+
+                    <!-- Filtros de Fichas -->
+                    <div class="p-4 bg-brand-dark border border-brand-border rounded-xl flex flex-col sm:flex-row gap-3">
+                        <input type="text" id="search-recipes" oninput="renderRecipes()" placeholder="Procurar receitas..." class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2 w-full max-w-sm focus:outline-none focus:border-brand-accent">
+                        
+                        <select id="filter-recipe-category" onchange="renderRecipes()" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-brand-accent font-semibold max-w-xs">
+                            <option value="">Todas as Categorias</option>
+                            <option value="Hambúrgueres">Hambúrgueres</option>
+                            <option value="Acompanhamentos">Acompanhamentos</option>
+                            <option value="Bebidas">Bebidas</option>
+                            <option value="Sobremesas">Sobremesas</option>
+                            <option value="Molhos Caseiros">Molhos Caseiros</option>
+                            <option value="Outros">Outros</option>
+                        </select>
                     </div>
 
                     <div id="recipes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -505,6 +532,21 @@
                     <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Nome do Insumo</label>
                     <input id="ingredient-name" type="text" placeholder="Ex: Hambúrguer Bovino 150g" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
                 </div>
+                
+                <!-- Categoria do Insumo -->
+                <div>
+                    <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Categoria</label>
+                    <select id="ingredient-category" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent font-semibold">
+                        <option value="Proteínas">Proteínas</option>
+                        <option value="Pães">Pães</option>
+                        <option value="Queijos">Queijos</option>
+                        <option value="Molhos">Molhos</option>
+                        <option value="Vegetais/Hortifrúti">Vegetais/Hortifrúti</option>
+                        <option value="Embalagens">Embalagens</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Valor de Compra (R$)</label>
@@ -553,6 +595,19 @@
                     </div>
                 </div>
 
+                <!-- Categoria da Receita -->
+                <div>
+                    <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Categoria da Receita</label>
+                    <select id="recipe-category" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent font-semibold">
+                        <option value="Hambúrgueres">Hambúrgueres</option>
+                        <option value="Acompanhamentos">Acompanhamentos</option>
+                        <option value="Bebidas">Bebidas</option>
+                        <option value="Sobremesas">Sobremesas</option>
+                        <option value="Molhos Caseiros">Molhos Caseiros</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+
                 <div>
                     <div class="flex items-center justify-between mb-2">
                         <label class="block text-xs font-bold text-brand-light uppercase">Insumos da Receita</label>
@@ -586,7 +641,7 @@
             </div>
             <div class="p-5 border-t border-brand-border bg-brand-black/20 flex gap-3 justify-end">
                 <button onclick="closeRecipeModal()" class="bg-brand-gray hover:bg-brand-border text-brand-light px-4 py-2 rounded-lg text-xs font-bold transition-colors">Cancelar</button>
-                <button onclick="saveRecipe()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-black transition-colors font-semibold">Gravar Receita</button>
+                <button onclick="saveRecipe()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-black transition-colors font-semibold">Gravar Ficha</button>
             </div>
         </div>
     </div>
@@ -756,6 +811,46 @@
             const el = document.getElementById(id);
             if (el) {
                 el.value = value !== undefined && value !== null ? value : '';
+            }
+        }
+
+        // Helper para estilizar dinamicamente os distintivos (badges) de categorias das Fichas
+        function getRecipeCategoryStyle(category) {
+            const cat = category || 'Outros';
+            switch(cat) {
+                case 'Hambúrgueres':
+                    return 'bg-brand-accent/20 text-brand-accent border-brand-accent/30';
+                case 'Acompanhamentos':
+                    return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+                case 'Bebidas':
+                    return 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30';
+                case 'Sobremesas':
+                    return 'bg-pink-500/20 text-pink-400 border-pink-500/30';
+                case 'Molhos Caseiros':
+                    return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+                default:
+                    return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+            }
+        }
+
+        // Helper para distintivos (badges) de categorias dos Insumos
+        function getIngredientCategoryStyle(category) {
+            const cat = category || 'Outros';
+            switch(cat) {
+                case 'Proteínas':
+                    return 'bg-red-500/10 text-red-400 border border-red-500/20';
+                case 'Pães':
+                    return 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20';
+                case 'Queijos':
+                    return 'bg-amber-500/10 text-amber-500 border border-amber-500/20';
+                case 'Molhos':
+                    return 'bg-purple-500/10 text-purple-400 border border-purple-500/20';
+                case 'Vegetais/Hortifrúti':
+                    return 'bg-green-500/10 text-emerald-400 border border-green-500/20';
+                case 'Embalagens':
+                    return 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20';
+                default:
+                    return 'bg-gray-500/10 text-gray-400 border border-gray-500/20';
             }
         }
 
@@ -1061,7 +1156,7 @@
             ];
 
             if (allItems.length === 0) {
-                html = `<tr><td colspan="5" class="py-4 text-center text-brand-textMuted">Nenhum produto registado.</td></tr>`;
+                html = `<tr><td colspan="5" class="py-4 text-center text-brand-textMuted font-sans">Nenhum produto registado.</td></tr>`;
             } else {
                 allItems.forEach(item => {
                     const cost = calculateItemCost(item);
@@ -1074,7 +1169,7 @@
                         : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-brand-accent border border-red-500/20">CMV Alto</span>`;
 
                     html += `
-                        <tr class="hover:bg-brand-gray/20 transition-colors">
+                        <tr class="hover:bg-brand-gray/20 transition-colors font-sans">
                             <td class="py-3 px-2 font-medium">${item.name} <span class="text-[9px] text-brand-textMuted uppercase">(${item.type})</span></td>
                             <td class="py-3 px-2 text-brand-textMuted">${formatCurrency(cost)}</td>
                             <td class="py-3 px-2 font-semibold text-brand-light">${formatCurrency(sellingPrice)}</td>
@@ -1104,23 +1199,32 @@
             if (!table) return;
 
             const searchQuery = (document.getElementById('search-ingredients')?.value || '').toLowerCase();
+            const categoryQuery = document.getElementById('filter-ingredient-category')?.value || '';
             let html = '';
 
-            const filtered = appState.ingredients.filter(ing => 
-                (ing.name || '').toLowerCase().includes(searchQuery)
-            );
+            const filtered = appState.ingredients.filter(ing => {
+                const matchesSearch = (ing.name || '').toLowerCase().includes(searchQuery);
+                const matchesCategory = categoryQuery === '' || (ing.category || 'Outros') === categoryQuery;
+                return matchesSearch && matchesCategory;
+            });
 
             if (filtered.length === 0) {
-                html = `<tr><td colspan="5" class="py-6 text-center text-brand-textMuted text-xs">Nenhum insumo encontrado.</td></tr>`;
+                html = `<tr><td colspan="6" class="py-6 text-center text-brand-textMuted text-xs font-sans">Nenhum insumo encontrado nesta categoria.</td></tr>`;
             } else {
                 filtered.forEach(ing => {
                     const totalCost = parseFloat(ing.cost || 0);
                     const packageQty = parseFloat(ing.qty || 1);
                     const unitCost = totalCost / packageQty;
+                    const category = ing.category || 'Outros';
 
                     html += `
-                        <tr class="hover:bg-brand-gray/20 transition-colors">
+                        <tr class="hover:bg-brand-gray/20 transition-colors font-sans">
                             <td class="py-3.5 px-4 font-semibold text-brand-light">${ing.name}</td>
+                            <td class="py-3.5 px-4">
+                                <span class="px-2 py-1 rounded text-[10px] font-bold ${getIngredientCategoryStyle(category)}">
+                                    ${category}
+                                </span>
+                            </td>
                             <td class="py-3.5 px-4 text-brand-textMuted">${formatCurrency(totalCost)}</td>
                             <td class="py-3.5 px-4 font-medium text-brand-light">${packageQty} ${ing.unit}</td>
                             <td class="py-3.5 px-4 text-emerald-500 font-bold">${formatCurrency(unitCost)} por ${getBaseUnitRepresentation(ing.unit)}</td>
@@ -1143,18 +1247,26 @@
             const grid = document.getElementById('recipes-grid');
             if (!grid) return;
 
+            const searchQuery = (document.getElementById('search-recipes')?.value || '').toLowerCase();
+            const categoryQuery = document.getElementById('filter-recipe-category')?.value || '';
             let html = '';
 
-            if (appState.recipes.length === 0) {
+            const filtered = appState.recipes.filter(rec => {
+                const matchesSearch = (rec.name || '').toLowerCase().includes(searchQuery);
+                const matchesCategory = categoryQuery === '' || (rec.category || 'Outros') === categoryQuery;
+                return matchesSearch && matchesCategory;
+            });
+
+            if (filtered.length === 0) {
                 html = `
-                    <div class="col-span-full bg-brand-dark border border-brand-border p-8 rounded-xl text-center space-y-3">
+                    <div class="col-span-full bg-brand-dark border border-brand-border p-8 rounded-xl text-center space-y-3 font-sans">
                         <i class="fa-solid fa-burger text-3xl text-brand-textMuted"></i>
-                        <p class="text-sm text-brand-textMuted">Nenhuma Ficha Técnica registada.</p>
-                        <button onclick="openRecipeModal()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-bold transition-all">Criar Primeira Ficha</button>
+                        <p class="text-sm text-brand-textMuted">Nenhuma Ficha Técnica encontrada para esta busca.</p>
+                        <button onclick="openRecipeModal()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-bold transition-all">Criar Ficha</button>
                     </div>
                 `;
             } else {
-                appState.recipes.forEach(rec => {
+                filtered.forEach(rec => {
                     const foodCost = calculateItemCost(rec);
                     const sellingPrice = parseFloat(rec.sellingPrice || 0);
                     const cmv = sellingPrice > 0 ? ((foodCost / sellingPrice) * 100).toFixed(1) : '0.0';
@@ -1171,6 +1283,7 @@
                     const marginValue = sellingPrice - foodCost - taxVal - appsVal - cardVal;
                     const marginPercentage = sellingPrice > 0 ? ((marginValue / sellingPrice) * 100).toFixed(1) : '0';
                     const suggested = foodCost / (target / 100);
+                    const category = rec.category || 'Outros';
 
                     const ingRows = (rec.ingredients || []).map(item => {
                         const ing = appState.ingredients.find(i => i.id === item.ingredientId);
@@ -1190,7 +1303,7 @@
                         <div class="bg-brand-dark border border-brand-border rounded-2xl p-6 shadow-2xl flex flex-col justify-between space-y-4">
                             <div>
                                 <div class="flex justify-between items-center">
-                                    <span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-brand-accent/20 text-brand-accent border border-brand-accent/30">BURGER</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${getRecipeCategoryStyle(category)}">${category}</span>
                                     <div class="flex gap-2">
                                         <button onclick="openRecipeModal('${rec.id}')" class="p-1.5 bg-brand-gray border border-brand-border rounded-lg text-brand-textMuted hover:text-brand-light transition-colors"><i class="fa-solid fa-pen text-xs"></i></button>
                                         <button onclick="deleteRecipe('${rec.id}')" class="p-1.5 bg-brand-gray border border-brand-border rounded-lg text-red-400 hover:text-red-300 transition-colors"><i class="fa-solid fa-trash-can text-xs"></i></button>
@@ -1241,7 +1354,7 @@
                                     </div>
                                 </div>
 
-                                <div class="flex justify-between items-center text-xs bg-brand-black/30 p-2.5 rounded-lg border border-brand-border/40">
+                                <div class="flex justify-between items-center text-xs bg-brand-black/30 p-2.5 rounded-lg border border-brand-border/40 font-sans">
                                     <span class="text-brand-textMuted">Sugestão de Preço (Ideal):</span>
                                     <span class="font-extrabold text-emerald-500">${formatCurrency(suggested)}</span>
                                 </div>
@@ -1261,7 +1374,7 @@
 
             if (appState.combos.length === 0) {
                 html = `
-                    <div class="col-span-full bg-brand-dark border border-brand-border p-8 rounded-xl text-center space-y-3">
+                    <div class="col-span-full bg-brand-dark border border-brand-border p-8 rounded-xl text-center space-y-3 font-sans">
                         <i class="fa-solid fa-boxes-packing text-3xl text-brand-textMuted"></i>
                         <p class="text-sm text-brand-textMuted">Nenhum combo promocional registado.</p>
                         <button onclick="openComboModal()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-bold transition-all">Criar Primeiro Combo</button>
@@ -1354,14 +1467,14 @@
             let total = 0;
 
             if (appState.fixedCosts.length === 0) {
-                html = `<tr><td colspan="3" class="py-6 text-center text-brand-textMuted text-xs">Nenhum custo fixo registado.</td></tr>`;
+                html = `<tr><td colspan="3" class="py-6 text-center text-brand-textMuted text-xs font-sans">Nenhum custo fixo registado.</td></tr>`;
             } else {
                 appState.fixedCosts.forEach(cost => {
                     const val = parseFloat(cost.value || 0);
                     total += val;
 
                     html += `
-                        <tr class="hover:bg-brand-gray/20 transition-colors">
+                        <tr class="hover:bg-brand-gray/20 transition-colors font-sans">
                             <td class="py-3.5 px-4 font-semibold text-brand-light">${cost.description}</td>
                             <td class="py-3.5 px-4 font-bold text-brand-accent">${formatCurrency(val)}</td>
                             <td class="py-3.5 px-4 text-right space-x-1 whitespace-nowrap">
@@ -1397,7 +1510,7 @@
             ];
 
             if (allItems.length === 0) {
-                html = `<tr><td colspan="8" class="py-6 text-center text-brand-textMuted">Nenhum item ativo para análise comparativa.</td></tr>`;
+                html = `<tr><td colspan="8" class="py-6 text-center text-brand-textMuted font-sans">Nenhum item ativo para análise comparativa.</td></tr>`;
             } else {
                 const totalTaxesPercentage = parseFloat(appState.settings.tax) + parseFloat(appState.settings.apps) + parseFloat(appState.settings.card);
                 const target = parseFloat(appState.settings.targetCMV || 30);
@@ -1413,7 +1526,7 @@
                     const marginColorClass = marginVal > 0 ? 'text-emerald-500 font-bold' : 'text-red-400 font-bold';
 
                     html += `
-                        <tr class="hover:bg-brand-gray/10 transition-colors border-b border-brand-border/40">
+                        <tr class="hover:bg-brand-gray/10 transition-colors border-b border-brand-border/40 font-sans">
                             <td class="py-4 px-4 font-bold uppercase tracking-wider text-[10px] text-brand-textMuted">${item.type}</td>
                             <td class="py-4 px-4 font-bold text-brand-light print-text">${item.name}</td>
                             <td class="py-4 px-4 text-right font-medium text-brand-textMuted print-text">${formatCurrency(cost)}</td>
@@ -1447,6 +1560,7 @@
                 if (ing) {
                     safeSetValue('ingredient-id', ing.id);
                     safeSetValue('ingredient-name', ing.name);
+                    safeSetValue('ingredient-category', ing.category || 'Outros');
                     safeSetValue('ingredient-cost', ing.cost);
                     safeSetValue('ingredient-unit', ing.unit);
                     safeSetValue('ingredient-qty', ing.qty);
@@ -1455,6 +1569,7 @@
                 document.getElementById('modal-ingredient-title').textContent = 'Novo Insumo';
                 safeSetValue('ingredient-id', '');
                 safeSetValue('ingredient-name', '');
+                safeSetValue('ingredient-category', 'Outros');
                 safeSetValue('ingredient-cost', '');
                 safeSetValue('ingredient-unit', 'g');
                 safeSetValue('ingredient-qty', '');
@@ -1475,6 +1590,7 @@
         window.saveIngredient = async function() {
             const id = document.getElementById('ingredient-id').value;
             const name = document.getElementById('ingredient-name').value.trim();
+            const category = document.getElementById('ingredient-category').value;
             const cost = parseFloat(document.getElementById('ingredient-cost').value);
             const unit = document.getElementById('ingredient-unit').value;
             const qty = parseFloat(document.getElementById('ingredient-qty').value);
@@ -1487,7 +1603,7 @@
             const targetId = id || crypto.randomUUID();
             const list = [...appState.ingredients];
             const index = list.findIndex(i => i.id === targetId);
-            const record = { id: targetId, name, cost, unit, qty };
+            const record = { id: targetId, name, category, cost, unit, qty };
 
             if (index > -1) list[index] = record;
             else list.push(record);
@@ -1525,6 +1641,7 @@
                 if (rec) {
                     safeSetValue('recipe-id', rec.id);
                     safeSetValue('recipe-name', rec.name);
+                    safeSetValue('recipe-category', rec.category || 'Outros');
                     safeSetValue('recipe-selling-price', rec.sellingPrice);
                     loadedIngredients = [...(rec.ingredients || [])];
                 }
@@ -1532,6 +1649,7 @@
                 document.getElementById('modal-recipe-title').textContent = 'Criar Ficha Técnica';
                 safeSetValue('recipe-id', '');
                 safeSetValue('recipe-name', '');
+                safeSetValue('recipe-category', 'Hambúrgueres');
                 safeSetValue('recipe-selling-price', '');
             }
 
@@ -1646,6 +1764,7 @@
         window.saveRecipe = async function() {
             const id = document.getElementById('recipe-id').value;
             const name = document.getElementById('recipe-name').value.trim();
+            const category = document.getElementById('recipe-category').value;
             const sellingPrice = parseFloat(document.getElementById('recipe-selling-price').value);
 
             if (!name || isNaN(sellingPrice)) {
@@ -1672,7 +1791,7 @@
             const targetId = id || crypto.randomUUID();
             const list = [...appState.recipes];
             const index = list.findIndex(r => r.id === targetId);
-            const record = { id: targetId, name, sellingPrice, ingredients: ingredientsList };
+            const record = { id: targetId, name, category, sellingPrice, ingredients: ingredientsList };
 
             if (index > -1) list[index] = record;
             else list.push(record);
