@@ -70,483 +70,528 @@
         }
     </style>
 </head>
-<body class="bg-stone-900 text-stone-100 min-h-screen font-sans flex flex-col md:flex-row">
+<body class="bg-stone-900 text-stone-100 min-h-screen font-sans">
 
     <!-- PRINT ONLY CONTAINER -->
     <div id="print-section" class="print-only"></div>
 
-    <!-- Floating Print Button -->
-    <div id="floating-print-container" class="fixed bottom-6 right-6 z-40 no-print hidden">
-        <button onclick="window.printAnaliseGeral()" class="flex items-center justify-center gap-3 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-black p-4 rounded-full transition-all shadow-2xl shadow-tribo-500/30 hover:scale-105 active:scale-95" title="Imprimir Relatório Completo">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-            <span class="pr-2 text-sm hidden sm:inline font-bold">Imprimir Relatório</span>
-        </button>
+    <!-- ==================== TELA DE AUTH/LOGIN OBRIGATÓRIA ==================== -->
+    <div id="auth-container" class="flex items-center justify-center min-h-screen bg-stone-900 p-4">
+        <div class="bg-stone-950 rounded-2xl border border-stone-800 w-full max-w-md overflow-hidden shadow-2xl p-8 space-y-6 text-left">
+            <div class="flex flex-col items-center gap-3 text-center">
+                <span class="text-5xl">🍔</span>
+                <div>
+                    <h1 class="font-black text-2xl tracking-wider text-tribo-500 leading-none">TRIBO BURGER</h1>
+                    <span class="text-[10px] font-bold text-stone-500 tracking-widest uppercase">Sistema de Precificação & CMV</span>
+                </div>
+            </div>
+
+            <!-- Tabs de Auth -->
+            <div class="flex border-b border-stone-800">
+                <button id="tab-login-btn" onclick="setAuthMode('login')" class="flex-1 pb-3 text-sm font-bold border-b-2 border-tribo-500 text-white">Entrar</button>
+                <button id="tab-register-btn" onclick="setAuthMode('register')" class="flex-1 pb-3 text-sm font-semibold border-b-2 border-transparent text-stone-500 hover:text-stone-300">Criar Conta</button>
+            </div>
+
+            <!-- Mensagem de Erro Geral -->
+            <div id="auth-error" class="hidden bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs p-3 rounded-lg font-medium"></div>
+
+            <!-- Formulário de Auth -->
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-stone-400 mb-1">E-mail Comercial</label>
+                    <input type="email" id="auth-email" required placeholder="exemplo@triboburger.com" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-tribo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-stone-400 mb-1">Senha de Acesso</label>
+                    <input type="password" id="auth-password" required placeholder="Digite sua senha" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-tribo-500">
+                </div>
+
+                <button type="submit" id="auth-submit-btn" class="w-full bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-black py-3 rounded-xl transition-all shadow-lg shadow-tribo-500/20 active:scale-95">
+                    Entrar no Sistema
+                </button>
+            </form>
+        </div>
     </div>
 
-    <!-- SIDEBAR -->
-    <aside class="w-full md:w-64 bg-stone-950 border-b md:border-b-0 md:border-r border-stone-800 flex flex-col justify-between shrink-0 z-10 no-print">
-        <div class="flex flex-col">
-            <!-- Header Brand -->
-            <div class="p-6 border-b border-stone-800 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <span class="text-3xl">🍔</span>
-                    <div>
-                        <h1 class="font-black text-lg tracking-wider text-tribo-500 leading-none">TRIBO</h1>
-                        <span class="text-[10px] font-bold text-stone-500 tracking-widest uppercase">Burger & Costs</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Connection Widget -->
-            <div class="p-4 bg-stone-900/30 border-b border-stone-800 text-left">
-                <div class="flex items-center justify-between mb-1.5">
-                    <span class="text-[10px] uppercase font-bold tracking-wider text-stone-500">Conexão Firebase</span>
-                    <button onclick="window.runDatabaseDiagnostic()" class="text-[9px] px-1.5 py-0.5 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold border border-stone-700 transition-colors">
-                        Testar
-                    </button>
-                </div>
-                <div class="flex items-center gap-2">
-                    <div id="cloud-status-dot" class="w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse"></div>
-                    <span id="cloud-status-text" class="text-xs text-stone-400 font-medium">Autenticando...</span>
-                </div>
-                <div id="cloud-user-id" onclick="window.copyUserId()" class="text-[9px] text-stone-600 font-mono mt-1 cursor-pointer hover:text-tribo-400 truncate" title="Clique para copiar seu ID">
-                    ID: Conectando...
-                </div>
-            </div>
-
-            <!-- Navigation Menu -->
-            <nav class="p-4 space-y-1 text-left">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all bg-tribo-500 text-stone-950 font-semibold shadow-md shadow-tribo-500/10">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"></path></svg>
-                    Painel Geral
-                </button>
-                <button onclick="switchTab('insumos')" id="nav-insumos" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                    Insumos (Ingredientes)
-                </button>
-                <button onclick="switchTab('fichas')" id="nav-fichas" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                    Fichas Técnicas
-                </button>
-                <button onclick="switchTab('combos')" id="nav-combos" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                    Fichas de Combos
-                </button>
-                <button onclick="switchTab('analise-geral')" id="nav-analise-geral" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                    Análise Geral
-                </button>
-                <button onclick="switchTab('custos-fixos')" id="nav-custos-fixos" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                    Custos Fixos
-                </button>
-                <button onclick="switchTab('config')" id="nav-config" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    Parâmetros & Taxas
-                </button>
-            </nav>
-        </div>
-
-        <!-- Footer Info -->
-        <div class="p-4 border-t border-stone-800">
-            <button onclick="triggerResetConfirmation()" class="w-full py-2 text-xs font-semibold text-rose-400 hover:text-rose-300 border border-stone-800 hover:border-rose-500/30 rounded-lg transition-colors">
-                Restaurar Dados Padrão
-            </button>
-            <div class="mt-3 text-center text-[10px] text-stone-500">
-                Tribo Burger v1.6 &bull; Cloud Enabled
-            </div>
-        </div>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <main class="flex-1 overflow-y-auto p-4 md:p-8 max-w-7xl w-full mx-auto space-y-8 no-print">
+    <!-- ==================== CONTAINER PRINCIPAL DO APP (Oculto até Logar) ==================== -->
+    <div id="app-container" class="hidden flex flex-col md:flex-row min-h-screen">
         
-        <!-- ==================== TAB: DASHBOARD ==================== -->
-        <section id="tab-dashboard" class="space-y-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="text-left">
-                    <h2 class="text-2xl font-extrabold text-white tracking-tight">Painel Executivo</h2>
-                    <p class="text-stone-400">Visão consolidada da rentabilidade, CMV do cardápio e simulação de lucros.</p>
-                </div>
-                <div class="flex items-center gap-2 bg-stone-950 px-4 py-2 rounded-xl border border-stone-800">
-                    <span id="dashboard-status-dot" class="w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse"></span>
-                    <span id="dashboard-status-label" class="text-xs font-semibold text-stone-300">Conectando...</span>
-                </div>
-            </div>
+        <!-- Floating Print Button -->
+        <div id="floating-print-container" class="fixed bottom-6 right-6 z-40 no-print hidden">
+            <button onclick="window.printAnaliseGeral()" class="flex items-center justify-center gap-3 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-black p-4 rounded-full transition-all shadow-2xl shadow-tribo-500/30 hover:scale-105 active:scale-95" title="Imprimir Relatório Completo">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                <span class="pr-2 text-sm hidden sm:inline font-bold">Imprimir Relatório</span>
+            </button>
+        </div>
 
-            <!-- KPI Row -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between text-left">
-                    <span class="text-xs font-bold uppercase tracking-wider text-stone-400">CMV Médio Real</span>
-                    <div class="flex items-baseline gap-2 mt-2">
-                        <span id="kpi-avg-cmv" class="text-3xl font-black text-white">0%</span>
-                        <span id="kpi-avg-cmv-indicator" class="text-xs font-bold px-2 py-0.5 rounded">Calculando...</span>
-                    </div>
-                    <p class="text-xs text-stone-500 mt-2">Média ponderada no faturamento ativo.</p>
-                </div>
-                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between text-left">
-                    <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Meta de CMV</span>
-                    <div class="flex items-baseline gap-2 mt-2">
-                        <span id="kpi-target-cmv" class="text-3xl font-black text-tribo-400">30%</span>
-                        <span class="text-xs font-bold text-stone-500">Definido</span>
-                    </div>
-                    <p class="text-xs text-stone-500 mt-2">Alvo recomendado pela Tribo.</p>
-                </div>
-                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between text-left">
-                    <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Total de Insumos</span>
-                    <div class="flex items-baseline gap-2 mt-2">
-                        <span id="kpi-total-ingredients" class="text-3xl font-black text-white">0</span>
-                        <span class="text-xs font-medium text-stone-400">ativos</span>
-                    </div>
-                    <p class="text-xs text-stone-500 mt-2">Ingredientes catalogados.</p>
-                </div>
-                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between text-left">
-                    <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Total Custos Fixos</span>
-                    <div class="flex items-baseline gap-2 mt-2">
-                        <span id="kpi-total-fixed-costs" class="text-3xl font-black text-rose-400">R$ 0,00</span>
-                        <span class="text-xs font-bold text-stone-500">Mês</span>
-                    </div>
-                    <p class="text-xs text-stone-500 mt-2">Despesas mensais fixas.</p>
-                </div>
-                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between text-left">
-                    <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Fichas no CMV</span>
-                    <div class="flex items-baseline gap-2 mt-2">
-                        <span id="kpi-total-recipes" class="text-3xl font-black text-white">0</span>
-                        <span class="text-xs font-medium text-stone-400">itens</span>
-                    </div>
-                    <p class="text-xs text-stone-500 mt-2">Fichas ativas para cálculo.</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Graph Card -->
-                <div class="lg:col-span-2 bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col">
-                    <div class="mb-4 text-left">
-                        <h3 class="text-lg font-bold text-white">Relação Custo vs. Preço de Venda</h3>
-                        <p class="text-xs text-stone-400">Compare o Custo do Alimento (CMV R$) com o Preço praticado nas fichas ativas.</p>
-                    </div>
-                    <div class="relative flex-1 min-h-[300px] flex items-center justify-center">
-                        <canvas id="cmvChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Alerts List -->
-                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between space-y-4">
-                    <div class="space-y-4">
-                        <h3 class="text-lg font-bold text-white mb-2 text-left">Ponto de Equilíbrio</h3>
-                        
-                        <div class="bg-stone-900 p-4 rounded-xl border border-stone-800 text-left">
-                            <span class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">Faturamento Alvo Mínimo</span>
-                            <div class="text-2xl font-black text-emerald-400 mt-1" id="breakeven-revenue">R$ 0,00</div>
-                            <p class="text-[11px] text-stone-300 mt-1">Faturamento necessário para cobrir despesas fixas e variáveis baseadas no cardápio ativo.</p>
-                        </div>
-
+        <!-- SIDEBAR -->
+        <aside class="w-full md:w-64 bg-stone-950 border-b md:border-b-0 md:border-r border-stone-800 flex flex-col justify-between shrink-0 z-10 no-print">
+            <div class="flex flex-col">
+                <!-- Header Brand -->
+                <div class="p-6 border-b border-stone-800 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="text-3xl">🍔</span>
                         <div>
-                            <h3 class="text-sm font-bold text-white mb-2 text-left">Alertas de Atenção</h3>
-                            <div id="alerts-list" class="space-y-3 max-h-[180px] overflow-y-auto pr-1">
-                                <!-- Alerts dynamically injected -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-stone-900 p-4 rounded-xl border border-stone-800 text-left">
-                        <h4 class="text-xs font-bold uppercase text-tribo-400 tracking-wider">Análise de Margem</h4>
-                        <p class="text-xs text-stone-400 mt-1">O ponto de equilíbrio é calculado com base na Margem de Contribuição Média das suas fichas ativas.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Simulator Card -->
-            <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 space-y-6 text-left">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                            <span>🎯</span> Simulador de Meta de Vendas & Lucro Líquido
-                        </h3>
-                        <p class="text-xs text-stone-400">Determine sua meta de faturamento mensal e visualize as despesas estimadas e o lucro limpo no caixa.</p>
-                    </div>
-                    <div class="w-full sm:w-64 shrink-0">
-                        <label class="block text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1">Definir Meta de Faturamento</label>
-                        <div class="relative rounded-lg shadow-sm">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400 text-xs">R$</div>
-                            <input type="number" id="target-monthly-revenue" oninput="calculateSalesGoalProfit()" class="w-full bg-stone-900 border border-stone-800 rounded-lg pl-8 pr-3 py-2 text-white font-extrabold text-sm focus:outline-none focus:border-tribo-500" placeholder="Ex: 30000">
+                            <h1 class="font-black text-lg tracking-wider text-tribo-500 leading-none">TRIBO</h1>
+                            <span class="text-[10px] font-bold text-stone-500 tracking-widest uppercase">Burger & Costs</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                    <div class="bg-stone-900 p-4 rounded-xl border border-stone-850">
-                        <span class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">Faturamento Alvo</span>
-                        <div class="text-lg font-black text-white mt-1" id="sim-revenue">R$ 0,00</div>
-                        <p class="text-[10px] text-stone-500 mt-1">Sua projeção mensal.</p>
+                <!-- Connection Widget -->
+                <div class="p-4 bg-stone-900/30 border-b border-stone-800 text-left">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-[10px] uppercase font-bold tracking-wider text-stone-500">Sessão Ativa</span>
+                        <button onclick="window.runDatabaseDiagnostic()" class="text-[9px] px-1.5 py-0.5 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold border border-stone-700 transition-colors">
+                            Testar
+                        </button>
                     </div>
-                    <div class="bg-stone-900 p-4 rounded-xl border border-stone-850">
-                        <span class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">(-) Custo Insumos (CMV)</span>
-                        <div class="text-lg font-black text-orange-400 mt-1" id="sim-cmv-cost">R$ 0,00</div>
-                        <p class="text-[10px] text-stone-500 mt-1" id="sim-cmv-pct-label">Baseado na média real.</p>
+                    <div class="flex items-center gap-2">
+                        <div id="cloud-status-dot" class="w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse"></div>
+                        <span id="cloud-status-text" class="text-xs text-stone-400 font-medium">Autenticando...</span>
                     </div>
-                    <div class="bg-stone-900 p-4 rounded-xl border border-stone-850">
-                        <span class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">(-) Taxas & Impostos</span>
-                        <div class="text-lg font-black text-amber-500 mt-1" id="sim-fees-cost">R$ 0,00</div>
-                        <p class="text-[10px] text-stone-500 mt-1" id="sim-fees-pct-label">Impostos e Apps.</p>
-                    </div>
-                    <div class="bg-stone-900 p-4 rounded-xl border border-stone-850">
-                        <span class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">(-) Custos Fixos</span>
-                        <div class="text-lg font-black text-rose-400 mt-1" id="sim-fixed-cost">R$ 0,00</div>
-                        <p class="text-[10px] text-stone-500 mt-1">Estrutura fixa operacional.</p>
-                    </div>
-                    <div class="p-4 rounded-xl border flex flex-col justify-between" id="sim-profit-card">
-                        <div>
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-stone-400" id="sim-profit-label">Lucro Líquido Est.</span>
-                            <div class="text-lg font-black mt-1" id="sim-net-profit">R$ 0,00</div>
-                        </div>
-                        <p class="text-[10px] mt-1" id="sim-profit-margin">Margem: 0,0%</p>
+                    <div id="cloud-user-id" onclick="window.copyUserId()" class="text-[9px] text-stone-600 font-mono mt-1 cursor-pointer hover:text-tribo-400 truncate animate-pulse" title="Clique para copiar seu ID">
+                        ID: Conectando...
                     </div>
                 </div>
 
-                <div class="bg-stone-900 p-4 rounded-xl border border-stone-800 space-y-3">
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="font-bold text-stone-400">Progresso de Lucratividade Operacional:</span>
-                        <span class="font-bold text-stone-300" id="sim-progress-text">Analisando...</span>
-                    </div>
-                    <div class="w-full bg-stone-800 rounded-full h-2.5 overflow-hidden">
-                        <div id="sim-progress-bar" class="h-full bg-stone-700 transition-all duration-300" style="width: 0%"></div>
-                    </div>
-                    <p class="text-[11px] text-stone-400 font-medium" id="sim-help-text">Insira um valor de faturamento para realizar a estimativa.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================== TAB: INSUMOS (INGREDIENTS) ==================== -->
-        <section id="tab-insumos" class="space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div class="text-left">
-                    <h2 class="text-2xl font-extrabold text-white tracking-tight">Banco de Insumos</h2>
-                    <p class="text-stone-400">Cadastre a matéria-prima utilizada na produção de seus hambúrgueres e embalagens.</p>
-                </div>
-                <button onclick="openIngredientModal()" class="flex items-center justify-center gap-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-tribo-500/15">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    Novo Insumo
-                </button>
-            </div>
-
-            <!-- Search and Badge -->
-            <div class="bg-stone-950 p-4 rounded-2xl border border-stone-800 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="relative w-full max-w-xs">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-500">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </span>
-                    <input type="text" id="search-insumo" oninput="renderIngredients()" placeholder="Buscar insumo..." class="w-full bg-stone-900 text-stone-200 pl-9 pr-4 py-2 rounded-lg text-sm border border-stone-800 focus:outline-none focus:border-tribo-500">
-                </div>
-                <span id="ingredient-count-badge" class="text-xs text-stone-400 font-semibold px-2.5 py-1 bg-stone-900 rounded-full border border-stone-800">0 Cadastrados</span>
-            </div>
-
-            <!-- Insumos Tables grouped by category -->
-            <div id="ingredients-categories-container" class="space-y-6">
-                <!-- Grouped tables injected via JS -->
-            </div>
-        </section>
-
-        <!-- ==================== TAB: FICHAS TÉCNICAS ==================== -->
-        <section id="tab-fichas" class="space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div class="text-left">
-                    <h2 class="text-2xl font-extrabold text-white tracking-tight">Fichas Técnicas & Precificação</h2>
-                    <p class="text-stone-400">Desenvolva as receitas de hambúrgueres e configure o preço de venda estratégico.</p>
-                </div>
-                <button onclick="openRecipeModal()" class="flex items-center justify-center gap-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-tribo-500/15">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    Nova Ficha Técnica
-                </button>
-            </div>
-
-            <!-- Grid container for grouped recipes -->
-            <div class="space-y-8" id="recipes-grid">
-                <!-- Grouped recipe lists injected via JS -->
-            </div>
-        </section>
-
-        <!-- ==================== TAB: FICHAS DE COMBOS ==================== -->
-        <section id="tab-combos" class="space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div class="text-left">
-                    <h2 class="text-2xl font-extrabold text-white tracking-tight">Fichas de Combos Promocionais</h2>
-                    <p class="text-stone-400">Monte pacotes especiais agrupando fichas prontas e insumos adicionais (bebidas, adicionais).</p>
-                </div>
-                <button onclick="openComboModal()" class="flex items-center justify-center gap-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-tribo-500/15">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    Novo Combo
-                </button>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="combos-grid">
-                <!-- Combos cards injected via JS -->
-            </div>
-        </section>
-
-        <!-- ==================== TAB: ANÁLISE GERAL ==================== -->
-        <section id="tab-analise-geral" class="space-y-6 hidden">
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                <div class="text-left">
-                    <h2 class="text-2xl font-extrabold text-white tracking-tight">Análise Consolidada de Margens</h2>
-                    <p class="text-stone-400">Relatório geral de custos, CMV e lucratividade de todos os produtos do cardápio.</p>
-                </div>
-                <div class="flex gap-2.5 text-xs flex-wrap items-center">
-                    <button onclick="window.printAnaliseGeral()" class="flex items-center justify-center gap-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-black px-5 py-3 rounded-xl text-xs transition-all shadow-lg shadow-tribo-500/15">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                        IMPRIMIR RELATÓRIO GERAL
+                <!-- Navigation Menu -->
+                <nav class="p-4 space-y-1 text-left">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all bg-tribo-500 text-stone-950 font-semibold shadow-md shadow-tribo-500/10">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"></path></svg>
+                        Painel Geral
                     </button>
-                    <span class="px-2.5 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg font-bold">Excelente (&gt;15%)</span>
-                    <span class="px-2.5 py-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg font-bold">Atenção (0% - 15%)</span>
-                    <span class="px-2.5 py-2 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg font-bold">Prejuízo (&lt;0%)</span>
-                </div>
+                    <button onclick="switchTab('insumos')" id="nav-insumos" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                        Insumos (Ingredientes)
+                    </button>
+                    <button onclick="switchTab('fichas')" id="nav-fichas" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                        Fichas Técnicas
+                    </button>
+                    <button onclick="switchTab('combos')" id="nav-combos" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        Fichas de Combos
+                    </button>
+                    <button onclick="switchTab('analise-geral')" id="nav-analise-geral" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        Análise Geral
+                    </button>
+                    <button onclick="switchTab('custos-fixos')" id="nav-custos-fixos" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                        Custos Fixos
+                    </button>
+                    <button onclick="switchTab('config')" id="nav-config" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-stone-400 hover:bg-stone-900 hover:text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        Parâmetros & Taxas
+                    </button>
+                </nav>
             </div>
 
-            <div id="analise-geral-container" class="space-y-8">
-                <!-- Grouped tables injected via JS -->
-            </div>
-        </section>
-
-        <!-- ==================== TAB: CUSTOS FIXOS ==================== -->
-        <section id="tab-custos-fixos" class="space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div class="text-left">
-                    <h2 class="text-2xl font-extrabold text-white tracking-tight">Custos Fixos da Operação</h2>
-                    <p class="text-stone-400">Monitore as despesas recorrentes mensais de sua estrutura física e comercial.</p>
-                </div>
-                <button onclick="openFixedCostModal()" class="flex items-center justify-center gap-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-tribo-500/15">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    Novo Custo Fixo
+            <!-- Footer Info -->
+            <div class="p-4 border-t border-stone-800 space-y-2">
+                <button onclick="triggerResetConfirmation()" class="w-full py-2 text-xs font-semibold text-rose-400 hover:text-rose-300 border border-stone-800 hover:border-rose-500/30 rounded-lg transition-colors">
+                    Restaurar Dados Padrão
                 </button>
-            </div>
-
-            <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-                <div>
-                    <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Total Custos Fixos</span>
-                    <p id="fixed-costs-total-box" class="text-3xl font-black text-rose-400 mt-1">R$ 0,00</p>
-                </div>
-                <div>
-                    <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Categorias Ativas</span>
-                    <p id="fixed-costs-count-box" class="text-3xl font-black text-white mt-1">0 Ativas</p>
-                </div>
-                <div>
-                    <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Impacto Diário Estimado</span>
-                    <p id="fixed-costs-daily-box" class="text-3xl font-black text-stone-300 mt-1">R$ 0,00</p>
+                <button onclick="window.handleLogout()" class="w-full py-2 text-xs font-bold text-stone-400 hover:text-white bg-stone-900 hover:bg-stone-850 rounded-lg transition-colors flex items-center justify-center gap-1">
+                    <span>🚪</span> Sair da Conta
+                </button>
+                <div class="text-center text-[10px] text-stone-500">
+                    Tribo Burger v1.7 &bull; Cloud Active
                 </div>
             </div>
+        </aside>
 
-            <div id="fixed-costs-categories-container" class="space-y-6">
-                <!-- Grouped Fixed Costs injected via JS -->
-            </div>
-        </section>
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 max-w-7xl w-full mx-auto space-y-8 no-print">
+            
+            <!-- ==================== TAB: DASHBOARD ==================== -->
+            <section id="tab-dashboard" class="space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="text-left">
+                        <h2 class="text-2xl font-extrabold text-white tracking-tight">Painel Executivo</h2>
+                        <p class="text-stone-400">Visão consolidada da rentabilidade, CMV do cardápio e simulação de lucros.</p>
+                    </div>
+                    <div class="flex items-center gap-2 bg-stone-950 px-4 py-2 rounded-xl border border-stone-800">
+                        <span id="dashboard-status-dot" class="w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse"></span>
+                        <span id="dashboard-status-label" class="text-xs font-semibold text-stone-300">Conectando...</span>
+                    </div>
+                </div>
 
-        <!-- ==================== TAB: CONFIG (SETTINGS) ==================== -->
-        <section id="tab-config" class="space-y-6 hidden">
-            <div class="text-left">
-                <h2 class="text-2xl font-extrabold text-white tracking-tight">Parâmetros de Operação & Custos</h2>
-                <p class="text-stone-400">Defina taxas, metas de CMV e configure categorias dinâmicas de cardápio e matéria-prima.</p>
-            </div>
+                <!-- KPI Row -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between text-left">
+                        <span class="text-xs font-bold uppercase tracking-wider text-stone-400">CMV Médio Real</span>
+                        <div class="flex items-baseline gap-2 mt-2">
+                            <span id="kpi-avg-cmv" class="text-3xl font-black text-white">0%</span>
+                            <span id="kpi-avg-cmv-indicator" class="text-xs font-bold px-2 py-0.5 rounded">Calculando...</span>
+                        </div>
+                        <p class="text-xs text-stone-500 mt-2">Média ponderada no faturamento ativo.</p>
+                    </div>
+                    <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between text-left">
+                        <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Meta de CMV</span>
+                        <div class="flex items-baseline gap-2 mt-2">
+                            <span id="kpi-target-cmv" class="text-3xl font-black text-tribo-400">30%</span>
+                            <span class="text-xs font-bold text-stone-500">Definido</span>
+                        </div>
+                        <p class="text-xs text-stone-500 mt-2">Alvo recomendado pela Tribo.</p>
+                    </div>
+                    <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between text-left">
+                        <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Total de Insumos</span>
+                        <div class="flex items-baseline gap-2 mt-2">
+                            <span id="kpi-total-ingredients" class="text-3xl font-black text-white">0</span>
+                            <span class="text-xs font-medium text-stone-400">ativos</span>
+                        </div>
+                        <p class="text-xs text-stone-500 mt-2">Ingredientes catalogados.</p>
+                    </div>
+                    <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between text-left">
+                        <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Total Custos Fixos</span>
+                        <div class="flex items-baseline gap-2 mt-2">
+                            <span id="kpi-total-fixed-costs" class="text-3xl font-black text-rose-400">R$ 0,00</span>
+                            <span class="text-xs font-bold text-stone-500">Mês</span>
+                        </div>
+                        <p class="text-xs text-stone-500 mt-2">Despesas mensais fixas.</p>
+                    </div>
+                    <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between text-left">
+                        <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Fichas no CMV</span>
+                        <div class="flex items-baseline gap-2 mt-2">
+                            <span id="kpi-total-recipes" class="text-3xl font-black text-white">0</span>
+                            <span class="text-xs font-medium text-stone-400">itens</span>
+                        </div>
+                        <p class="text-xs text-stone-500 mt-2">Fichas ativas para cálculo.</p>
+                    </div>
+                </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-6 text-left">
-                    <!-- Global Costs Form -->
-                    <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 space-y-6">
-                        <h3 class="text-lg font-bold text-white border-b border-stone-800 pb-3">Indicadores de Preço de Venda</h3>
-                        
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Graph Card -->
+                    <div class="lg:col-span-2 bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col">
+                        <div class="mb-4 text-left">
+                            <h3 class="text-lg font-bold text-white">Relação Custo vs. Preço de Venda</h3>
+                            <p class="text-xs text-stone-400">Compare o Custo do Alimento (CMV R$) com o Preço praticado nas fichas ativas.</p>
+                        </div>
+                        <div class="relative flex-1 min-h-[300px] flex items-center justify-center">
+                            <canvas id="cmvChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Alerts List -->
+                    <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 flex flex-col justify-between space-y-4">
                         <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-semibold text-stone-300 mb-1">CMV Alvo (%)</label>
-                                <div class="relative rounded-lg shadow-sm">
-                                    <input type="number" id="setting-target-cmv" min="1" max="100" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
-                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
-                                </div>
-                                <span class="text-xs text-stone-500">Normalmente recomendado entre 25% e 33% para delivery.</span>
+                            <h3 class="text-lg font-bold text-white mb-2 text-left">Ponto de Equilíbrio</h3>
+                            
+                            <div class="bg-stone-900 p-4 rounded-xl border border-stone-800 text-left">
+                                <span class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">Faturamento Alvo Mínimo</span>
+                                <div class="text-2xl font-black text-emerald-400 mt-1" id="breakeven-revenue">R$ 0,00</div>
+                                <p class="text-[11px] text-stone-300 mt-1">Faturamento necessário para cobrir despesas fixas e variáveis baseadas no cardápio ativo.</p>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-semibold text-stone-300 mb-1">Impostos Operacionais (ex: Simples Nacional %)</label>
-                                <div class="relative rounded-lg shadow-sm">
-                                    <input type="number" id="setting-taxes" min="0" max="100" step="0.1" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
-                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
+                                <h3 class="text-sm font-bold text-white mb-2 text-left">Alertas de Atenção</h3>
+                                <div id="alerts-list" class="space-y-3 max-h-[180px] overflow-y-auto pr-1">
+                                    <!-- Alerts dynamically injected -->
                                 </div>
-                                <span class="text-xs text-stone-500">Média de imposto retido por venda.</span>
                             </div>
-
-                            <div>
-                                <label class="block text-sm font-semibold text-stone-300 mb-1">Comissão Média do Delivery (ex: iFood %)</label>
-                                <div class="relative rounded-lg shadow-sm">
-                                    <input type="number" id="setting-platform" min="0" max="100" step="0.1" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
-                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
-                                </div>
-                                <span class="text-xs text-stone-500">Comissão de marketplace retida.</span>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-semibold text-stone-300 mb-1">Taxas de Cartão / Meios de Pagamento (%)</label>
-                                <div class="relative rounded-lg shadow-sm">
-                                    <input type="number" id="setting-cards" min="0" max="100" step="0.1" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
-                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
-                                </div>
-                                <span class="text-xs text-stone-500">Média de taxas do adquirente de cartão.</span>
-                            </div>
-
-                            <button onclick="saveSettings()" class="w-full bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold py-3 rounded-lg transition-colors">
-                                Salvar Parâmetros Globais
-                            </button>
                         </div>
-                    </div>
 
-                    <!-- Menu Categories -->
-                    <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 space-y-4">
-                        <h3 class="text-lg font-bold text-white border-b border-stone-800 pb-3">Categorias do Cardápio</h3>
-                        <div id="settings-categories-list" class="flex flex-wrap gap-2 py-1">
-                            <!-- Dynamic category tags -->
-                        </div>
-                        <div class="flex gap-2 pt-2 border-t border-stone-800/60">
-                            <input type="text" id="new-category-input" placeholder="Ex: Sobremesas, Smashes, Especiais" class="flex-1 bg-stone-900 border border-stone-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-tribo-500">
-                            <button onclick="addCustomCategory()" class="bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2 rounded-lg text-sm transition-colors shrink-0">
-                                Adicionar
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Insumos Categories -->
-                    <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 space-y-4">
-                        <h3 class="text-lg font-bold text-white border-b border-stone-800 pb-3">Categorias de Insumos</h3>
-                        <div id="settings-ingredient-categories-list" class="flex flex-wrap gap-2 py-1">
-                            <!-- Dynamic category tags -->
-                        </div>
-                        <div class="flex gap-2 pt-2 border-t border-stone-800/60">
-                            <input type="text" id="new-ingredient-category-input" placeholder="Ex: Queijos, Pães, Embalagens" class="flex-1 bg-stone-900 border border-stone-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-tribo-500">
-                            <button onclick="addCustomIngredientCategory()" class="bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2 rounded-lg text-sm transition-colors shrink-0">
-                                Adicionar
-                            </button>
+                        <div class="bg-stone-900 p-4 rounded-xl border border-stone-800 text-left">
+                            <h4 class="text-xs font-bold uppercase text-tribo-400 tracking-wider">Análise de Margem</h4>
+                            <p class="text-xs text-stone-400 mt-1">O ponto de equilíbrio é calculado com base na Margem de Contribuição Média das suas fichas ativas.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Conceptual Guide -->
-                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 space-y-4 text-left">
-                    <h3 class="text-lg font-bold text-white border-b border-stone-800 pb-3">Guia Conceitual da Tribo</h3>
-                    <div class="space-y-4 text-sm text-stone-300 leading-relaxed">
-                        <div class="bg-stone-900 p-3 rounded-lg border-l-4 border-tribo-500">
-                            <strong class="text-white block mb-1">1. O que é CMV?</strong>
-                            Custo de Mercadoria Vendida. Representa puramente o custo estrito do alimento (ingredientes) e embalagens diretas necessários para estruturar um hambúrguer pronto.
+                <!-- Simulator Card -->
+                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 space-y-6 text-left">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <span>🎯</span> Simulador de Meta de Vendas & Lucro Líquido
+                            </h3>
+                            <p class="text-xs text-stone-400">Determine sua meta de faturamento mensal e visualize as despesas estimadas e o lucro limpo no caixa.</p>
                         </div>
-                        <div class="bg-stone-900 p-3 rounded-lg border-l-4 border-amber-500">
-                            <strong class="text-white block mb-1">2. Como precificar corretamente?</strong>
-                            Para atingir o CMV Alvo ideal (ex: 30%), o preço de venda é calculado diretamente a partir do custo dos ingredientes. O Markup correto do preço de venda garante que as despesas variáveis de venda e a margem de contribuição estejam equilibradas.
+                        <div class="w-full sm:w-64 shrink-0">
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1">Definir Meta de Faturamento</label>
+                            <div class="relative rounded-lg shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400 text-xs">R$</div>
+                                <input type="number" id="target-monthly-revenue" oninput="calculateSalesGoalProfit()" class="w-full bg-stone-900 border border-stone-800 rounded-lg pl-8 pr-3 py-2 text-white font-extrabold text-sm focus:outline-none focus:border-tribo-500" placeholder="Ex: 30000">
+                            </div>
                         </div>
-                        <div class="bg-stone-900 p-3 rounded-lg border-l-4 border-emerald-500">
-                            <strong class="text-white block mb-1">3. Margem de Contribuição Bruta</strong>
-                            É o valor que sobra de cada venda após retirar o CMV, Impostos, Comissões e Taxas de Cartão. Essa margem bruta é o que de fato resta para o caixa da Tribo pagar as despesas fixas da operação e gerar lucro líquido real.
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <div class="bg-stone-900 p-4 rounded-xl border border-stone-850">
+                            <span class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">Faturamento Alvo</span>
+                            <div class="text-lg font-black text-white mt-1" id="sim-revenue">R$ 0,00</div>
+                            <p class="text-[10px] text-stone-500 mt-1">Sua projeção mensal.</p>
+                        </div>
+                        <div class="bg-stone-900 p-4 rounded-xl border border-stone-850">
+                            <span class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">(-) Custo Insumos (CMV)</span>
+                            <div class="text-lg font-black text-orange-400 mt-1" id="sim-cmv-cost">R$ 0,00</div>
+                            <p class="text-[10px] text-stone-500 mt-1" id="sim-cmv-pct-label">Baseado na média real.</p>
+                        </div>
+                        <div class="bg-stone-900 p-4 rounded-xl border border-stone-850">
+                            <span class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">(-) Taxas & Impostos</span>
+                            <div class="text-lg font-black text-amber-500 mt-1" id="sim-fees-cost">R$ 0,00</div>
+                            <p class="text-[10px] text-stone-500 mt-1" id="sim-fees-pct-label">Impostos e Apps.</p>
+                        </div>
+                        <div class="bg-stone-900 p-4 rounded-xl border border-stone-850">
+                            <span class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">(-) Custos Fixos</span>
+                            <div class="text-lg font-black text-rose-400 mt-1" id="sim-fixed-cost">R$ 0,00</div>
+                            <p class="text-[10px] text-stone-500 mt-1">Estrutura fixa operacional.</p>
+                        </div>
+                        <div class="p-4 rounded-xl border flex flex-col justify-between" id="sim-profit-card">
+                            <div>
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-stone-400" id="sim-profit-label">Lucro Líquido Est.</span>
+                                <div class="text-lg font-black mt-1" id="sim-net-profit">R$ 0,00</div>
+                            </div>
+                            <p class="text-[10px] mt-1" id="sim-profit-margin">Margem: 0,0%</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-stone-900 p-4 rounded-xl border border-stone-800 space-y-3">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-stone-400">Progresso de Lucratividade Operacional:</span>
+                            <span class="font-bold text-stone-300" id="sim-progress-text">Analisando...</span>
+                        </div>
+                        <div class="w-full bg-stone-800 rounded-full h-2.5 overflow-hidden">
+                            <div id="sim-progress-bar" class="h-full bg-stone-700 transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <p class="text-[11px] text-stone-400 font-medium" id="sim-help-text">Insira um valor de faturamento para realizar a estimativa.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== TAB: INSUMOS (INGREDIENTS) ==================== -->
+            <section id="tab-insumos" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="text-left">
+                        <h2 class="text-2xl font-extrabold text-white tracking-tight">Banco de Insumos</h2>
+                        <p class="text-stone-400">Cadastre a matéria-prima utilizada na produção de seus hambúrgueres e embalagens.</p>
+                    </div>
+                    <button onclick="openIngredientModal()" class="flex items-center justify-center gap-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-tribo-500/15">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Novo Insumo
+                    </button>
+                </div>
+
+                <!-- Search and Badge -->
+                <div class="bg-stone-950 p-4 rounded-2xl border border-stone-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="relative w-full max-w-xs">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-500">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </span>
+                        <input type="text" id="search-insumo" oninput="renderIngredients()" placeholder="Buscar insumo..." class="w-full bg-stone-900 text-stone-200 pl-9 pr-4 py-2 rounded-lg text-sm border border-stone-800 focus:outline-none focus:border-tribo-500">
+                    </div>
+                    <span id="ingredient-count-badge" class="text-xs text-stone-400 font-semibold px-2.5 py-1 bg-stone-900 rounded-full border border-stone-800">0 Cadastrados</span>
+                </div>
+
+                <!-- Insumos Tables grouped by category -->
+                <div id="ingredients-categories-container" class="space-y-6">
+                    <!-- Grouped tables injected via JS -->
+                </div>
+            </section>
+
+            <!-- ==================== TAB: FICHAS TÉCNICAS ==================== -->
+            <section id="tab-fichas" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="text-left">
+                        <h2 class="text-2xl font-extrabold text-white tracking-tight">Fichas Técnicas & Precificação</h2>
+                        <p class="text-stone-400">Desenvolva as receitas de hambúrgueres e configure o preço de venda estratégico.</p>
+                    </div>
+                    <button onclick="openRecipeModal()" class="flex items-center justify-center gap-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-tribo-500/15">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Nova Ficha Técnica
+                    </button>
+                </div>
+
+                <!-- Grid container for grouped recipes -->
+                <div class="space-y-8" id="recipes-grid">
+                    <!-- Grouped recipe lists injected via JS -->
+                </div>
+            </section>
+
+            <!-- ==================== TAB: FICHAS DE COMBOS ==================== -->
+            <section id="tab-combos" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="text-left">
+                        <h2 class="text-2xl font-extrabold text-white tracking-tight">Fichas de Combos Promocionais</h2>
+                        <p class="text-stone-400">Monte pacotes especiais agrupando fichas prontas e insumos adicionais (bebidas, adicionais).</p>
+                    </div>
+                    <button onclick="openComboModal()" class="flex items-center justify-center gap-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-tribo-500/15">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Novo Combo
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="combos-grid">
+                    <!-- Combos cards injected via JS -->
+                </div>
+            </section>
+
+            <!-- ==================== TAB: ANÁLISE GERAL ==================== -->
+            <section id="tab-analise-geral" class="space-y-6 hidden">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div class="text-left">
+                        <h2 class="text-2xl font-extrabold text-white tracking-tight">Análise Consolidada de Margens</h2>
+                        <p class="text-stone-400">Relatório geral de custos, CMV e lucratividade de todos os produtos do cardápio.</p>
+                    </div>
+                    <div class="flex gap-2.5 text-xs flex-wrap items-center">
+                        <button onclick="window.printAnaliseGeral()" class="flex items-center justify-center gap-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-black px-5 py-3 rounded-xl text-xs transition-all shadow-lg shadow-tribo-500/15">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                            IMPRIMIR RELATÓRIO GERAL
+                        </button>
+                        <span class="px-2.5 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg font-bold">Excelente (&gt;15%)</span>
+                        <span class="px-2.5 py-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg font-bold">Atenção (0% - 15%)</span>
+                        <span class="px-2.5 py-2 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg font-bold">Prejuízo (&lt;0%)</span>
+                    </div>
+                </div>
+
+                <div id="analise-geral-container" class="space-y-8">
+                    <!-- Grouped tables injected via JS -->
+                </div>
+            </section>
+
+            <!-- ==================== TAB: CUSTOS FIXOS ==================== -->
+            <section id="tab-custos-fixos" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="text-left">
+                        <h2 class="text-2xl font-extrabold text-white tracking-tight">Custos Fixos da Operação</h2>
+                        <p class="text-stone-400">Monitore as despesas recorrentes mensais de sua estrutura física e comercial.</p>
+                    </div>
+                    <button onclick="openFixedCostModal()" class="flex items-center justify-center gap-2 bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-tribo-500/15">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Novo Custo Fixo
+                    </button>
+                </div>
+
+                <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Total Custos Fixos</span>
+                        <p id="fixed-costs-total-box" class="text-3xl font-black text-rose-400 mt-1">R$ 0,00</p>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Categorias Ativas</span>
+                        <p id="fixed-costs-count-box" class="text-3xl font-black text-white mt-1">0 Ativas</p>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Impacto Diário Estimado</span>
+                        <p id="fixed-costs-daily-box" class="text-3xl font-black text-stone-300 mt-1">R$ 0,00</p>
+                    </div>
+                </div>
+
+                <div id="fixed-costs-categories-container" class="space-y-6">
+                    <!-- Grouped Fixed Costs injected via JS -->
+                </div>
+            </section>
+
+            <!-- ==================== TAB: CONFIG (SETTINGS) ==================== -->
+            <section id="tab-config" class="space-y-6 hidden">
+                <div class="text-left">
+                    <h2 class="text-2xl font-extrabold text-white tracking-tight">Parâmetros de Operação & Custos</h2>
+                    <p class="text-stone-400">Defina taxas, metas de CMV e configure categorias dinâmicas de cardápio e matéria-prima.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-6 text-left">
+                        <!-- Global Costs Form -->
+                        <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 space-y-6">
+                            <h3 class="text-lg font-bold text-white border-b border-stone-800 pb-3">Indicadores de Preço de Venda</h3>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-stone-300 mb-1">CMV Alvo (%)</label>
+                                    <div class="relative rounded-lg shadow-sm">
+                                        <input type="number" id="setting-target-cmv" min="1" max="100" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
+                                    </div>
+                                    <span class="text-xs text-stone-500">Normalmente recomendado entre 25% e 33% para delivery.</span>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-semibold text-stone-300 mb-1">Impostos Operacionais (ex: Simples Nacional %)</label>
+                                    <div class="relative rounded-lg shadow-sm">
+                                        <input type="number" id="setting-taxes" min="0" max="100" step="0.1" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
+                                    </div>
+                                    <span class="text-xs text-stone-500">Média de imposto retido por venda.</span>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-semibold text-stone-300 mb-1">Comissão Média do Delivery (ex: iFood %)</label>
+                                    <div class="relative rounded-lg shadow-sm">
+                                        <input type="number" id="setting-platform" min="0" max="100" step="0.1" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
+                                    </div>
+                                    <span class="text-xs text-stone-500">Comissão de marketplace retida.</span>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-semibold text-stone-300 mb-1">Taxas de Cartão / Meios de Pagamento (%)</label>
+                                    <div class="relative rounded-lg shadow-sm">
+                                        <input type="number" id="setting-cards" min="0" max="100" step="0.1" class="w-full bg-stone-900 border border-stone-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-tribo-500 text-lg font-bold">
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400 font-bold">%</div>
+                                    </div>
+                                    <span class="text-xs text-stone-500">Média de taxas do adquirente de cartão.</span>
+                                </div>
+
+                                <button onclick="saveSettings()" class="w-full bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold py-3 rounded-lg transition-colors">
+                                    Salvar Parâmetros Globais
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Menu Categories -->
+                        <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 space-y-4">
+                            <h3 class="text-lg font-bold text-white border-b border-stone-800 pb-3">Categorias do Cardápio</h3>
+                            <div id="settings-categories-list" class="flex flex-wrap gap-2 py-1">
+                                <!-- Dynamic category tags -->
+                            </div>
+                            <div class="flex gap-2 pt-2 border-t border-stone-800/60">
+                                <input type="text" id="new-category-input" placeholder="Ex: Sobremesas, Smashes, Especiais" class="flex-1 bg-stone-900 border border-stone-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-tribo-500">
+                                <button onclick="addCustomCategory()" class="bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2 rounded-lg text-sm transition-colors shrink-0">
+                                    Adicionar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Insumos Categories -->
+                        <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 space-y-4">
+                            <h3 class="text-lg font-bold text-white border-b border-stone-800 pb-3">Categorias de Insumos</h3>
+                            <div id="settings-ingredient-categories-list" class="flex flex-wrap gap-2 py-1">
+                                <!-- Dynamic category tags -->
+                            </div>
+                            <div class="flex gap-2 pt-2 border-t border-stone-800/60">
+                                <input type="text" id="new-ingredient-category-input" placeholder="Ex: Queijos, Pães, Embalagens" class="flex-1 bg-stone-900 border border-stone-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-tribo-500">
+                                <button onclick="addCustomIngredientCategory()" class="bg-tribo-500 hover:bg-tribo-600 text-stone-950 font-bold px-4 py-2 rounded-lg text-sm transition-colors shrink-0">
+                                    Adicionar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conceptual Guide -->
+                    <div class="bg-stone-950 p-6 rounded-2xl border border-stone-800 space-y-4 text-left">
+                        <h3 class="text-lg font-bold text-white border-b border-stone-800 pb-3">Guia Conceitual da Tribo</h3>
+                        <div class="space-y-4 text-sm text-stone-300 leading-relaxed">
+                            <div class="bg-stone-900 p-3 rounded-lg border-l-4 border-tribo-500">
+                                <strong class="text-white block mb-1">1. O que é CMV?</strong>
+                                Custo de Mercadoria Vendida. Representa puramente o custo estrito do alimento (ingredientes) e embalagens diretas necessários para estruturar um hambúrguer pronto.
+                            </div>
+                            <div class="bg-stone-900 p-3 rounded-lg border-l-4 border-amber-500">
+                                <strong class="text-white block mb-1">2. Como precificar corretamente?</strong>
+                                Para atingir o CMV Alvo ideal (ex: 30%), o preço de venda é calculado diretamente a partir do custo dos ingredientes. O Markup correto do preço de venda garante que as despesas variáveis de venda e a margem de contribuição estejam equilibradas.
+                            </div>
+                            <div class="bg-stone-900 p-3 rounded-lg border-l-4 border-emerald-500">
+                                <strong class="text-white block mb-1">3. Margem de Contribuição Bruta</strong>
+                                É o valor que sobra de cada venda após retirar o CMV, Impostos, Comissões e Taxas de Cartão. Essa margem bruta é o que de fato resta para o caixa da Tribo pagar as despesas fixas da operação e gerar lucro líquido real.
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-    </main>
+        </main>
+    </div>
 
     <!-- ==================== MODAL: ADD/EDIT INGREDIENT ==================== -->
     <div id="ingredient-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
@@ -896,7 +941,7 @@
     <!-- FIREBASE INITIALIZATION & SYNC LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'tribo-burger-pricing-system';
@@ -926,24 +971,20 @@
         let userId = null;
         let isCloudInitialized = false;
 
-        async function authenticate() {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) {
-                console.error("Erro na autenticação do Firebase:", error);
-                showCustomAlert("Erro de Conexão", "Não foi possível sincronizar o banco. O sistema funcionará localmente.");
-                initializeFallbackOffline();
-            }
-        }
-
+        // Monitor Auth State
         onAuthStateChanged(auth, (user) => {
+            const authContainer = document.getElementById('auth-container');
+            const appContainer = document.getElementById('app-container');
+
             if (user) {
                 userId = user.uid;
+                
+                // Show Main Application, Hide Auth screen
+                authContainer.classList.add('hidden');
+                appContainer.classList.remove('hidden');
+
                 document.getElementById('cloud-user-id').textContent = `ID: ${userId}`;
+                document.getElementById('cloud-user-id').classList.remove('animate-pulse');
                 document.getElementById('cloud-status-dot').className = "w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse";
                 document.getElementById('cloud-status-text').textContent = "Nuvem Sincronizada";
                 document.getElementById('dashboard-status-dot').className = "w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse";
@@ -952,9 +993,97 @@
                 migrateLocalStorageToCloud();
                 attachCloudRealtimeListeners();
             } else {
-                authenticate();
+                userId = null;
+                isCloudInitialized = false;
+                
+                // Show Auth Screen, Hide main application
+                authContainer.classList.remove('hidden');
+                appContainer.classList.add('hidden');
+
+                document.getElementById('cloud-user-id').textContent = "ID: Conectando...";
+                document.getElementById('cloud-status-dot').className = "w-2.5 h-2.5 bg-rose-500 rounded-full";
+                document.getElementById('cloud-status-text').textContent = "Sessão Expirada";
+                document.getElementById('dashboard-status-dot').className = "w-2.5 h-2.5 bg-rose-500 rounded-full";
+                document.getElementById('dashboard-status-label').textContent = "Não Autenticado";
             }
         });
+
+        // Toggle Auth mode (Login vs Register)
+        let currentAuthMode = 'login';
+        window.setAuthMode = function(mode) {
+            currentAuthMode = mode;
+            const errorDiv = document.getElementById('auth-error');
+            errorDiv.classList.add('hidden');
+
+            const tabLoginBtn = document.getElementById('tab-login-btn');
+            const tabRegisterBtn = document.getElementById('tab-register-btn');
+            const submitBtn = document.getElementById('auth-submit-btn');
+
+            if (mode === 'login') {
+                tabLoginBtn.className = "flex-1 pb-3 text-sm font-bold border-b-2 border-tribo-500 text-white";
+                tabRegisterBtn.className = "flex-1 pb-3 text-sm font-semibold border-b-2 border-transparent text-stone-500 hover:text-stone-300";
+                submitBtn.textContent = "Entrar no Sistema";
+            } else {
+                tabLoginBtn.className = "flex-1 pb-3 text-sm font-semibold border-b-2 border-transparent text-stone-500 hover:text-stone-300";
+                tabRegisterBtn.className = "flex-1 pb-3 text-sm font-bold border-b-2 border-tribo-500 text-white";
+                submitBtn.textContent = "Cadastrar e Entrar";
+            }
+        };
+
+        // Handle Email/Password Login & Register Submission
+        window.handleAuthSubmit = async function(event) {
+            event.preventDefault();
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const errorDiv = document.getElementById('auth-error');
+            const submitBtn = document.getElementById('auth-submit-btn');
+
+            errorDiv.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Carregando...";
+
+            try {
+                if (currentAuthMode === 'login') {
+                    await signInWithEmailAndPassword(auth, email, password);
+                } else {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                }
+            } catch (error) {
+                console.error("Erro na autenticação:", error);
+                errorDiv.classList.remove('hidden');
+                
+                // Friendly error messages in Portuguese
+                switch (error.code) {
+                    case 'auth/invalid-credential':
+                        errorDiv.textContent = "Credenciais inválidas. Verifique seu e-mail e senha.";
+                        break;
+                    case 'auth/email-already-in-use':
+                        errorDiv.textContent = "Este e-mail já está sendo utilizado por outra conta.";
+                        break;
+                    case 'auth/weak-password':
+                        errorDiv.textContent = "A senha deve ter pelo menos 6 caracteres.";
+                        break;
+                    case 'auth/invalid-email':
+                        errorDiv.textContent = "Insira um formato de e-mail válido.";
+                        break;
+                    default:
+                        errorDiv.textContent = "Ocorreu um erro ao processar. Tente novamente.";
+                }
+                submitBtn.disabled = false;
+                submitBtn.textContent = currentAuthMode === 'login' ? "Entrar no Sistema" : "Cadastrar e Entrar";
+            }
+        };
+
+        // Logout Flow
+        window.handleLogout = function() {
+            showCustomConfirm("Sair da Conta", "Tem certeza de que deseja encerrar a sua sessão operacional?", async () => {
+                try {
+                    await signOut(auth);
+                } catch (e) {
+                    console.error("Erro ao deslogar:", e);
+                }
+            });
+        };
 
         window.closeDiagnosticModal = function() {
             document.getElementById('diagnostic-modal').classList.add('hidden');
@@ -984,14 +1113,10 @@
                 log('🔄 [1/5] Iniciando autoteste de conexão do Firebase...', 'info');
                 
                 if (!auth.currentUser) {
-                    log('⏳ Sem usuário logado. Tentando se autenticar...', 'warn');
-                    await authenticate();
+                    throw new Error("Nenhum usuário ativo logado para executar o diagnóstico.");
                 }
                 
-                const currentUid = auth.currentUser ? auth.currentUser.uid : null;
-                if (!currentUid) {
-                    throw new Error("Falha de autenticação: UID do usuário é nulo.");
-                }
+                const currentUid = auth.currentUser.uid;
                 log(`✅ Autenticado com sucesso! UID: ${currentUid}`, 'success');
 
                 log('🔄 [2/5] Escrevendo documento temporário no Firestore...', 'info');
@@ -1273,29 +1398,6 @@
                 console.error("Erro resetando banco de dados:", e);
             }
         };
-
-        function initializeFallbackOffline() {
-            document.getElementById('cloud-status-dot').className = "w-2.5 h-2.5 bg-rose-500 rounded-full";
-            document.getElementById('cloud-status-text').textContent = "Offline (Local)";
-            document.getElementById('dashboard-status-dot').className = "w-2.5 h-2.5 bg-rose-500 rounded-full";
-            document.getElementById('dashboard-status-label').textContent = "Banco de Dados Local";
-            
-            window.ingredients = window.defaultIngredients;
-            window.recipes = window.defaultRecipes;
-            window.combos = [];
-            window.fixedCosts = window.defaultFixedCosts;
-            window.recipeCategories = window.defaultCategories;
-            window.ingredientCategories = window.defaultIngredientCategories;
-            window.settings = window.defaultSettings;
-            
-            window.renderCategoriesInSettings();
-            window.renderIngredientCategoriesInSettings();
-            window.populateRecipeCategoryDropdown();
-            window.populateIngredientCategoryDropdown();
-            window.renderAll();
-        }
-
-        authenticate();
     </script>
 
     <!-- MAIN APP JAVASCRIPT -->
@@ -2367,7 +2469,7 @@
                                     if (!ing) return '';
                                     return `
                                         <div class="flex justify-between text-stone-300 py-0.5">
-                                            <span>🥩 Insumo: ${ing.name} <span class="text-stone-500">(${item.qty}${ing.unit === 'kg' ? 'g' : (ing.unit === 'l' ? 'ml' : ing.unit)})</span></span>
+                                            <span>🥩 Insumo: ${ing.name} <span class="text-stone-500">(22g})</span></span>
                                             <span class="font-semibold text-stone-400">${formatCurrency(getIngredientCost(item.itemId, item.qty))}</span>
                                         </div>
                                     `;
@@ -2901,7 +3003,7 @@
             const totalCost = costAccumulator + packaging;
             const price = Number(document.getElementById('combo-selling-price').value || 0);
             const cmv = price > 0 ? (totalCost / price) * 100 : 0;
-            const profit = price - totalCost - (price * ((window.settings.taxes + window.settings.platformFees + window.settings.cardFees) / 100));
+            const profit = price - totalCost - (price * ((window.settings.taxes + window.settings.platformFees + window.settings.cardFees) / 105));
             const margin = price > 0 ? (profit / price) * 100 : 0;
 
             const previewCost = document.getElementById('combo-preview-cost');
