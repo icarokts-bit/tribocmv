@@ -317,37 +317,23 @@
                             <input type="text" id="search-ingredients" oninput="renderIngredients()" placeholder="Filtrar por nome de ingrediente..." class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2 w-full max-w-sm focus:outline-none focus:border-brand-accent">
                             
                             <select id="filter-ingredient-category" onchange="renderIngredients()" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-brand-accent font-semibold max-w-xs">
-                                <option value="">Todas as Categorias</option>
-                                <option value="Proteínas">Proteínas</option>
-                                <option value="Pães">Pães</option>
-                                <option value="Queijos">Queijos</option>
-                                <option value="Molhos">Molhos</option>
-                                <option value="Vegetais/Hortifrúti">Vegetais/Hortifrúti</option>
-                                <option value="Embalagens">Embalagens</option>
-                                <option value="Outros">Outros</option>
-                            </select>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs text-brand-light">
-                                <thead class="bg-brand-black/30 border-b border-brand-border text-brand-textMuted">
-                                    <tr>
-                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Ingrediente</th>
-                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Categoria</th>
-                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Preço de Compra</th>
-                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Quantidade Embalagem</th>
-                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Custo Unitário Calculado</th>
-                                        <th class="py-3 px-4 font-bold uppercase tracking-wider text-right">Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="ingredients-table-body" class="divide-y divide-brand-border/40">
-                                    <!-- JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
+                        <option value="">Todas as Categorias</option>
+                        <option value="Proteínas">Proteínas</option>
+                        <option value="Pães">Pães</option>
+                        <option value="Queijos">Queijos</option>
+                        <option value="Molhos">Molhos</option>
+                        <option value="Vegetais/Hortifrúti">Vegetais/Hortifrúti</option>
+                        <option value="Embalagens">Embalagens</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                <div id="ingredients-container" class="divide-y divide-brand-border/60">
+                    <!-- Gerado dinamicamente via Javascript por categoria -->
+                </div>
+            </div>
+        </section>
 
-                <!-- TAB 3: FICHAS TÉCNICAS -->
+        <!-- TAB 3: FICHAS TÉCNICAS -->
                 <section id="tab-recipes" class="tab-content space-y-6 hidden">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-4 rounded-xl">
                         <div>
@@ -854,6 +840,18 @@
             }
         }
 
+        function getIngredientColorDot(category) {
+            switch(category) {
+                case 'Proteínas': return 'bg-red-500';
+                case 'Pães': return 'bg-yellow-500';
+                case 'Queijos': return 'bg-amber-500';
+                case 'Molhos': return 'bg-purple-500';
+                case 'Vegetais/Hortifrúti': return 'bg-emerald-500';
+                case 'Embalagens': return 'bg-cyan-500';
+                default: return 'bg-stone-500';
+            }
+        }
+
         // ----------------- NAVEGAÇÃO ENTRE ABAS -----------------
         window.switchTab = function(tabId) {
             if (!currentUser || currentUser.isAnonymous) {
@@ -1195,12 +1193,11 @@
         };
 
         window.renderIngredients = function() {
-            const table = document.getElementById('ingredients-table-body');
-            if (!table) return;
+            const container = document.getElementById('ingredients-container');
+            if (!container) return;
 
             const searchQuery = (document.getElementById('search-ingredients')?.value || '').toLowerCase();
             const categoryQuery = document.getElementById('filter-ingredient-category')?.value || '';
-            let html = '';
 
             const filtered = appState.ingredients.filter(ing => {
                 const matchesSearch = (ing.name || '').toLowerCase().includes(searchQuery);
@@ -1209,26 +1206,70 @@
             });
 
             if (filtered.length === 0) {
-                html = `<tr><td colspan="6" class="py-6 text-center text-brand-textMuted text-xs font-sans">Nenhum insumo encontrado nesta categoria.</td></tr>`;
-            } else {
-                filtered.forEach(ing => {
+                container.innerHTML = `
+                    <div class="py-12 text-center text-brand-textMuted text-xs font-sans">
+                        <i class="fa-solid fa-egg text-2xl mb-2 block text-brand-border"></i>
+                        Nenhum insumo encontrado para esta pesquisa ou filtro.
+                    </div>
+                `;
+                return;
+            }
+
+            const grouped = {};
+            filtered.forEach(ing => {
+                const cat = ing.category || 'Outros';
+                if (!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push(ing);
+            });
+
+            const categoriesOrder = ['Proteínas', 'Pães', 'Queijos', 'Molhos', 'Vegetais/Hortifrúti', 'Embalagens', 'Outros'];
+            const sortedCategories = Object.keys(grouped).sort((a, b) => {
+                let idxA = categoriesOrder.indexOf(a);
+                let idxB = categoriesOrder.indexOf(b);
+                if (idxA === -1) idxA = 99;
+                if (idxB === -1) idxB = 99;
+                return idxA - idxB || a.localeCompare(b);
+            });
+
+            let html = '';
+            sortedCategories.forEach(cat => {
+                const items = grouped[cat];
+                
+                html += `
+                    <div class="p-5 space-y-3.5">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-xs font-extrabold uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full ${getIngredientColorDot(cat)} animate-pulse"></span>
+                                <span class="text-brand-light font-sans">${cat}</span>
+                                <span class="text-[9px] font-black text-brand-textMuted bg-brand-gray px-2 py-0.5 rounded border border-brand-border">${items.length} ${items.length === 1 ? 'item' : 'itens'}</span>
+                            </h4>
+                        </div>
+                        <div class="overflow-x-auto rounded-xl border border-brand-border bg-brand-black/30">
+                            <table class="w-full text-left text-xs text-brand-light">
+                                <thead class="bg-brand-black/50 border-b border-brand-border text-brand-textMuted">
+                                    <tr>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Ingrediente</th>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Preço de Compra</th>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Quantidade Embalagem</th>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Custo Unitário Calculado</th>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider text-right">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-brand-border/40">
+                `;
+
+                items.forEach(ing => {
                     const totalCost = parseFloat(ing.cost || 0);
                     const packageQty = parseFloat(ing.qty || 1);
                     const unitCost = totalCost / packageQty;
-                    const category = ing.category || 'Outros';
 
                     html += `
-                        <tr class="hover:bg-brand-gray/20 transition-colors font-sans">
-                            <td class="py-3.5 px-4 font-semibold text-brand-light">${ing.name}</td>
-                            <td class="py-3.5 px-4">
-                                <span class="px-2 py-1 rounded text-[10px] font-bold ${getIngredientCategoryStyle(category)}">
-                                    ${category}
-                                </span>
-                            </td>
-                            <td class="py-3.5 px-4 text-brand-textMuted">${formatCurrency(totalCost)}</td>
-                            <td class="py-3.5 px-4 font-medium text-brand-light">${packageQty} ${ing.unit}</td>
-                            <td class="py-3.5 px-4 text-emerald-500 font-bold">${formatCurrency(unitCost)} por ${getBaseUnitRepresentation(ing.unit)}</td>
-                            <td class="py-3.5 px-4 text-right space-x-1 whitespace-nowrap">
+                        <tr class="hover:bg-brand-gray/25 transition-colors font-sans">
+                            <td class="py-3 px-4 font-semibold text-brand-light">${ing.name}</td>
+                            <td class="py-3 px-4 text-brand-textMuted">${formatCurrency(totalCost)}</td>
+                            <td class="py-3 px-4 font-medium text-brand-light">${packageQty} ${ing.unit}</td>
+                            <td class="py-3 px-4 text-emerald-500 font-bold">${formatCurrency(unitCost)} por ${getBaseUnitRepresentation(ing.unit)}</td>
+                            <td class="py-3 px-4 text-right space-x-1 whitespace-nowrap">
                                 <button onclick="openIngredientModal('${ing.id}')" class="p-1.5 bg-brand-gray border border-brand-border rounded text-brand-textMuted hover:text-brand-light transition-colors">
                                     <i class="fa-solid fa-pen text-xs"></i>
                                 </button>
@@ -1239,8 +1280,16 @@
                         </tr>
                     `;
                 });
-            }
-            table.innerHTML = html;
+
+                html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
         };
 
         window.renderRecipes = function() {
