@@ -101,7 +101,7 @@
             </div>
         </div>
 
-        <!-- PAINEL DE PERFIL DO UTILIZADOR (DINÂMICO) -->
+        <!-- PAINEL DE PERFIL DO UTILIZADOR -->
         <div class="p-5 border-b border-brand-border bg-brand-black/50 m-4 rounded-xl border border-brand-border/60 space-y-4">
             <div class="flex items-center justify-between">
                 <span class="text-[10px] font-bold tracking-wider text-brand-textMuted uppercase">Utilizador</span>
@@ -110,9 +110,9 @@
                 </span>
             </div>
 
-            <!-- Identidade e Opções de Login/Logout -->
+            <!-- Identidade e Opção de Terminar Sessão -->
             <div id="auth-status-container" class="p-3 bg-brand-gray/50 rounded-lg border border-brand-border text-xs">
-                <!-- Logado com Sucesso -->
+                <!-- Estado Logado -->
                 <div id="auth-logged-in-view" class="hidden space-y-3">
                     <div class="flex items-center gap-2.5">
                         <div class="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold text-xs uppercase" id="user-avatar-initials">
@@ -129,7 +129,7 @@
                     </button>
                 </div>
 
-                <!-- Não Logado (Estado Bloqueado) -->
+                <!-- Estado Deslogado -->
                 <div id="auth-anonymous-view" class="space-y-2 text-center py-2">
                     <div class="inline-flex w-8 h-8 rounded-full bg-brand-accent/10 border border-brand-accent/20 text-brand-accent items-center justify-center mb-1">
                         <i class="fa-solid fa-lock text-xs"></i>
@@ -138,17 +138,9 @@
                     <p class="text-[9px] text-brand-textMuted leading-tight px-1">Inicie sessão com a sua conta segura para visualizar as fichas técnicas.</p>
                 </div>
             </div>
-
-            <!-- Exibição do ID Exclusivo do Utilizador -->
-            <div id="user-uid-box" class="hidden space-y-1">
-                <span class="text-[9px] font-bold text-brand-textMuted uppercase tracking-wider">O Seu ID de Utilizador:</span>
-                <div class="bg-brand-gray/40 border border-brand-border p-2 rounded text-[9px] text-brand-light font-mono truncate select-all">
-                    UID: <span id="user-id-display" class="text-brand-textMuted font-bold">Não Autenticado</span>
-                </div>
-            </div>
         </div>
 
-        <!-- Menu de Navegação (Desabilitado quando deslogado) -->
+        <!-- Menu de Navegação -->
         <nav id="sidebar-navigation" class="flex-1 px-4 space-y-1.5 py-2 overflow-y-auto pointer-events-none opacity-40">
             <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-brand-textMuted hover:bg-brand-gray/50 hover:text-brand-light">
                 <i class="fa-solid fa-chart-pie w-5"></i> Painel Geral
@@ -173,7 +165,7 @@
             </button>
         </nav>
 
-        <div class="p-4 border-t border-brand-border text-center">
+        <div class="p-4 border-t border-brand-border text-center font-sans">
             <p class="text-[10px] text-brand-textMuted">Tribo Burger &copy; 2026</p>
         </div>
     </aside>
@@ -197,10 +189,10 @@
             </div>
         </header>
 
-        <!-- ÁREA DE CONTEÚDO PRINCIPAL (BLOQUEIO VS DADOS) -->
+        <!-- ÁREA DE CONTEÚDO PRINCIPAL -->
         <div class="flex-1 p-6 overflow-y-auto space-y-6">
 
-            <!-- TELA DE BLOQUEIO / LOGIN MANDATÓRIO -->
+            <!-- TELA DE BLOQUEIO / FORMULÁRIO DE LOGIN -->
             <section id="locked-state-screen" class="flex flex-col items-center justify-center py-12 px-4 max-w-md mx-auto space-y-6 text-center">
                 <div class="w-16 h-16 rounded-2xl bg-brand-accent/10 border border-brand-accent/20 text-brand-accent flex items-center justify-center text-3xl shadow-xl shadow-brand-accent/5">
                     <i class="fa-solid fa-shield-halved"></i>
@@ -210,7 +202,6 @@
                     <p class="text-xs text-brand-textMuted mt-1.5 leading-relaxed">Por motivos de segurança e integridade das fichas técnicas do Tribo Burger, os dados estão protegidos. Insira os seus dados de acesso abaixo.</p>
                 </div>
 
-                <!-- Formulário de Login Direto -->
                 <div class="bg-brand-dark border border-brand-border rounded-xl p-6 w-full shadow-2xl space-y-4 text-left">
                     <div id="locked-error-box" class="hidden p-3 bg-red-500/10 border border-red-500/20 text-brand-accent text-xs rounded-lg font-bold"></div>
                     
@@ -238,7 +229,7 @@
                 </div>
             </section>
 
-            <!-- CONTAINER GERAL DOS DADOS (APENAS FICA VISÍVEL QUANDO LOGADO) -->
+            <!-- CONTAINER GERAL DOS DADOS (APENAS VISÍVEL LOGADO) -->
             <div id="authenticated-data-container" class="hidden space-y-6">
 
                 <!-- TAB 1: DASHBOARD -->
@@ -283,7 +274,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="dashboard-items-summary" class="divide-y divide-brand-border/40">
-                                        <!-- Preenchido via JS -->
+                                        <!-- JS -->
                                     </tbody>
                                 </table>
                             </div>
@@ -487,91 +478,6 @@
                         <button onclick="saveSettings()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-6 py-3 rounded-lg text-xs tracking-wider transition-colors">
                             Salvar Taxas
                         </button>
-                    </div>
-
-                    <!-- INFO CARD: AUTENTICAÇÃO ATIVA -->
-                    <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
-                        <div>
-                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1 flex items-center gap-2">
-                                <i class="fa-solid fa-user-lock text-brand-accent"></i> Autenticação com Email e Senha Ativa
-                            </h3>
-                            <p class="text-xs text-brand-textMuted">Excelente! O seu banco de dados está sincronizado e protegido pelas regras de segurança configuradas.</p>
-                        </div>
-                        
-                        <div class="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-brand-textMuted space-y-2 leading-relaxed">
-                            <span class="font-bold text-emerald-400 flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-sm"></i> Estado de Segurança das Regras:</span>
-                            <p class="text-brand-light font-medium">As regras configuradas no seu painel barram acessos externos na raiz do projeto, e libertam apenas a gravação sob o seu próprio UID privado.</p>
-                            <ul class="list-disc pl-4 space-y-1 text-brand-light mt-1">
-                                <li><strong>Segurança Máxima:</strong> Apenas o utilizador autenticado consegue visualizar as suas próprias pastas.</li>
-                                <li><strong>Multi-dispositivo Seguro:</strong> Inicie sessão com o mesmo e-mail e palavra-passe em outro telemóvel para partilhar o acesso de forma segura e transparente.</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- FERRAMENTA DE RECUPERAÇÃO DE DADOS DE CONTA ANTIGA (MIGRAÇÃO) -->
-                    <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
-                        <div>
-                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1 flex items-center gap-2">
-                                <i class="fa-solid fa-file-import text-brand-accent"></i> Recuperar Dados de Conta Antiga (Migrar de ID)
-                            </h3>
-                            <p class="text-xs text-brand-textMuted">Caso possua fichas salvas numa sessão antiga (ID provisório/anónimo anterior), pode importá-las diretamente para a sua conta de Email ativa atual.</p>
-                        </div>
-
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">ID do Utilizador Antigo (UID)</label>
-                                <div class="flex flex-col sm:flex-row gap-2">
-                                    <input id="recovery-old-uid" type="text" placeholder="Bs7ZZdJ2UoOYPg41YT8k20KhlFH3" class="bg-brand-gray border border-brand-border text-brand-light p-2.5 rounded text-xs w-full focus:outline-none focus:border-brand-accent font-mono">
-                                    <button onclick="attemptDataRecovery()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-black px-5 py-2.5 rounded text-xs transition-colors whitespace-nowrap flex items-center justify-center gap-1.5 font-semibold">
-                                        <i class="fa-solid fa-download"></i> Recuperar & Sincronizar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- PAINEL EXTRA: CREDENCIAIS DO FIREBASE PERSONALIZADAS -->
-                    <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
-                        <div>
-                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1">Configuração Personalizada do Firebase</h3>
-                            <p class="text-xs text-brand-textMuted">O sistema está conectado com a sua base de dados oficial <strong>tribocmv</strong>. Se precisar alterar as credenciais no futuro, utilize os campos abaixo.</p>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                            <div>
-                                <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">API Key</label>
-                                <input id="fb-apiKey" type="password" placeholder="AIzaSy..." class="bg-brand-gray border border-brand-border text-brand-light p-2 rounded w-full focus:outline-none focus:border-brand-accent">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">Auth Domain</label>
-                                <input id="fb-authDomain" type="text" placeholder="seu-projeto.firebaseapp.com" class="bg-brand-gray border border-brand-border text-brand-light p-2 rounded w-full focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">Project ID</label>
-                                <input id="fb-projectId" type="text" placeholder="seu-projeto" class="bg-brand-gray border border-brand-border text-brand-light p-2 rounded w-full focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">Storage Bucket</label>
-                                <input id="fb-storageBucket" type="text" placeholder="seu-projeto.appspot.com" class="bg-brand-gray border border-brand-border text-brand-light p-2 rounded w-full focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">Messaging Sender ID</label>
-                                <input id="fb-messagingSenderId" type="text" placeholder="1234567890" class="bg-brand-gray border border-brand-border text-brand-light p-2 rounded w-full focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">App ID</label>
-                                <input id="fb-appId" type="text" placeholder="1:12345:web:abcd" class="bg-brand-gray border border-brand-border text-brand-light p-2 rounded w-full focus:outline-none">
-                            </div>
-                        </div>
-
-                        <div class="flex gap-3 pt-2">
-                            <button onclick="saveCustomFirebaseConfig()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded text-xs transition-colors">
-                                Guardar Firebase & Reiniciar
-                            </button>
-                            <button onclick="clearCustomFirebaseConfig()" class="bg-brand-gray hover:bg-brand-border border border-brand-border text-brand-textMuted px-4 py-2 rounded text-xs transition-colors">
-                                Restaurar Padrão (tribocmv)
-                            </button>
-                        </div>
                     </div>
                 </section>
 
@@ -818,18 +724,16 @@
             }
         };
 
-        // Estado da Nuvem, Credenciais e Modo de Sincronização
+        // Estado do Banco e Autenticação
         let isFirebaseActive = false;
         let db = null;
         let auth = null;
         let currentUser = null;
-        let syncId = 'triboburgermatriz';
-        let syncMode = 'private'; // 'private' (por conta de utilizador) ou 'shared' (por chave pública)
         let databaseListenerUnsubscribe = null;
         const defaultAppId = 'tribo-burger-pricing-system';
         let directAuthMode = 'login'; // 'login' ou 'register'
 
-        // Credenciais do Firebase oficiais do utilizador como fallback absoluto
+        // Credenciais Oficiais Tribo Burger
         const officialFirebaseConfig = {
             apiKey: "AIzaSyA1HkiCs0F4BkHeDNVNHNuhG0Ktd2VQDLU",
             authDomain: "tribocmv.firebaseapp.com",
@@ -855,10 +759,8 @@
             }
         }
 
-        // ----------------- DEFINIÇÃO DAS FUNÇÕES GLOBAIS NO INÍCIO ABSOLUTO (À PROVA DE FALHAS) -----------------
-        
+        // ----------------- NAVEGAÇÃO ENTRE ABAS -----------------
         window.switchTab = function(tabId) {
-            // Se não estiver logado, não permite a troca de abas sob nenhuma circunstância
             if (!currentUser || currentUser.isAnonymous) {
                 return;
             }
@@ -894,44 +796,7 @@
             safeSetText('header-title', titleMap[tabId] || 'Tribo Burger');
         };
 
-        window.toggleSyncIdVisibility = function() {
-            const input = document.getElementById('sync-id-input');
-            const icon = document.getElementById('eye-icon');
-            if (input && icon) {
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.className = "fa-solid fa-eye-slash text-xs";
-                } else {
-                    input.type = 'password';
-                    icon.className = "fa-solid fa-eye text-xs";
-                }
-            }
-        };
-
-        window.copySyncId = function() {
-            showCustomAlert('Acesso Privado', 'As suas regras ativas do Firestore bloqueiam acessos públicos por motivos de privacidade. Use o mesmo email em múltiplos dispositivos.', true);
-        };
-
-        window.updateSyncKeyFromInput = function() {
-            showCustomAlert('Indisponível', 'A chave compartilhada foi desativada no Firestore para proteger os seus dados contra acessos não autorizados.', true);
-        };
-
-        window.setSyncMode = function(mode) {
-            // Força a manter no privado devido às regras de segurança estritas enviadas
-            const btnPrivate = document.getElementById('btn-sync-private');
-            const btnShared = document.getElementById('btn-sync-shared');
-            const contentPrivate = document.getElementById('sync-private-content');
-            const contentShared = document.getElementById('sync-shared-content');
-
-            if (!btnPrivate || !btnShared || !contentPrivate || !contentShared) return;
-
-            btnPrivate.className = "text-[10px] font-bold py-1.5 px-2 rounded transition-all bg-brand-border text-brand-light border border-brand-accent/35";
-            btnShared.className = "text-[10px] font-bold py-1.5 px-2 rounded transition-all text-brand-textMuted hover:text-brand-light cursor-not-allowed";
-            contentPrivate.classList.remove('hidden');
-            contentShared.classList.add('hidden');
-        };
-
-        // ----------------- SISTEMA DE AUTENTICAÇÃO INTEGRADO (SEM TRAVAMENTOS) -----------------
+        // ----------------- AUTENTICAÇÃO COM EMAIL E PALAVRA-PASSE -----------------
         window.toggleDirectAuthMode = function() {
             directAuthMode = directAuthMode === 'login' ? 'register' : 'login';
             updateDirectAuthUI();
@@ -1003,7 +868,6 @@
             showCustomConfirm('Terminar Sessão', 'Deseja realmente sair da sua conta segura de precificação?', async (approved) => {
                 if (approved) {
                     try {
-                        // Limpa completamente os dados na memória do browser ao deslogar para não vazar informações
                         appState = {
                             ingredients: [],
                             recipes: [],
@@ -1028,7 +892,6 @@
             });
         };
 
-        // Atualiza a visualização com base no estado real de Login (E-mail verificado)
         function updateAuthenticationUI(user) {
             const lockScreen = document.getElementById('locked-state-screen');
             const dataContainer = document.getElementById('authenticated-data-container');
@@ -1038,14 +901,11 @@
             const anonymousView = document.getElementById('auth-anonymous-view');
             const userEmailDisplay = document.getElementById('user-email-display');
             const avatarInitials = document.getElementById('user-avatar-initials');
-            const userUidBox = document.getElementById('user-uid-box');
 
             const statusIndicator = document.getElementById('system-status-indicator');
             const statusText = document.getElementById('system-status-text');
 
-            // Se não houver utilizador ou for um utilizador provisório/anónimo (Sem email)
             if (!user || user.isAnonymous) {
-                // EXIBE APENAS TELA DE BLOQUEIO (Esconde tudo)
                 if (lockScreen) lockScreen.classList.remove('hidden');
                 if (dataContainer) dataContainer.classList.add('hidden');
                 if (sidebarNav) {
@@ -1054,13 +914,11 @@
 
                 if (loggedInView) loggedInView.classList.add('hidden');
                 if (anonymousView) anonymousView.classList.remove('hidden');
-                if (userUidBox) userUidBox.classList.add('hidden');
 
                 if (statusIndicator) statusIndicator.className = "w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse";
                 if (statusText) statusText.textContent = "Acesso Bloqueado";
                 safeSetText('header-title', 'Controlo de Acesso');
             } else {
-                // UTILIZADOR LOGADO COM EMAIL (Libera tudo!)
                 if (lockScreen) lockScreen.classList.add('hidden');
                 if (dataContainer) dataContainer.classList.remove('hidden');
                 if (sidebarNav) {
@@ -1069,8 +927,6 @@
 
                 if (loggedInView) loggedInView.classList.remove('hidden');
                 if (anonymousView) anonymousView.classList.add('hidden');
-                if (userUidBox) userUidBox.classList.remove('hidden');
-                safeSetText('user-id-display', user.uid);
 
                 if (userEmailDisplay) userEmailDisplay.textContent = user.email;
                 if (avatarInitials && user.email) {
@@ -1080,7 +936,6 @@
                 if (statusIndicator) statusIndicator.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
                 if (statusText) statusText.textContent = "Online (Protegido)";
 
-                // Direciona imediatamente para o painel principal do sistema
                 window.switchTab('dashboard');
             }
         }
@@ -1177,7 +1032,7 @@
             return cost;
         }
 
-        // ----------------- SISTEMA DE RENDERIZAÇÃO DE DIÁLOGOS E MATRIZES -----------------
+        // ----------------- RENDERERS DO SISTEMA -----------------
         window.renderAll = function() {
             window.renderDashboard();
             window.renderIngredients();
@@ -1896,11 +1751,11 @@
             div.className = "flex items-center gap-2 bg-brand-gray/85 p-2 rounded-lg border border-brand-border/60 combo-row-item";
 
             div.innerHTML = `
-                <select class="combo-item-type bg-brand-black border border-brand-border text-brand-light text-xs rounded px-2.5 py-2 w-32 focus:outline-none focus:border-brand-accent font-semibold">
+                <select class="combo-item-type bg-brand-black border border-brand-border text-brand-light text-xs rounded px-2.5 py-2 w-32 focus:outline-none focus:border-brand-accent font-semibold font-sans">
                     <option value="recipe">🍔 Ficha</option>
                     <option value="ingredient">📦 Insumo</option>
                 </select>
-                <select class="combo-item-target-select bg-brand-black border border-brand-border text-brand-light text-xs rounded px-2.5 py-2 flex-1 focus:outline-none focus:border-brand-accent font-semibold">
+                <select class="combo-item-target-select bg-brand-black border border-brand-border text-brand-light text-xs rounded px-2.5 py-2 flex-1 focus:outline-none focus:border-brand-accent font-semibold font-sans">
                     <!-- Dynamic -->
                 </select>
                 <div class="flex items-center gap-1 bg-brand-black border border-brand-border rounded px-2 w-24">
@@ -2135,45 +1990,8 @@
             showCustomAlert('Configurações Salvas', 'Os novos parâmetros fiscais e taxas já foram aplicados!');
         };
 
-        // ----------------- CONFIGURAÇÕES CUSTOMIZADAS DO FIREBASE NO CLIENTE -----------------
-        window.saveCustomFirebaseConfig = function() {
-            const config = {
-                apiKey: document.getElementById('fb-apiKey').value.trim(),
-                authDomain: document.getElementById('fb-authDomain').value.trim(),
-                projectId: document.getElementById('fb-projectId').value.trim(),
-                storageBucket: document.getElementById('fb-storageBucket').value.trim(),
-                messagingSenderId: document.getElementById('fb-messagingSenderId').value.trim(),
-                appId: document.getElementById('fb-appId').value.trim(),
-            };
-
-            if (!config.apiKey || !config.projectId) {
-                showCustomAlert('Configuração Inválida', 'A API Key e o Project ID são obrigatórios.', true);
-                return;
-            }
-
-            localStorage.setItem('tribo_burger_custom_fb_config', JSON.stringify(config));
-            showCustomAlert('Reiniciando...', 'Configurações guardadas! A página irá atualizar para conectar à sua nova base de dados.');
-            setTimeout(() => { location.reload(); }, 1500);
-        };
-
-        window.clearCustomFirebaseConfig = function() {
-            localStorage.removeItem('tribo_burger_custom_fb_config');
-            showCustomAlert('Reiniciando...', 'Conexão padrão tribocmv restaurada. Atualizando...');
-            setTimeout(() => { location.reload(); }, 1500);
-        };
-
-        function populateFirebaseConfigFields(config) {
-            safeSetValue('fb-apiKey', config.apiKey);
-            safeSetValue('fb-authDomain', config.authDomain);
-            safeSetValue('fb-projectId', config.projectId);
-            safeSetValue('fb-storageBucket', config.storageBucket);
-            safeSetValue('fb-messagingSenderId', config.messagingSenderId);
-            safeSetValue('fb-appId', config.appId);
-        }
-
-        // ----------------- COORDENAÇÃO DE SINCRONIZAÇÃO NUVEM E LOCAL CACHE -----------------
+        // ----------------- COORDENAÇÃO DE SINCRONIZAÇÃO NUVEM E CACHE LOCAL -----------------
         function loadLocalBackup() {
-            // Apenas carrega dados se o utilizador estiver autenticado (Garante privacidade)
             if (!currentUser || currentUser.isAnonymous) {
                 return;
             }
@@ -2201,7 +2019,6 @@
         }
 
         function saveLocalBackup() {
-            // Apenas salva localmente se o utilizador estiver autenticado
             if (!currentUser || currentUser.isAnonymous) return;
             localStorage.setItem('tribo_burger_offline_backup', JSON.stringify(appState));
         }
@@ -2219,7 +2036,6 @@
                 badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20";
             }
 
-            // Sincronização exclusiva e estrita do Utilizador: /users/{userId}
             const docRef = doc(db, 'artifacts', defaultAppId, 'users', currentUser.uid, 'user_data', 'state');
 
             try {
@@ -2255,7 +2071,7 @@
                         statusText.textContent = "Online (Protegido)";
                     }
                 }, (error) => {
-                    console.warn("Bloqueado pelas regras de segurança:", error);
+                    console.warn("Bloqueado pelas regras do Firestore:", error);
                     fallbackToOfflineBadge();
                 });
             } catch (err) {
@@ -2285,64 +2101,6 @@
             }
         }
 
-        // ----------------- SCRIPT DE MIGRAÇÃO MANUAL DE DADOS (UID ANTIGO -> NOVO UID SEGURO) -----------------
-        window.attemptDataRecovery = async function() {
-            const oldUid = document.getElementById('recovery-old-uid').value.trim();
-            if (!oldUid) {
-                showCustomAlert('Campo Vazio', 'Por favor, insira o ID antigo.', true);
-                return;
-            }
-
-            if (!isFirebaseActive || !db) {
-                showCustomAlert('Firebase Inativo', 'É necessária ligação ativa com a sua base de dados.', true);
-                return;
-            }
-
-            showCustomConfirm('Confirmar Importação', 'Isso irá substituir todos os dados da sua conta atual pelas fichas técnicas e insumos da conta antiga. Deseja prosseguir?', async (approved) => {
-                if (!approved) return;
-
-                const badge = document.getElementById('cloud-badge');
-                if (badge) {
-                    badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> A recuperar...`;
-                }
-
-                try {
-                    const oldDocRef = doc(db, 'artifacts', defaultAppId, 'users', oldUid, 'user_data', 'state');
-                    const snap = await getDoc(oldDocRef);
-
-                    if (snap.exists()) {
-                        const data = snap.data();
-                        
-                        appState = {
-                            ingredients: data.ingredients || [],
-                            recipes: data.recipes || [],
-                            combos: data.combos || [],
-                            fixedCosts: data.fixedCosts || [],
-                            settings: {
-                                targetCMV: data.settings?.targetCMV ?? 30,
-                                tax: data.settings?.tax ?? 6,
-                                apps: data.settings?.apps ?? 12,
-                                card: data.settings?.card ?? 2.5
-                            }
-                        };
-                        
-                        saveLocalBackup();
-                        window.renderAll();
-                        await syncStateToCloud();
-
-                        showCustomAlert('Importação Bem-Sucedida!', 'As fichas e insumos da conta antiga foram migrados com sucesso para a sua nova conta!');
-                    } else {
-                        showCustomAlert('Não Encontrado', 'Não foram encontrados registos salvos sob esse UID antigo.', true);
-                    }
-                } catch (err) {
-                    console.error(err);
-                    showCustomAlert('Erro de Permissão', 'Acesso negado. Certifique-se de que a regra do Firestore está definida temporariamente para "allow read: if true;" na guia "Rules" do Firebase.', true);
-                } finally {
-                    initCloudSyncListener();
-                }
-            });
-        };
-
         function fallbackToOfflineBadge() {
             const badge = document.getElementById('cloud-badge');
             if (badge) {
@@ -2357,24 +2115,15 @@
             }
         }
 
-        // ----------------- FLUXO DE INICIALIZAÇÃO SEGURO (PROVA DE FALHAS) -----------------
+        // ----------------- FLUXO DE INICIALIZAÇÃO SEGURO -----------------
         window.addEventListener('DOMContentLoaded', async () => {
-            // Inicialização isolada e segura para evitar travamentos devido ao Firebase fora de rede
-            let fbConfigToUse = officialFirebaseConfig;
-            const customConfig = localStorage.getItem('tribo_burger_custom_fb_config');
-            if (customConfig) {
-                fbConfigToUse = JSON.parse(customConfig);
-            }
-            populateFirebaseConfigFields(fbConfigToUse);
-
             try {
-                if (fbConfigToUse && fbConfigToUse.apiKey) {
-                    const appInstance = initializeApp(fbConfigToUse);
+                if (officialFirebaseConfig && officialFirebaseConfig.apiKey) {
+                    const appInstance = initializeApp(officialFirebaseConfig);
                     auth = getAuth(appInstance);
                     db = getFirestore(appInstance);
                     isFirebaseActive = true;
 
-                    // Escuta o estado da Autenticação de forma reativa
                     onAuthStateChanged(auth, (user) => {
                         currentUser = user;
                         updateAuthenticationUI(user);
@@ -2391,7 +2140,7 @@
                     fallbackToOfflineBadge();
                 }
             } catch (error) {
-                console.warn("Autenticação anónima indisponível ou erro nas chaves. Mantendo ecrã bloqueado para login seguro:", error);
+                console.warn("Autenticação indisponível no momento. Mantendo ecrã de login seguro:", error);
                 isFirebaseActive = false;
                 updateAuthenticationUI(null);
                 fallbackToOfflineBadge();
