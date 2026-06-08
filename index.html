@@ -3,68 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tribo Burger - Sistema de Precificação</title>
+    <title>Tribo Burger - Gestão de Custos & CMV</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Montserrat', sans-serif; background-color: #0D0C0B; color: #FAF8F5; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #161513; }
+        ::-webkit-scrollbar-thumb { background: #262421; border-radius: 4px; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col md:flex-row overflow-x-hidden">
 
-    <!-- SIDEBAR -->
-    <aside class="w-full md:w-80 bg-[#161513] border-r border-[#262421] flex flex-col shrink-0">
-        <div class="p-6 border-b border-[#262421] flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-[#F27A18] flex items-center justify-center font-black text-black text-xl shadow-lg">TB</div>
+    <aside class="w-full md:w-80 bg-stone-950 border-r border-stone-800 flex flex-col shrink-0 no-print">
+        <div class="p-6 border-b border-stone-800 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-orange-500 flex items-center justify-center font-black text-black text-xl shadow-lg">TB</div>
             <div>
                 <h1 class="font-black text-lg uppercase tracking-wide">Tribo Burger</h1>
-                <p class="text-[10px] text-[#F27A18] font-bold">Gestão de Custos & CMV</p>
+                <p class="text-[10px] text-orange-500 font-bold">Gestão de Custos & CMV</p>
             </div>
         </div>
 
-        <div id="auth-panel" class="p-4 border-b border-[#262421] text-xs text-brand-textMuted">
-            <div id="logged-in-view" class="hidden">
-                <p class="text-emerald-500 font-bold mb-1">Logado como:</p>
-                <p id="user-email" class="text-white mb-2 break-all"></p>
-                <button onclick="window.performLogout()" class="text-red-400 underline font-bold">Sair</button>
+        <!-- Perfil do Utilizador -->
+        <div id="user-profile" class="p-4 border-b border-stone-800 hidden">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs" id="user-initials">U</div>
+                <div class="overflow-hidden">
+                    <p class="text-[10px] text-stone-400 uppercase">Logado como</p>
+                    <p id="user-email" class="text-xs font-bold truncate"></p>
+                </div>
             </div>
-            <div id="anonymous-view">
-                <p>Carregando conta...</p>
-            </div>
+            <button onclick="handleLogout()" class="w-full mt-3 text-[10px] text-red-400 underline font-bold uppercase tracking-wider">Sair da Conta</button>
         </div>
 
-        <nav class="flex-1 p-4 space-y-2">
-            <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-[#1E1C1A] text-gray-400 hover:text-white transition-all"><i class="fa-solid fa-chart-pie w-5"></i> Painel Geral</button>
-            <button onclick="switchTab('ingredients')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-[#1E1C1A] text-gray-400 hover:text-white transition-all"><i class="fa-solid fa-egg w-5"></i> Insumos</button>
-            <button onclick="switchTab('recipes')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-[#1E1C1A] text-gray-400 hover:text-white transition-all"><i class="fa-solid fa-book-open w-5"></i> Fichas Técnicas</button>
-            <button onclick="switchTab('combos')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-[#1E1C1A] text-gray-400 hover:text-white transition-all"><i class="fa-solid fa-boxes-packing w-5"></i> Fichas de Combos</button>
-            <button onclick="switchTab('analysis')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-[#1E1C1A] text-gray-400 hover:text-white transition-all"><i class="fa-solid fa-calculator w-5"></i> Análise Geral</button>
-            <button onclick="switchTab('fixed-costs')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-[#1E1C1A] text-gray-400 hover:text-white transition-all"><i class="fa-solid fa-house-laptop w-5"></i> Custos Fixos</button>
-            <button onclick="switchTab('settings')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-[#1E1C1A] text-gray-400 hover:text-white transition-all"><i class="fa-solid fa-sliders w-5"></i> Parâmetros</button>
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto" id="main-nav">
+            <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-stone-900 text-stone-400 hover:text-white transition-all"><i class="fa-solid fa-chart-pie w-5"></i> Painel Geral</button>
+            <button onclick="switchTab('ingredients')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-stone-900 text-stone-400 hover:text-white transition-all"><i class="fa-solid fa-egg w-5"></i> Insumos</button>
+            <button onclick="switchTab('recipes')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-stone-900 text-stone-400 hover:text-white transition-all"><i class="fa-solid fa-book-open w-5"></i> Fichas Técnicas</button>
+            <button onclick="switchTab('combos')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-stone-900 text-stone-400 hover:text-white transition-all"><i class="fa-solid fa-boxes-packing w-5"></i> Fichas de Combos</button>
+            <button onclick="switchTab('analysis')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-stone-900 text-stone-400 hover:text-white transition-all"><i class="fa-solid fa-calculator w-5"></i> Análise Geral</button>
+            <button onclick="switchTab('fixed-costs')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-stone-900 text-stone-400 hover:text-white transition-all"><i class="fa-solid fa-house-laptop w-5"></i> Custos Fixos</button>
         </nav>
     </aside>
 
-    <main class="flex-1 p-8">
-        <div id="tab-dashboard" class="tab-content active">Painel Geral</div>
+    <main class="flex-1 p-8 bg-black">
+        <!-- Telas de Estado -->
+        <div id="auth-screen" class="fixed inset-0 bg-black z-50 flex items-center justify-center p-4">
+            <div class="bg-stone-950 p-8 rounded-2xl border border-stone-800 w-full max-w-sm text-center">
+                <h2 class="text-2xl font-black mb-6">Login Tribo Burger</h2>
+                <input id="email" type="email" placeholder="Email" class="w-full bg-stone-900 border border-stone-700 p-3 rounded mb-4">
+                <input id="password" type="password" placeholder="Senha" class="w-full bg-stone-900 border border-stone-700 p-3 rounded mb-6">
+                <button onclick="handleLogin()" class="w-full bg-orange-500 text-black font-bold p-3 rounded mb-4">Entrar</button>
+                <button onclick="handleRegister()" class="w-full text-stone-500 text-xs">Criar conta</button>
+            </div>
+        </div>
+
+        <div id="tab-dashboard" class="tab-content active">
+            <h2 class="text-3xl font-black mb-8">Painel Geral</h2>
+            <div id="app-content-container">Dados carregados aqui...</div>
+        </div>
         <div id="tab-ingredients" class="tab-content">Insumos</div>
         <div id="tab-recipes" class="tab-content">Fichas Técnicas</div>
         <div id="tab-combos" class="tab-content">Fichas de Combos</div>
         <div id="tab-analysis" class="tab-content">Análise Geral</div>
         <div id="tab-fixed-costs" class="tab-content">Custos Fixos</div>
-        <div id="tab-settings" class="tab-content">
-            <h2 class="text-xl font-bold mb-4">Migrar Dados Antigos</h2>
-            <input id="old-uid-input" placeholder="ID Antigo (9AbYn0s...)" class="bg-black p-2 border border-gray-700 w-full mb-2 text-sm">
-            <button onclick="window.performMigration()" class="bg-[#F27A18] text-black font-bold p-2 w-full rounded">Migrar Dados</button>
-        </div>
     </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const config = {
             apiKey: "AIzaSyA1HkiCs0F4BkHeDNVNHNuhG0Ktd2VQDLU",
@@ -75,44 +86,43 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Funções Globais (Hoisting via window)
+        // Funções Globais de Controle de Interface
         window.switchTab = (tabId) => {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
+            const target = document.getElementById('tab-' + tabId);
+            if (target) target.classList.add('active');
         };
 
-        window.performLogout = () => {
-            signOut(auth).then(() => location.reload());
-        };
-
-        window.performMigration = async () => {
-            const oldUid = document.getElementById('old-uid-input').value;
-            const user = auth.currentUser;
-            if (!user) return alert("Faça login!");
-            
+        window.handleLogin = async () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
             try {
-                const oldPath = doc(db, 'artifacts', 'tribo-burger-pricing-system', 'users', oldUid, 'user_data', 'state');
-                const newPath = doc(db, 'artifacts', 'tribo-burger-pricing-system', 'users', user.uid, 'user_data', 'state');
-                const snap = await getDoc(oldPath);
-                if (snap.exists()) {
-                    await setDoc(newPath, snap.data());
-                    alert("Dados migrados com sucesso!");
-                    location.reload();
-                } else {
-                    alert("UID antigo não encontrado.");
-                }
-            } catch (e) {
-                alert("Erro: " + e.message);
-            }
+                await signInWithEmailAndPassword(auth, email, pass);
+            } catch (e) { alert("Erro no login: " + e.message); }
+        };
+
+        window.handleRegister = async () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            try {
+                await createUserWithEmailAndPassword(auth, email, pass);
+            } catch (e) { alert("Erro no registro: " + e.message); }
+        };
+
+        window.handleLogout = async () => {
+            await signOut(auth);
+            location.reload();
         };
 
         onAuthStateChanged(auth, (user) => {
-            const authPanel = document.getElementById('anonymous-view');
-            const loggedInView = document.getElementById('logged-in-view');
             if (user) {
-                document.getElementById('user-email').textContent = user.email || 'Utilizador Logado';
-                authPanel.classList.add('hidden');
-                loggedInView.classList.remove('hidden');
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('user-profile').classList.remove('hidden');
+                document.getElementById('user-email').textContent = user.email;
+                document.getElementById('user-initials').textContent = user.email.substring(0,2).toUpperCase();
+                // Aqui carregaria os dados do Firebase
+            } else {
+                document.getElementById('auth-screen').classList.remove('hidden');
             }
         });
     </script>
