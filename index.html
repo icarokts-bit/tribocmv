@@ -1,12 +1,15 @@
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tribo Burger - Gestão de Custos & CMV</title>
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tribo Burger - Gestão de Custos & CMV</title>
     <!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -30,12 +33,7 @@
             }
         }
     </script>
-<style>
-        body { font-family: 'Montserrat', sans-serif; background-color: #0D0C0B; color: #FAF8F5; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #161513; }
-        ::-webkit-scrollbar-thumb { background: #262421; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #F27A18; }
+    <style>
         body {
             font-family: 'Montserrat', sans-serif;
             background-color: #0D0C0B;
@@ -86,30 +84,23 @@
                 background: transparent !important;
             }
         }
-</style>
+    </style>
 </head>
 <body class="min-h-screen flex flex-col md:flex-row overflow-x-hidden">
 
-    <!-- SIDEBAR -->
     <!-- SIDEBAR (Menu Lateral) -->
-<aside class="w-full md:w-80 bg-brand-dark border-b md:border-b-0 md:border-r border-brand-border flex flex-col shrink-0 no-print">
+    <aside class="w-full md:w-80 bg-brand-dark border-b md:border-b-0 md:border-r border-brand-border flex flex-col shrink-0 no-print">
         <!-- Logótipo -->
-<div class="p-6 border-b border-brand-border flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-brand-accent flex items-center justify-center font-black text-brand-black text-xl shadow-lg shadow-brand-accent/20">TB</div>
+        <div class="p-6 border-b border-brand-border flex items-center gap-4">
             <div class="w-12 h-12 rounded-xl bg-brand-accent flex items-center justify-center font-black text-brand-black text-xl tracking-wider shadow-lg shadow-brand-accent/20">
                 TB
             </div>
-<div>
-<h1 class="font-black text-lg uppercase tracking-wide text-brand-light">Tribo Burger</h1>
-<p class="text-xs text-brand-accent font-bold">Gestão de Custos & CMV</p>
-</div>
-</div>
+            <div>
+                <h1 class="font-black text-lg uppercase tracking-wide text-brand-light">Tribo Burger</h1>
+                <p class="text-xs text-brand-accent font-bold">Gestão de Custos & CMV</p>
+            </div>
+        </div>
 
-        <div class="p-5 border-b border-brand-border bg-brand-black/50 m-4 rounded-xl border border-brand-border/60">
-            <div id="auth-logged-in-view" class="hidden space-y-2">
-                <p class="text-[10px] font-bold text-emerald-500 uppercase">Acesso Autorizado</p>
-                <p id="user-email-display" class="font-semibold text-brand-light truncate text-xs"></p>
-                <button onclick="handleLogout()" class="w-full text-red-400 text-[10px] font-bold uppercase underline">Terminar Sessão</button>
         <!-- PAINEL DE PERFIL DO UTILIZADOR (DINÂMICO) -->
         <div class="p-5 border-b border-brand-border bg-brand-black/50 m-4 rounded-xl border border-brand-border/60 space-y-4">
             <div class="flex items-center justify-between">
@@ -154,12 +145,9 @@
                 <div class="bg-brand-gray/40 border border-brand-border p-2 rounded text-[9px] text-brand-light font-mono truncate select-all">
                     UID: <span id="user-id-display" class="text-brand-textMuted font-bold">Não Autenticado</span>
                 </div>
-</div>
-</div>
+            </div>
+        </div>
 
-        <nav class="flex-1 px-4 space-y-1.5 py-2 overflow-y-auto">
-            <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold text-brand-textMuted hover:bg-brand-gray/50">Painel Geral</button>
-            <button onclick="switchTab('ingredients')" id="btn-tab-ingredients" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold text-brand-textMuted hover:bg-brand-gray/50">Insumos</button>
         <!-- Menu de Navegação (Desabilitado quando deslogado) -->
         <nav id="sidebar-navigation" class="flex-1 px-4 space-y-1.5 py-2 overflow-y-auto pointer-events-none opacity-40">
             <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all bg-brand-accent text-brand-black shadow-lg shadow-brand-accent/10">
@@ -187,27 +175,16 @@
             <button onclick="switchTab('settings')" id="btn-tab-settings" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-brand-textMuted hover:bg-brand-gray/50 hover:text-brand-light">
                 <i class="fa-solid fa-sliders w-5"></i> Parâmetros & Taxas
             </button>
-</nav>
-    </aside>
+        </nav>
 
-    <main class="flex-1 flex flex-col p-8">
-        <div id="locked-state-screen" class="flex flex-col items-center justify-center py-20">
-            <h2 class="text-2xl font-black mb-4">Entrar no Sistema</h2>
-            <input id="auth-email" type="email" placeholder="Email" class="w-full max-w-sm bg-brand-gray p-3 rounded mb-3 border border-brand-border">
-            <input id="auth-password" type="password" placeholder="Senha" class="w-full max-w-sm bg-brand-gray p-3 rounded mb-6 border border-brand-border">
-            <button onclick="handleAuthSubmit()" class="w-full max-w-sm bg-brand-accent p-3 rounded font-bold text-black">Entrar</button>
         <div class="p-4 border-t border-brand-border text-center font-sans">
             <p class="text-[10px] text-brand-textMuted">Tribo Burger &copy; 2026</p>
-</div>
+        </div>
     </aside>
 
     <!-- CONTEÚDO PRINCIPAL (Direita) -->
     <main class="flex-1 flex flex-col min-w-0">
-
-        <div id="authenticated-data-container" class="hidden">
-            <section id="tab-dashboard" class="tab-content">
-                <h2 class="text-3xl font-black mb-8">Painel Geral</h2>
-                <div id="dashboard-items-summary"></div>
+        
         <!-- TOPBAR (Apenas informativo) -->
         <header class="h-16 border-b border-brand-border bg-brand-dark/50 flex items-center justify-between px-6 shrink-0 no-print">
             <h2 id="header-title" class="font-extrabold text-lg text-brand-light uppercase tracking-wide">Controlo de Acesso</h2>
@@ -263,7 +240,7 @@
                         </button>
                     </div>
                 </div>
-</section>
+            </section>
 
             <!-- CONTAINER GERAL DOS DADOS (APENAS FICA VISÍVEL QUANDO LOGADO) -->
             <div id="authenticated-data-container" class="hidden space-y-6">
@@ -560,13 +537,9 @@
                     </div>
                 </section>
             </div>
-</div>
-</main>
+        </div>
+    </main>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     <!-- BOTÃO FLUTUANTE DE IMPRESSÃO (Apenas na aba Análise Geral e Oculto ao Imprimir) -->
     <div id="floating-print-container" class="fixed bottom-6 right-6 z-50 no-print hidden">
         <button onclick="window.print()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all transform hover:scale-110 active:scale-95 duration-200 border-2 border-brand-black" title="Imprimir Relatório Geral">
@@ -737,7 +710,6 @@
         </div>
     </div>
 
-        const firebaseConfig = {
     <!-- MODAL: CUSTO FIXO (Criar/Editar) -->
     <div id="modal-fixed-cost" class="fixed inset-0 bg-brand-black/80 backdrop-blur-sm z-50 items-center justify-center p-4 hidden no-print">
         <div class="bg-brand-dark border border-brand-border rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
@@ -809,21 +781,19 @@ const appId = typeof __app_id !== 'undefined' ? __app_id : 'tribo-burger-pricing
             messagingSenderId: "1234567890",
             appId: "1:1234567890:web:mockid"
         const firebaseConfig = typeof __firebase_config !== 'undefined' && __firebase_config ? JSON.parse(__firebase_config) : {
-apiKey: "AIzaSyA1HkiCs0F4BkHeDNVNHNuhG0Ktd2VQDLU",
-authDomain: "tribocmv.firebaseapp.com",
-projectId: "tribocmv",
-storageBucket: "tribocmv.firebasestorage.app",
-messagingSenderId: "740375597526",
-appId: "1:740375597526:web:f826bba62245da21f0d477"
-        };
+            apiKey: "AIzaSyA1HkiCs0F4BkHeDNVNHNuhG0Ktd2VQDLU",
+            authDomain: "tribocmv.firebaseapp.com",
+            projectId: "tribocmv",
+            storageBucket: "tribocmv.firebasestorage.app",
+            messagingSenderId: "740375597526",
+            appId: "1:740375597526:web:f826bba62245da21f0d477"
 };
 
         // INICIALIZAÇÃO FIREBASE DE FORMA SEGURA
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        window.appState = { ingredients: [], recipes: [] };
 // VARIÁVEIS DE ESTADO DO SISTEMA
 let currentUser = null;
 let syncId = 'triboburgermatriz';
@@ -832,12 +802,6 @@ let databaseListenerUnsubscribe = null;
 let authMode = 'login'; 
         let app, auth, db;
 
-        window.handleAuthSubmit = async () => {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-            } catch (e) { alert("Erro: " + e.message); }
         // INICIALIZAÇÃO FIREBASE DE FORMA SEGURA (Evita quebrar o sistema se a chave falhar)
         try {
             app = initializeApp(firebaseConfig);
@@ -1250,14 +1214,8 @@ let appState = {
             }
             table.innerHTML = html;
             safeSetText('summary-total-fixed-costs', formatCurrency(total));
-};
+        };
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                document.getElementById('locked-state-screen').classList.add('hidden');
-                document.getElementById('authenticated-data-container').classList.remove('hidden');
-                document.getElementById('auth-logged-in-view').classList.remove('hidden');
-                document.getElementById('user-email-display').textContent = user.email;
         window.renderAnalysis = function() {
             const table = document.getElementById('analysis-table-body');
             if (!table) return;
@@ -1358,10 +1316,7 @@ let appState = {
 } else {
                 const titleText = type === 'add-on' ? 'Criar Novo Complemento' : 'Criar Nova Ficha Técnica';
                 const labelText = type === 'add-on' ? 'Nome do Extra (Ex: Bacon, Queijo)' : 'Nome do Hambúrguer/Prato';
-
-                // Carregar dados
-                const docRef = doc(db, 'artifacts', 'tribo-burger-pricing-system', 'users', user.uid, 'user_data', 'state');
-                const snap = await getDoc(docRef);
+                
                 document.getElementById('modal-recipe-title').textContent = titleText;
                 document.getElementById('label-recipe-name').textContent = labelText;
 
@@ -1442,14 +1397,7 @@ let appState = {
             rows.forEach(row => {
                 const selectEl = row.querySelector('.select-recipe-ingredient-target');
                 const qtyEl = row.querySelector('.input-recipe-qty');
-
-                if (snap.exists()) {
-                    window.appState = snap.data();
-                    console.log("Dados carregados:", window.appState);
-                } else {
-                    console.log("Base de dados vazia, criando dados padrão...");
-                    window.appState = { ingredients: [], recipes: [] }; // Seed default
-                    await setDoc(docRef, window.appState);
+                
                 if (selectEl && qtyEl) {
                     const ingId = selectEl.value;
                     const qty = parseFloat(qtyEl.value || 0);
@@ -1512,8 +1460,7 @@ return;
                     if (ingredientId && qty > 0) {
                         ingredientsList.push({ ingredientId, qty });
                     }
-}
-                window.renderAll();
+                }
             });
 
             const targetId = id || crypto.randomUUID();
@@ -1532,12 +1479,8 @@ return;
                 list[index] = record;
             } else {
                 list.push(record);
-}
-        });
+            }
 
-        window.renderAll = () => {
-            const container = document.getElementById('dashboard-items-summary');
-            if (container) container.innerHTML = `<p class="text-brand-textMuted">Dados carregados com sucesso. Total de insumos: ${appState.ingredients.length}</p>`;
             appState.recipes = list;
             closeRecipeModal();
             window.renderAll();
@@ -1545,16 +1488,7 @@ return;
             
             const msgTitle = type === 'add-on' ? 'Complemento Gravado' : 'Ficha Gravada';
             showCustomAlert(msgTitle, 'A composição foi salva e os custos foram recalculados com sucesso no cardápio!');
-};
-    </script>
-</body>
-</html>
-```
-
-### Por que isto vai funcionar:
-1. **Verificação de Existência:** Agora, ao logar, o sistema verifica se existe um documento no Firestore. Se não existir, ele cria o esqueleto da base de dados (`window.appState = { ingredients: [], recipes: [] }`), evitando erros de "variável vazia".
-2. **Renderização Forçada:** A função `window.renderAll()` é chamada imediatamente após o carregamento dos dados, garantindo que o seu dashboard seja preenchido no momento em que o login é efetuado.
-3. **Console Limpo:** Removi os erros de sintaxe de `templates literals` e as chamadas duplicadas, garantindo que a aplicação inicie o ciclo de vida sem travamentos.
+        };
 
         window.deleteRecipe = function(id) {
             showCustomConfirm('Excluir', 'Deseja realmente remover permanentemente este item do cardápio? Pode quebrar combos associados a ele.', async (approved) => {
