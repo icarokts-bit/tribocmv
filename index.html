@@ -54,6 +54,36 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #F27A18;
         }
+        /* Estilos de Impressão */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-area {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .print-card {
+                background: white !important;
+                border: 1px solid #ccc !important;
+                color: black !important;
+                box-shadow: none !important;
+            }
+            .print-text {
+                color: black !important;
+            }
+            .print-badge {
+                border: 1px solid #000 !important;
+                color: black !important;
+                background: transparent !important;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col md:flex-row overflow-x-hidden">
@@ -108,18 +138,11 @@
                     <p class="text-[9px] text-brand-textMuted leading-tight px-1">Inicie sessão com a sua conta segura para visualizar as fichas técnicas.</p>
                 </div>
             </div>
-            
-            <div id="user-uid-box" class="hidden space-y-1 mt-2">
-                <span class="text-[9px] font-bold text-brand-textMuted uppercase tracking-wider">O Seu ID de Utilizador:</span>
-                <div class="bg-brand-gray/40 border border-brand-border p-2 rounded text-[9px] text-brand-light font-mono truncate select-all">
-                    UID: <span id="user-id-display" class="text-brand-textMuted font-bold">Não Autenticado</span>
-                </div>
-            </div>
         </div>
 
         <!-- Menu de Navegação -->
-        <nav id="sidebar-navigation" class="flex-1 px-4 space-y-1.5 py-2 overflow-y-auto pointer-events-none opacity-40 transition-opacity duration-300">
-            <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all bg-brand-accent text-brand-black shadow-lg shadow-brand-accent/10">
+        <nav id="sidebar-navigation" class="flex-1 px-4 space-y-1.5 py-2 overflow-y-auto pointer-events-none opacity-40">
+            <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-brand-textMuted hover:bg-brand-gray/50 hover:text-brand-light">
                 <i class="fa-solid fa-chart-pie w-5"></i> Painel Geral
             </button>
             <button onclick="switchTab('ingredients')" id="btn-tab-ingredients" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-brand-textMuted hover:bg-brand-gray/50 hover:text-brand-light">
@@ -145,7 +168,7 @@
             </button>
         </nav>
 
-        <div class="p-4 border-t border-brand-border text-center">
+        <div class="p-4 border-t border-brand-border text-center font-sans">
             <p class="text-[10px] text-brand-textMuted">Tribo Burger &copy; 2026</p>
         </div>
     </aside>
@@ -169,7 +192,7 @@
             </div>
         </header>
 
-        <!-- ÁREA DE CONTEÚDO PRINCIPAL (BLOQUEIO VS DADOS) -->
+        <!-- ÁREA DE CONTEÚDO PRINCIPAL -->
         <div class="flex-1 p-6 overflow-y-auto space-y-6">
 
             <!-- TELA DE BLOQUEIO / FORMULÁRIO DE LOGIN -->
@@ -182,7 +205,6 @@
                     <p class="text-xs text-brand-textMuted mt-1.5 leading-relaxed">Por motivos de segurança e integridade das fichas técnicas do Tribo Burger, os dados estão protegidos. Insira os seus dados de acesso abaixo.</p>
                 </div>
 
-                <!-- Formulário de Login Direto -->
                 <div class="bg-brand-dark border border-brand-border rounded-xl p-6 w-full shadow-2xl space-y-4 text-left">
                     <div id="locked-error-box" class="hidden p-3 bg-red-500/10 border border-red-500/20 text-brand-accent text-xs rounded-lg font-bold text-center"></div>
                     
@@ -193,7 +215,7 @@
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-brand-light uppercase mb-1.5 tracking-wider">Palavra-passe (Senha)</label>
-                            <input id="direct-password" type="password" placeholder="••••••••" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent transition-colors">
+                            <input id="direct-password" type="password" placeholder="Mínimo 6 caracteres" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent transition-colors">
                         </div>
                         
                         <div class="flex items-center justify-between pt-1">
@@ -210,7 +232,7 @@
                 </div>
             </section>
 
-            <!-- CONTAINER GERAL DOS DADOS (APENAS FICA VISÍVEL QUANDO LOGADO) -->
+            <!-- CONTAINER GERAL DOS DADOS (APENAS VISÍVEL LOGADO) -->
             <div id="authenticated-data-container" class="hidden space-y-6">
 
                 <!-- TAB 1: DASHBOARD -->
@@ -510,28 +532,6 @@
                         <button onclick="saveSettings()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-6 py-3 rounded-lg text-xs tracking-wider transition-colors">
                             Salvar Taxas
                         </button>
-                    </div>
-
-                    <!-- FERRAMENTA DE RECUPERAÇÃO DE DADOS DE CONTA ANTIGA (MIGRAÇÃO) -->
-                    <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
-                        <div>
-                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1 flex items-center gap-2">
-                                <i class="fa-solid fa-file-import text-brand-accent"></i> Importar Dados (Migrar de ID)
-                            </h3>
-                            <p class="text-xs text-brand-textMuted">Caso possua fichas salvas numa sessão antiga (ID provisório/anónimo anterior), pode importá-las diretamente para a sua conta ativa atual.</p>
-                        </div>
-
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-[10px] font-bold text-brand-textMuted uppercase mb-1">ID do Utilizador Antigo (UID)</label>
-                                <div class="flex flex-col sm:flex-row gap-2">
-                                    <input id="recovery-old-uid" type="text" placeholder="Cole o UID antigo aqui..." class="bg-brand-gray border border-brand-border text-brand-light p-2.5 rounded text-xs w-full focus:outline-none focus:border-brand-accent font-mono">
-                                    <button onclick="attemptDataRecovery()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-black px-5 py-2.5 rounded text-xs transition-colors whitespace-nowrap flex items-center justify-center gap-1.5 font-semibold">
-                                        <i class="fa-solid fa-download"></i> Migrar Dados
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </section>
 
@@ -2101,7 +2101,7 @@
                 <div class="flex items-center gap-1 bg-brand-black border border-brand-border rounded px-2 w-20 shrink-0">
                     <input type="number" step="0.001" placeholder="Qtd" class="combo-item-qty bg-transparent text-brand-light text-xs py-1.5 focus:outline-none w-full font-bold">
                 </div>
-                <button type="button" class="btn-remove-combo-row p-1.5 bg-brand-gray border border-brand-border hover:bg-brand-border rounded text-red-400 hover:text-red-300 transition-colors shrink-0">
+                <button type="button" class="btn-remove-combo-row p-1.5 bg-brand-gray border border-brand-border hover:bg-brand-border rounded text-red-400 hover:text-red-300 transition-colors shrink-0 font-sans">
                     <i class="fa-solid fa-trash-can text-xs"></i>
                 </button>
             `;
@@ -2322,45 +2322,11 @@
             showCustomAlert('Configurações Salvas', 'Os novos parâmetros fiscais e taxas já foram aplicados!');
         };
 
-        // ----------------- CONFIGURAÇÕES CUSTOMIZADAS DO FIREBASE NO CLIENTE -----------------
-        window.saveCustomFirebaseConfig = function() {
-            const config = {
-                apiKey: document.getElementById('fb-apiKey').value.trim(),
-                authDomain: document.getElementById('fb-authDomain').value.trim(),
-                projectId: document.getElementById('fb-projectId').value.trim(),
-                storageBucket: document.getElementById('fb-storageBucket').value.trim(),
-                messagingSenderId: document.getElementById('fb-messagingSenderId').value.trim(),
-                appId: document.getElementById('fb-appId').value.trim(),
-            };
-
-            if (!config.apiKey || !config.projectId) {
-                showCustomAlert('Configuração Inválida', 'A API Key e o Project ID são obrigatórios.', true);
-                return;
-            }
-
-            localStorage.setItem('tribo_burger_custom_fb_config', JSON.stringify(config));
-            showCustomAlert('Reiniciando...', 'Configurações guardadas! A página irá atualizar para conectar à sua nova base de dados.');
-            setTimeout(() => { location.reload(); }, 1500);
-        };
-
-        window.clearCustomFirebaseConfig = function() {
-            localStorage.removeItem('tribo_burger_custom_fb_config');
-            showCustomAlert('Reiniciando...', 'Conexão padrão tribocmv restaurada. Atualizando...');
-            setTimeout(() => { location.reload(); }, 1500);
-        };
-
-        function populateFirebaseConfigFields(config) {
-            safeSetValue('fb-apiKey', config.apiKey);
-            safeSetValue('fb-authDomain', config.authDomain);
-            safeSetValue('fb-projectId', config.projectId);
-            safeSetValue('fb-storageBucket', config.storageBucket);
-            safeSetValue('fb-messagingSenderId', config.messagingSenderId);
-            safeSetValue('fb-appId', config.appId);
-        }
-
         // ----------------- COORDENAÇÃO DE SINCRONIZAÇÃO NUVEM E CACHE LOCAL -----------------
         function loadLocalBackup() {
-            if (!currentUser || currentUser.isAnonymous) return;
+            if (!currentUser || currentUser.isAnonymous) {
+                return;
+            }
 
             const cached = localStorage.getItem('tribo_burger_offline_backup');
             if (cached) {
@@ -2545,16 +2511,9 @@
 
         // ----------------- FLUXO DE INICIALIZAÇÃO SEGURO -----------------
         window.addEventListener('DOMContentLoaded', async () => {
-            let fbConfigToUse = officialFirebaseConfig;
-            const customConfig = localStorage.getItem('tribo_burger_custom_fb_config');
-            if (customConfig) {
-                fbConfigToUse = JSON.parse(customConfig);
-            }
-            populateFirebaseConfigFields(fbConfigToUse);
-
             try {
-                if (fbConfigToUse && fbConfigToUse.apiKey) {
-                    const appInstance = initializeApp(fbConfigToUse);
+                if (officialFirebaseConfig && officialFirebaseConfig.apiKey) {
+                    const appInstance = initializeApp(officialFirebaseConfig);
                     auth = getAuth(appInstance);
                     db = getFirestore(appInstance);
                     isFirebaseActive = true;
