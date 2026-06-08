@@ -103,13 +103,3 @@
     </script>
 </body>
 </html>
-```
-
-### Por que isto resolve?
-1. **Login Obrigatório:** O `body` carrega escondendo tudo o que é da aplicação (`#app-tabs`) e mostrando apenas o `login-screen`.
-2. **Firebase Autêntico:** Usei as chaves oficiais `tribocmv` que forneceu.
-3. **Escopo de Funções:** As funções `switchTab` e `handleLogin` estão definidas no escopo global (`window`), impedindo erros de "not defined" que via no seu console.
-
-**Como usar:**
-* Basta abrir o link do sistema. Você verá apenas a tela de Login.
-* Após colocar o seu e-mail e senha, o sistema autoriza, esconde o login e mostra todas as abas funcionais. Se não estiver logado, o código garante que o painel de CMV nem sequer seja renderizado no navegador.
