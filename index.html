@@ -4,120 +4,2033 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tribo Burger - Gestão de Custos & CMV</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            black: '#0D0C0B',
+                            dark: '#161513',
+                            gray: '#1E1C1A',
+                            border: '#262421',
+                            accent: '#F27A18',
+                            accentHover: '#D9650B',
+                            light: '#FAF8F5',
+                            textMuted: '#8C8A87'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body { font-family: 'Montserrat', sans-serif; background-color: #0D0C0B; color: #FAF8F5; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #161513; }
-        ::-webkit-scrollbar-thumb { background: #262421; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #F27A18; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #0D0C0B;
+            color: #FAF8F5;
+        }
+        /* Scrollbar Personalizada */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #161513;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #262421;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #F27A18;
+        }
+        /* Estilos de Impressão */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-area {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .print-card {
+                background: white !important;
+                border: 1px solid #ccc !important;
+                color: black !important;
+                box-shadow: none !important;
+            }
+            .print-text {
+                color: black !important;
+            }
+            .print-badge {
+                border: 1px solid #000 !important;
+                color: black !important;
+                background: transparent !important;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col md:flex-row overflow-x-hidden">
 
-    <!-- SIDEBAR -->
+    <!-- SIDEBAR (Menu Lateral) -->
     <aside class="w-full md:w-80 bg-brand-dark border-b md:border-b-0 md:border-r border-brand-border flex flex-col shrink-0 no-print">
+        <!-- Logótipo -->
         <div class="p-6 border-b border-brand-border flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-brand-accent flex items-center justify-center font-black text-brand-black text-xl shadow-lg shadow-brand-accent/20">TB</div>
+            <div class="w-12 h-12 rounded-xl bg-brand-accent flex items-center justify-center font-black text-brand-black text-xl tracking-wider shadow-lg shadow-brand-accent/20">
+                TB
+            </div>
             <div>
                 <h1 class="font-black text-lg uppercase tracking-wide text-brand-light">Tribo Burger</h1>
                 <p class="text-xs text-brand-accent font-bold">Gestão de Custos & CMV</p>
             </div>
         </div>
 
-        <div class="p-5 border-b border-brand-border bg-brand-black/50 m-4 rounded-xl border border-brand-border/60">
-            <div id="auth-logged-in-view" class="hidden space-y-2">
-                <p class="text-[10px] font-bold text-emerald-500 uppercase">Acesso Autorizado</p>
-                <p id="user-email-display" class="font-semibold text-brand-light truncate text-xs"></p>
-                <button onclick="handleLogout()" class="w-full text-red-400 text-[10px] font-bold uppercase underline">Terminar Sessão</button>
+        <!-- PAINEL DE PERFIL DO UTILIZADOR (DINÂMICO) -->
+        <div class="p-5 border-b border-brand-border bg-brand-black/50 m-4 rounded-xl border border-brand-border/60 space-y-4">
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold tracking-wider text-brand-textMuted uppercase">Utilizador</span>
+                <span id="cloud-badge" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                    <i class="fa-solid fa-spinner fa-spin mr-1"></i> A carregar...
+                </span>
+            </div>
+
+            <!-- Identidade e Opções de Login/Logout -->
+            <div id="auth-status-container" class="p-3 bg-brand-gray/50 rounded-lg border border-brand-border text-xs">
+                <!-- Estado Logado -->
+                <div id="auth-logged-in-view" class="hidden space-y-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold text-xs uppercase" id="user-avatar-initials">
+                            U
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-wide">Acesso Autorizado</p>
+                            <p id="user-email-display" class="font-semibold text-brand-light truncate text-[11px]">email@tribo.com</p>
+                        </div>
+                    </div>
+                    
+                    <button onclick="handleLogout()" class="w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 hover:text-red-300 text-[10px] font-black py-2 rounded-lg transition-colors uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-right-from-bracket"></i> Terminar Sessão (Sair)
+                    </button>
+                </div>
+
+                <!-- Não Logado (Estado Bloqueado) -->
+                <div id="auth-anonymous-view" class="space-y-2 text-center py-2">
+                    <div class="inline-flex w-8 h-8 rounded-full bg-brand-accent/10 border border-brand-accent/20 text-brand-accent items-center justify-center mb-1">
+                        <i class="fa-solid fa-lock text-xs"></i>
+                    </div>
+                    <p class="text-[11px] text-brand-light font-bold">Acesso Bloqueado</p>
+                    <p class="text-[9px] text-brand-textMuted leading-tight px-1">Inicie sessão com a sua conta segura para visualizar as fichas técnicas.</p>
+                </div>
+            </div>
+
+            <!-- Exibição do ID Exclusivo do Utilizador -->
+            <div id="user-uid-box" class="hidden space-y-1">
+                <span class="text-[9px] font-bold text-brand-textMuted uppercase tracking-wider">O Seu ID de Utilizador:</span>
+                <div class="bg-brand-gray/40 border border-brand-border p-2 rounded text-[9px] text-brand-light font-mono truncate select-all">
+                    UID: <span id="user-id-display" class="text-brand-textMuted font-bold">Não Autenticado</span>
+                </div>
             </div>
         </div>
 
-        <nav class="flex-1 px-4 space-y-1.5 py-2 overflow-y-auto">
-            <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold text-brand-textMuted hover:bg-brand-gray/50">Painel Geral</button>
-            <button onclick="switchTab('ingredients')" id="btn-tab-ingredients" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold text-brand-textMuted hover:bg-brand-gray/50">Insumos</button>
+        <!-- Menu de Navegação (Desabilitado quando deslogado) -->
+        <nav id="sidebar-navigation" class="flex-1 px-4 space-y-1.5 py-2 overflow-y-auto pointer-events-none opacity-40">
+            <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all bg-brand-accent text-brand-black shadow-lg shadow-brand-accent/10">
+                <i class="fa-solid fa-chart-pie w-5"></i> Painel Geral
+            </button>
+            <button onclick="switchTab('ingredients')" id="btn-tab-ingredients" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-brand-textMuted hover:bg-brand-gray/50 hover:text-brand-light">
+                <i class="fa-solid fa-egg w-5"></i> Insumos (Ingredientes)
+            </button>
+            <button onclick="switchTab('recipes')" id="btn-tab-recipes" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-brand-textMuted hover:bg-brand-gray/50 hover:text-brand-light">
+                <i class="fa-solid fa-book-open w-5"></i> Fichas Técnicas
+            </button>
+            <!-- NOVA ABA: Complementos -->
+            <button onclick="switchTab('add-ons')" id="btn-tab-add-ons" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-brand-textMuted hover:bg-brand-gray/50 hover:text-brand-light">
+                <i class="fa-solid fa-puzzle-piece w-5"></i> Fichas Complementos
+            </button>
+            <button onclick="switchTab('combos')" id="btn-tab-combos" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-brand-textMuted hover:bg-brand-gray/50 hover:text-brand-light">
+                <i class="fa-solid fa-boxes-packing w-5"></i> Fichas de Combos
+            </button>
+            <button onclick="switchTab('analysis')" id="btn-tab-analysis" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-brand-textMuted hover:bg-brand-gray/50 hover:text-brand-light">
+                <i class="fa-solid fa-calculator w-5"></i> Análise Geral
+            </button>
+            <button onclick="switchTab('fixed-costs')" id="btn-tab-fixed-costs" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-brand-textMuted hover:bg-brand-gray/50 hover:text-brand-light">
+                <i class="fa-solid fa-house-laptop w-5"></i> Custos Fixos
+            </button>
+            <button onclick="switchTab('settings')" id="btn-tab-settings" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-brand-textMuted hover:bg-brand-gray/50 hover:text-brand-light">
+                <i class="fa-solid fa-sliders w-5"></i> Parâmetros & Taxas
+            </button>
         </nav>
+
+        <div class="p-4 border-t border-brand-border text-center font-sans">
+            <p class="text-[10px] text-brand-textMuted">Tribo Burger &copy; 2026</p>
+        </div>
     </aside>
 
-    <main class="flex-1 flex flex-col p-8">
-        <div id="locked-state-screen" class="flex flex-col items-center justify-center py-20">
-            <h2 class="text-2xl font-black mb-4">Entrar no Sistema</h2>
-            <input id="auth-email" type="email" placeholder="Email" class="w-full max-w-sm bg-brand-gray p-3 rounded mb-3 border border-brand-border">
-            <input id="auth-password" type="password" placeholder="Senha" class="w-full max-w-sm bg-brand-gray p-3 rounded mb-6 border border-brand-border">
-            <button onclick="handleAuthSubmit()" class="w-full max-w-sm bg-brand-accent p-3 rounded font-bold text-black">Entrar</button>
-        </div>
+    <!-- CONTEÚDO PRINCIPAL (Direita) -->
+    <main class="flex-1 flex flex-col min-w-0">
         
-        <div id="authenticated-data-container" class="hidden">
-            <section id="tab-dashboard" class="tab-content">
-                <h2 class="text-3xl font-black mb-8">Painel Geral</h2>
-                <div id="dashboard-items-summary"></div>
+        <!-- TOPBAR (Apenas informativo) -->
+        <header class="h-16 border-b border-brand-border bg-brand-dark/50 flex items-center justify-between px-6 shrink-0 no-print">
+            <h2 id="header-title" class="font-extrabold text-lg text-brand-light uppercase tracking-wide">Controlo de Acesso</h2>
+            <div class="flex items-center gap-4">
+                <div class="text-right hidden sm:block">
+                    <p class="text-[10px] text-brand-textMuted uppercase font-bold tracking-wider">Unidade Ativa</p>
+                    <p class="text-xs font-semibold text-brand-light">Matriz / Delivery</p>
+                </div>
+                <div class="h-8 w-px bg-brand-border hidden sm:block"></div>
+                <div class="flex items-center gap-2 bg-brand-gray/60 border border-brand-border px-3 py-1.5 rounded-lg">
+                    <span id="system-status-indicator" class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+                    <span id="system-status-text" class="text-xs font-bold text-brand-light">Acesso Bloqueado</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- ÁREA DE CONTEÚDO PRINCIPAL (BLOQUEIO VS DADOS) -->
+        <div class="flex-1 p-6 overflow-y-auto space-y-6">
+
+            <!-- TELA DE BLOQUEIO / LOGIN MANDATÓRIO -->
+            <section id="locked-state-screen" class="flex flex-col items-center justify-center py-12 px-4 max-w-md mx-auto space-y-6 text-center">
+                <div class="w-16 h-16 rounded-2xl bg-brand-accent/10 border border-brand-accent/20 text-brand-accent flex items-center justify-center text-3xl shadow-xl shadow-brand-accent/5">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-black uppercase text-brand-light tracking-wide">Acesso Restrito</h3>
+                    <p class="text-xs text-brand-textMuted mt-1.5 leading-relaxed">Por motivos de segurança e integridade das fichas técnicas do Tribo Burger, os dados estão protegidos. Insira os seus dados de acesso abaixo.</p>
+                </div>
+
+                <!-- Formulário de Login Direto -->
+                <div class="bg-brand-dark border border-brand-border rounded-xl p-6 w-full shadow-2xl space-y-4 text-left">
+                    <div id="locked-error-box" class="hidden p-3 bg-red-500/10 border border-red-500/20 text-brand-accent text-xs rounded-lg font-bold"></div>
+                    
+                    <div class="space-y-4" id="direct-auth-form">
+                        <div>
+                            <label class="block text-[10px] font-bold text-brand-light uppercase mb-1.5 tracking-wider">Endereço de Email</label>
+                            <input id="direct-email" type="email" placeholder="Ex: gestao@triboburger.com" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-brand-light uppercase mb-1.5 tracking-wider">Palavra-passe (Senha)</label>
+                            <input id="direct-password" type="password" placeholder="Mínimo 6 caracteres" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                        </div>
+                        
+                        <div class="flex items-center justify-between pt-1">
+                            <span class="text-[10px] text-brand-textMuted" id="direct-auth-toggle-label">Ainda não tem conta?</span>
+                            <button onclick="toggleDirectAuthMode()" class="text-[10px] text-brand-accent font-extrabold hover:underline bg-transparent border-0 cursor-pointer uppercase tracking-wider" id="btn-toggle-direct">
+                                Criar Conta
+                            </button>
+                        </div>
+
+                        <button id="btn-direct-submit" onclick="handleDirectAuthSubmit()" class="w-full bg-brand-accent hover:bg-brand-accentHover text-brand-black font-black py-3 rounded-lg text-xs uppercase tracking-wider transition-all transform hover:scale-[1.01] active:scale-95 shadow-lg shadow-brand-accent/15">
+                            Entrar no Sistema
+                        </button>
+                    </div>
+                </div>
             </section>
+
+            <!-- CONTAINER GERAL DOS DADOS (APENAS FICA VISÍVEL QUANDO LOGADO) -->
+            <div id="authenticated-data-container" class="hidden space-y-6">
+
+                <!-- TAB 1: DASHBOARD -->
+                <section id="tab-dashboard" class="tab-content space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-brand-dark border border-brand-border p-5 rounded-xl shadow-lg">
+                            <p class="text-xs text-brand-textMuted font-bold uppercase tracking-wider">CMV Médio Geral</p>
+                            <h3 id="kpi-cmv-medio" class="text-3xl font-black text-brand-accent mt-2">0%</h3>
+                            <p class="text-[10px] text-brand-textMuted mt-1">Média do cardápio ativo</p>
+                        </div>
+                        <div class="bg-brand-dark border border-brand-border p-5 rounded-xl shadow-lg">
+                            <p class="text-xs text-brand-textMuted font-bold uppercase tracking-wider">Meta de CMV</p>
+                            <h3 id="kpi-cmv-meta" class="text-3xl font-black text-yellow-500 mt-2">30%</h3>
+                            <p class="text-[10px] text-brand-textMuted mt-1">Definida nos Parâmetros</p>
+                        </div>
+                        <div class="bg-brand-dark border border-brand-border p-5 rounded-xl shadow-lg">
+                            <p class="text-xs text-brand-textMuted font-bold uppercase tracking-wider">Insumos Cadastrados</p>
+                            <h3 id="kpi-insumos-qtd" class="text-3xl font-black text-brand-light mt-2">0</h3>
+                            <p class="text-[10px] text-brand-textMuted mt-1">Matérias-primas</p>
+                        </div>
+                        <div class="bg-brand-dark border border-brand-border p-5 rounded-xl shadow-lg">
+                            <p class="text-xs text-brand-textMuted font-bold uppercase tracking-wider">Fichas e Combos</p>
+                            <h3 id="kpi-receitas-qtd" class="text-3xl font-black text-brand-light mt-2">0</h3>
+                            <p class="text-[10px] text-brand-textMuted mt-1">Produtos ativos</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 bg-brand-dark border border-brand-border rounded-xl p-6 shadow-xl">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-extrabold text-brand-light uppercase text-sm tracking-wider">Relação de Margens (Insumo vs Venda)</h3>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead>
+                                        <tr class="border-b border-brand-border text-brand-textMuted">
+                                            <th class="py-3 px-2">Produto</th>
+                                            <th class="py-3 px-2">Custo CMV</th>
+                                            <th class="py-3 px-2">Preço de Venda</th>
+                                            <th class="py-3 px-2">CMV Atual</th>
+                                            <th class="py-3 px-2 text-right">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dashboard-items-summary" class="divide-y divide-brand-border/40">
+                                        <!-- Dynamic Rows -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="bg-brand-dark border border-brand-border rounded-xl p-6 shadow-xl flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-extrabold text-brand-light uppercase text-sm tracking-wider mb-4">Meta Operacional</h3>
+                                <p class="text-xs text-brand-textMuted leading-relaxed">
+                                    Manter o CMV abaixo de <strong class="text-brand-accent">30%</strong> é a chave para o sucesso comercial da Tribo Burger. Revise suas receitas periodicamente ou atualize o preço de venda quando os insumos subirem.
+                                </p>
+                                <div class="mt-6 p-4 bg-brand-black border border-brand-border rounded-lg text-center">
+                                    <p class="text-xs text-brand-textMuted">Custos Fixos Mensais Totais</p>
+                                    <p id="dashboard-total-fixed-costs" class="text-xl font-bold text-brand-light mt-1">R$ 0,00</p>
+                                </div>
+                            </div>
+                            <div class="mt-6">
+                                <button onclick="switchTab('recipes')" class="w-full bg-brand-gray border border-brand-border hover:bg-brand-border text-brand-light font-bold py-2.5 rounded-lg text-xs transition-colors flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-plus text-brand-accent"></i> Criar Nova Ficha Técnica
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 2: INSUMOS (INGREDIENTES) -->
+                <section id="tab-ingredients" class="tab-content space-y-6 hidden">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-4 rounded-xl">
+                        <div>
+                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide">Insumos & Matérias-Primas</h3>
+                            <p class="text-xs text-brand-textMuted">Cadastre e ajuste o preço de custo dos ingredientes básicos do estoque.</p>
+                        </div>
+                        <button onclick="openIngredientModal()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-4 py-2.5 rounded-lg text-xs tracking-wide transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-plus text-sm"></i> Novo Insumo
+                        </button>
+                    </div>
+
+                    <div class="bg-brand-dark border border-brand-border rounded-xl shadow-xl overflow-hidden">
+                        <div class="p-4 border-b border-brand-border bg-brand-black/20 flex gap-2">
+                            <input type="text" id="search-ingredients" oninput="renderIngredients()" placeholder="Buscar insumo..." class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2 w-full max-w-sm focus:outline-none focus:border-brand-accent">
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-brand-black/30 border-b border-brand-border text-brand-textMuted">
+                                    <tr>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Nome do Insumo</th>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Custo de Compra</th>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Quantidade Embalagem</th>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Custo Unitário Calculado</th>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider text-right">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ingredients-table-body" class="divide-y divide-brand-border/40">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 3: FICHAS TÉCNICAS (BURGERS / RECEITAS) -->
+                <section id="tab-recipes" class="tab-content space-y-6 hidden">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-4 rounded-xl">
+                        <div>
+                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide">Fichas Técnicas de Produtos</h3>
+                            <p class="text-xs text-brand-textMuted">Monte receitas associando insumos para calcular o custo real de alimento (CMV).</p>
+                        </div>
+                        <button onclick="openRecipeModal('recipe')" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-4 py-2.5 rounded-lg text-xs tracking-wide transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-plus text-sm"></i> Criar Receita
+                        </button>
+                    </div>
+
+                    <!-- Recipe Grid -->
+                    <div id="recipes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Dynamic Recipe Cards -->
+                    </div>
+                </section>
+                
+                <!-- NOVA TAB: COMPLEMENTOS -->
+                <section id="tab-add-ons" class="tab-content space-y-6 hidden">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-4 rounded-xl">
+                        <div>
+                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide">Fichas de Complementos</h3>
+                            <p class="text-xs text-brand-textMuted">Crie extras (ex: Bacon Extra, Queijo Extra) para adicionar aos lanches.</p>
+                        </div>
+                        <button onclick="openRecipeModal('add-on')" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-4 py-2.5 rounded-lg text-xs tracking-wide transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-plus text-sm"></i> Criar Complemento
+                        </button>
+                    </div>
+
+                    <!-- Add-on Grid -->
+                    <div id="add-ons-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Dynamic Add-on Cards -->
+                    </div>
+                </section>
+
+                <!-- TAB 4: FICHAS DE COMBOS -->
+                <section id="tab-combos" class="tab-content space-y-6 hidden">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-4 rounded-xl">
+                        <div>
+                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide">Fichas de Combos</h3>
+                            <p class="text-xs text-brand-textMuted">Associe produtos de fichas técnicas existentes, complementos e insumos diretos para formar ofertas.</p>
+                        </div>
+                        <button onclick="openComboModal()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-4 py-2.5 rounded-lg text-xs tracking-wide transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-plus text-sm"></i> Criar Novo Combo
+                        </button>
+                    </div>
+
+                    <!-- Combos Grid -->
+                    <div id="combos-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Dynamic Combo Cards -->
+                    </div>
+                </section>
+
+                <!-- TAB 5: ANÁLISE GERAL (RELATÓRIOS & IMPRESSÃO) -->
+                <section id="tab-analysis" class="tab-content space-y-6 hidden">
+                    
+                    <!-- HEADER DA ÁREA DE IMPRESSÃO (Oculto em tela normal, visível na impressão) -->
+                    <div class="hidden print:block mb-8 text-center border-b-2 border-black pb-4">
+                        <h1 class="text-3xl font-extrabold tracking-tight uppercase">Tribo Burger</h1>
+                        <p class="text-sm font-semibold text-gray-600">Relatório Consolidado de CMV & Precificação</p>
+                        <p id="print-date" class="text-xs text-gray-500 mt-2">Data de Geração: --/--/----</p>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-5 rounded-xl no-print shadow-lg">
+                        <div>
+                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide text-base">Relatório Consolidado de Margem de Lucro</h3>
+                            <p class="text-xs text-brand-textMuted">Visão panorâmica para auditoria de preços e análise comparativa de rentabilidade do cardápio.</p>
+                        </div>
+                        <!-- Botão de Impressão Primário -->
+                        <button onclick="window.print()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-5 py-3 rounded-lg text-xs tracking-wider transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-brand-accent/20 flex items-center gap-2.5">
+                            <i class="fa-solid fa-print text-sm"></i> IMPRIMIR RELATÓRIO
+                        </button>
+                    </div>
+
+                    <!-- Consolidated Pricing Table -->
+                    <div class="bg-brand-dark border border-brand-border rounded-xl shadow-xl overflow-hidden print-card">
+                        <div class="p-4 border-b border-brand-border bg-brand-black/20 no-print flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <span class="text-xs font-bold uppercase text-brand-light tracking-wide"><i class="fa-solid fa-list-check text-brand-accent mr-1.5"></i> Resumo de Todos os Produtos Ativos</span>
+                            <div class="text-right text-xs text-brand-textMuted">
+                                Alvo de CMV cadastrado: <strong id="analysis-target-cmv" class="text-brand-accent font-bold">30%</strong>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs min-w-[800px]">
+                                <thead class="bg-brand-black/30 border-b border-brand-border text-brand-textMuted">
+                                    <tr>
+                                        <th class="py-4 px-4 font-bold uppercase tracking-wider">Categoria</th>
+                                        <th class="py-4 px-4 font-bold uppercase tracking-wider">Nome do Item</th>
+                                        <th class="py-4 px-4 font-bold uppercase tracking-wider text-right">Custo Insumo (CMV R$)</th>
+                                        <th class="py-4 px-4 font-bold uppercase tracking-wider text-right">Preço de Venda (R$)</th>
+                                        <th class="py-4 px-4 font-bold uppercase tracking-wider text-center">CMV (%)</th>
+                                        <th class="py-4 px-4 font-bold uppercase tracking-wider text-center">Encargos/Taxas (%)</th>
+                                        <th class="py-4 px-4 font-bold uppercase tracking-wider text-right">Margem Op. (R$)</th>
+                                        <th class="py-4 px-4 font-bold uppercase tracking-wider text-center">Margem (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="analysis-table-body" class="divide-y divide-brand-border/40 text-brand-light print-text">
+                                    <!-- Dynamic Consolidated Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Rodapé informativo para impressão -->
+                    <div class="hidden print:block mt-12 text-center text-xs text-gray-500 border-t border-gray-200 pt-4">
+                        <p>Tribo Burger Custos & CMV - O segredo de uma operação de sucesso está na precisão matemática.</p>
+                    </div>
+                </section>
+
+                <!-- TAB 6: CUSTOS FIXOS -->
+                <section id="tab-fixed-costs" class="tab-content space-y-6 hidden">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-4 rounded-xl">
+                        <div>
+                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide">Custos Fixos Mensais</h3>
+                            <p class="text-xs text-brand-textMuted">Cadastre as contas recorrentes para analisar o impacto operacional de custos fixos.</p>
+                        </div>
+                        <button onclick="openFixedCostModal()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-4 py-2.5 rounded-lg text-xs tracking-wide transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-plus text-sm"></i> Adicionar Custo Fixo
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 bg-brand-dark border border-brand-border rounded-xl shadow-xl overflow-hidden">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-brand-black/30 border-b border-brand-border text-brand-textMuted">
+                                    <tr>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Descrição do Custo</th>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Valor Mensal (R$)</th>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider text-right">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fixed-costs-table-body" class="divide-y divide-brand-border/40">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Resumo Custos Fixos -->
+                        <div class="bg-brand-dark border border-brand-border rounded-xl p-6 shadow-xl h-fit">
+                            <h3 class="font-extrabold text-brand-light uppercase text-sm tracking-wider mb-4">Resumo dos Custos Fixos</h3>
+                            <div class="p-5 bg-brand-black border border-brand-border rounded-lg text-center">
+                                <span class="text-xs text-brand-textMuted block">Soma de Custos Mensais</span>
+                                <span id="summary-total-fixed-costs" class="text-2xl font-black text-brand-accent block mt-1">R$ 0,00</span>
+                            </div>
+                            <p class="text-[10px] text-brand-textMuted mt-4 leading-relaxed">
+                                <strong>Nota:</strong> Custos fixos não alteram o cálculo direto do CMV de cada burger, mas são essenciais para calcular o ponto de equilíbrio de vendas mensais da unidade.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 7: CONFIGURAÇÕES E TAXAS -->
+                <section id="tab-settings" class="tab-content space-y-6 hidden">
+                    <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl">
+                        <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-2">Parâmetros & Taxas Financeiras</h3>
+                        <p class="text-xs text-brand-textMuted mb-6">Ajuste os percentuais médios cobrados por canais de venda e cartões para refinar o cálculo de margem real de lucro.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
+                            <div>
+                                <label class="block text-xs font-bold text-brand-light uppercase mb-2">Meta Recomendada de CMV (%)</label>
+                                <input id="setting-target-cmv" type="number" step="0.1" class="bg-brand-gray border border-brand-border text-brand-light text-sm rounded-lg px-4 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                                <span class="text-[10px] text-brand-textMuted block mt-1">Geralmente recomendado em torno de 30% no setor de hamburgueria.</span>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-brand-light uppercase mb-2">Impostos Médios (%)</label>
+                                <input id="setting-tax" type="number" step="0.01" class="bg-brand-gray border border-brand-border text-brand-light text-sm rounded-lg px-4 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                                <span class="text-[10px] text-brand-textMuted block mt-1">Incidência direta de tributos fiscais federais/municipais.</span>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-brand-light uppercase mb-2">Parcerias & Apps de Delivery (%)</label>
+                                <input id="setting-apps" type="number" step="0.01" class="bg-brand-gray border border-brand-border text-brand-light text-sm rounded-lg px-4 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                                <span class="text-[10px] text-brand-textMuted block mt-1">Exemplo: Percentual pago de comissão ao iFood e Rappi.</span>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-brand-light uppercase mb-2">Taxas de Cartão/Financeiras (%)</label>
+                                <input id="setting-card" type="number" step="0.01" class="bg-brand-gray border border-brand-border text-brand-light text-sm rounded-lg px-4 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                                <span class="text-[10px] text-brand-textMuted block mt-1">Média entre transações de débito, crédito e taxas de antecipação.</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-brand-border">
+                            <button onclick="saveSettings()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-6 py-3 rounded-lg text-xs tracking-wider transition-colors">
+                                Salvar Parâmetros Globais
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </div>
     </main>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <!-- BOTÃO FLUTUANTE DE IMPRESSÃO (Apenas na aba Análise Geral e Oculto ao Imprimir) -->
+    <div id="floating-print-container" class="fixed bottom-6 right-6 z-50 no-print hidden">
+        <button onclick="window.print()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all transform hover:scale-110 active:scale-95 duration-200 border-2 border-brand-black" title="Imprimir Relatório Geral">
+            <i class="fa-solid fa-print text-xl"></i>
+        </button>
+    </div>
 
-        const firebaseConfig = {
+    <!-- MODAL: INSUMOS (Criar/Editar) -->
+    <div id="modal-ingredient" class="fixed inset-0 bg-brand-black/80 backdrop-blur-sm z-50 items-center justify-center p-4 hidden no-print">
+        <div class="bg-brand-dark border border-brand-border rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-brand-border flex justify-between items-center bg-brand-black/20">
+                <h3 id="modal-ingredient-title" class="font-extrabold text-brand-light uppercase text-sm tracking-wide">Novo Insumo</h3>
+                <button onclick="closeIngredientModal()" class="text-brand-textMuted hover:text-brand-light transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="ingredient-id">
+                <div>
+                    <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Nome do Insumo</label>
+                    <input id="ingredient-name" type="text" placeholder="Ex: Hambúrguer de Costela 150g" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Valor de Compra (R$)</label>
+                        <input id="ingredient-cost" type="number" step="0.01" placeholder="Ex: 50.00" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Unidade</label>
+                        <select id="ingredient-unit" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                            <option value="kg">Quilo (kg)</option>
+                            <option value="g">Grama (g)</option>
+                            <option value="L">Litro (L)</option>
+                            <option value="ml">Mililitro (ml)</option>
+                            <option value="un">Unidade (un)</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Qtd. Total Embalagem</label>
+                    <input id="ingredient-qty" type="number" step="0.001" placeholder="Ex: 5" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                    <span class="text-[9px] text-brand-textMuted block mt-1">Digite em correspondência com a unidade escolhida (ex: 5 para 5kg, 500 para 500g).</span>
+                </div>
+            </div>
+            <div class="p-5 border-t border-brand-border bg-brand-black/20 flex gap-3 justify-end">
+                <button onclick="closeIngredientModal()" class="bg-brand-gray hover:bg-brand-border text-brand-light px-4 py-2 rounded-lg text-xs font-bold transition-colors">Cancelar</button>
+                <button onclick="saveIngredient()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-black transition-colors">Gravar Insumo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: FICHA TÉCNICA / COMPLEMENTO (Criar/Editar) -->
+    <div id="modal-recipe" class="fixed inset-0 bg-brand-black/80 backdrop-blur-sm z-50 items-center justify-center p-4 hidden no-print overflow-y-auto">
+        <div class="bg-brand-dark border border-brand-border rounded-xl w-full max-w-2xl shadow-2xl my-8">
+            <div class="p-5 border-b border-brand-border flex justify-between items-center bg-brand-black/20">
+                <h3 id="modal-recipe-title" class="font-extrabold text-brand-light uppercase text-sm tracking-wide">Ficha Técnica</h3>
+                <button onclick="closeRecipeModal()" class="text-brand-textMuted hover:text-brand-light transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+                <input type="hidden" id="recipe-id">
+                <input type="hidden" id="recipe-type" value="recipe"> <!-- 'recipe' ou 'add-on' -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label id="label-recipe-name" class="block text-xs font-bold text-brand-light uppercase mb-1.5">Nome do Hambúrguer/Prato</label>
+                        <input id="recipe-name" type="text" placeholder="Ex: Burger Bacon Smash" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Preço de Venda Praticado (R$)</label>
+                        <input id="recipe-selling-price" type="number" step="0.01" oninput="calculateRecipeModalCosts()" placeholder="Ex: 29.90" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                    </div>
+                </div>
+
+                <!-- Tabela de ingredientes na ficha -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-xs font-bold text-brand-light uppercase">Ingredientes & Proporções</label>
+                        <button onclick="addIngredientRowToRecipe()" class="text-brand-accent hover:text-brand-accentHover text-xs font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-plus-circle"></i> Adicionar Item
+                        </button>
+                    </div>
+                    <div class="space-y-2" id="recipe-ingredients-rows">
+                        <!-- Dynamic Row Entries -->
+                    </div>
+                </div>
+
+                <!-- Resumo custos dinâmicos da ficha técnica -->
+                <div class="bg-brand-black/40 border border-brand-border rounded-lg p-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                    <div>
+                        <span class="text-[10px] text-brand-textMuted uppercase font-bold block">Custo Alimento</span>
+                        <span id="recipe-calc-food-cost" class="text-sm font-black text-brand-light block mt-0.5">R$ 0,00</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-brand-textMuted uppercase font-bold block">CMV (%)</span>
+                        <span id="recipe-calc-cmv" class="text-sm font-black text-brand-accent block mt-0.5">0%</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-brand-textMuted uppercase font-bold block">Sugestão Preço</span>
+                        <span id="recipe-calc-suggested" class="text-sm font-black text-green-500 block mt-0.5">R$ 0,00</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-brand-textMuted uppercase font-bold block">Margem Op.</span>
+                        <span id="recipe-calc-margin" class="text-sm font-black text-emerald-500 block mt-0.5">0.00%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="p-5 border-t border-brand-border bg-brand-black/20 flex gap-3 justify-end">
+                <button onclick="closeRecipeModal()" class="bg-brand-gray hover:bg-brand-border text-brand-light px-4 py-2 rounded-lg text-xs font-bold transition-colors">Cancelar</button>
+                <button onclick="saveRecipe()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-black transition-colors">Gravar Ficha</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: COMBOS (Criar/Editar) -->
+    <div id="modal-combo" class="fixed inset-0 bg-brand-black/80 backdrop-blur-sm z-50 items-center justify-center p-4 hidden no-print overflow-y-auto">
+        <div class="bg-brand-dark border border-brand-border rounded-xl w-full max-w-2xl shadow-2xl my-8">
+            <div class="p-5 border-b border-brand-border flex justify-between items-center bg-brand-black/20">
+                <h3 id="modal-combo-title" class="font-extrabold text-brand-light uppercase text-sm tracking-wide">Ficha de Combo</h3>
+                <button onclick="closeComboModal()" class="text-brand-textMuted hover:text-brand-light transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+                <input type="hidden" id="combo-id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Nome do Combo</label>
+                        <input id="combo-name" type="text" placeholder="Ex: Combo Tribo Clássico" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Preço de Venda do Combo (R$)</label>
+                        <input id="combo-selling-price" type="number" step="0.01" oninput="calculateComboModalCosts()" placeholder="Ex: 45.00" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                    </div>
+                </div>
+
+                <!-- Tabela de itens compostos do combo -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-xs font-bold text-brand-light uppercase">Itens Inclusos no Combo</label>
+                        <button onclick="addComboRowItem()" class="text-brand-accent hover:text-brand-accentHover text-xs font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-plus-circle"></i> Adicionar Ficha, Insumo ou Complemento
+                        </button>
+                    </div>
+                    <div class="space-y-2" id="combo-items-rows">
+                        <!-- Dynamic Row Entries for Combos -->
+                    </div>
+                </div>
+
+                <!-- Resumo custos dinâmicos do Combo -->
+                <div class="bg-brand-black/40 border border-brand-border rounded-lg p-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                    <div>
+                        <span class="text-[10px] text-brand-textMuted uppercase font-bold block">Custo Combo</span>
+                        <span id="combo-calc-food-cost" class="text-sm font-black text-brand-light block mt-0.5">R$ 0,00</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-brand-textMuted uppercase font-bold block">CMV Combo (%)</span>
+                        <span id="combo-calc-cmv" class="text-sm font-black text-brand-accent block mt-0.5">0%</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-brand-textMuted uppercase font-bold block">Preço Sugerido</span>
+                        <span id="combo-calc-suggested" class="text-sm font-black text-green-500 block mt-0.5">R$ 0,00</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-brand-textMuted uppercase font-bold block">Margem Op.</span>
+                        <span id="combo-calc-margin" class="text-sm font-black text-emerald-500 block mt-0.5">0.00%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="p-5 border-t border-brand-border bg-brand-black/20 flex gap-3 justify-end">
+                <button onclick="closeComboModal()" class="bg-brand-gray hover:bg-brand-border text-brand-light px-4 py-2 rounded-lg text-xs font-bold transition-colors">Cancelar</button>
+                <button onclick="saveCombo()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-black transition-colors">Gravar Combo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CUSTO FIXO (Criar/Editar) -->
+    <div id="modal-fixed-cost" class="fixed inset-0 bg-brand-black/80 backdrop-blur-sm z-50 items-center justify-center p-4 hidden no-print">
+        <div class="bg-brand-dark border border-brand-border rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-brand-border flex justify-between items-center bg-brand-black/20">
+                <h3 id="modal-fixed-cost-title" class="font-extrabold text-brand-light uppercase text-sm tracking-wide">Novo Custo Fixo</h3>
+                <button onclick="closeFixedCostModal()" class="text-brand-textMuted hover:text-brand-light transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="fixed-cost-id">
+                <div>
+                    <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Descrição do Custo</label>
+                    <input id="fixed-cost-description" type="text" placeholder="Ex: Aluguel do Ponto, Folha de Pagamento" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Valor Mensal (R$)</label>
+                    <input id="fixed-cost-value" type="number" step="0.01" placeholder="Ex: 2500.00" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                </div>
+            </div>
+            <div class="p-5 border-t border-brand-border bg-brand-black/20 flex gap-3 justify-end">
+                <button onclick="closeFixedCostModal()" class="bg-brand-gray hover:bg-brand-border text-brand-light px-4 py-2 rounded-lg text-xs font-bold transition-colors">Cancelar</button>
+                <button onclick="saveFixedCost()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-black transition-colors">Gravar Custo Fixo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SISTEMA DE MODAL DE COMPORTAMENTO CUSTOMIZADO (SUBSTITUI ALERT/CONFIRM) -->
+    <div id="custom-alert-modal" class="fixed inset-0 bg-brand-black/85 backdrop-blur-sm z-[100] items-center justify-center p-4 hidden no-print">
+        <div class="bg-brand-dark border border-brand-border rounded-xl w-full max-w-sm p-6 shadow-2xl text-center space-y-4">
+            <div class="w-14 h-14 rounded-full bg-brand-accent/10 border border-brand-accent/30 text-brand-accent flex items-center justify-center text-2xl mx-auto">
+                <i id="custom-alert-icon" class="fa-solid fa-circle-exclamation"></i>
+            </div>
+            <div class="space-y-1">
+                <h4 id="custom-alert-title" class="font-extrabold text-brand-light uppercase text-sm tracking-wider">Atenção</h4>
+                <p id="custom-alert-message" class="text-xs text-brand-textMuted leading-relaxed"></p>
+            </div>
+            <button onclick="closeCustomAlert()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black text-xs font-bold px-6 py-2.5 rounded-lg transition-colors w-full uppercase tracking-wider">Entendido</button>
+        </div>
+    </div>
+
+    <div id="custom-confirm-modal" class="fixed inset-0 bg-brand-black/85 backdrop-blur-sm z-[100] items-center justify-center p-4 hidden no-print">
+        <div class="bg-brand-dark border border-brand-border rounded-xl w-full max-w-sm p-6 shadow-2xl text-center space-y-4">
+            <div class="w-14 h-14 rounded-full bg-red-500/10 border border-red-500/30 text-red-500 flex items-center justify-center text-2xl mx-auto">
+                <i class="fa-solid fa-trash-can"></i>
+            </div>
+            <div class="space-y-1">
+                <h4 id="custom-confirm-title" class="font-extrabold text-brand-light uppercase text-sm tracking-wider">Excluir Item</h4>
+                <p id="custom-confirm-message" class="text-xs text-brand-textMuted leading-relaxed">Você tem certeza que deseja realizar esta exclusão?</p>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button onclick="closeCustomConfirm(false)" class="flex-1 bg-brand-gray hover:bg-brand-border text-brand-light text-xs font-bold px-4 py-2.5 rounded-lg transition-colors">Cancelar</button>
+                <button onclick="closeCustomConfirm(true)" class="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs font-black px-4 py-2.5 rounded-lg transition-colors">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+<!-- ... existing code ... -->
+<!-- FIREBASE & CORE SYSTEM CODE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+@@ -773,1165 +7,150 @@ <h4 id="custom-confirm-title" class="font-extrabold text-brand-light uppercase t
+
+// CONFIGURAÇÕES GLOBAIS DE SEGURANÇA E AMBIENTE
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'tribo-burger-pricing-system';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "",
+            authDomain: "mock-project.firebaseapp.com",
+            projectId: "mock-project",
+            storageBucket: "mock-project.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:mockid"
+        const firebaseConfig = typeof __firebase_config !== 'undefined' && __firebase_config ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyA1HkiCs0F4BkHeDNVNHNuhG0Ktd2VQDLU",
             authDomain: "tribocmv.firebaseapp.com",
             projectId: "tribocmv",
             storageBucket: "tribocmv.firebasestorage.app",
             messagingSenderId: "740375597526",
             appId: "1:740375597526:web:f826bba62245da21f0d477"
-        };
+};
 
+        // INICIALIZAÇÃO FIREBASE DE FORMA SEGURA
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        window.appState = { ingredients: [], recipes: [] };
+// VARIÁVEIS DE ESTADO DO SISTEMA
+let currentUser = null;
+let syncId = 'triboburgermatriz';
+let syncMode = 'private'; 
+let databaseListenerUnsubscribe = null;
+let authMode = 'login'; 
+        let app, auth, db;
 
-        window.handleAuthSubmit = async () => {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-            } catch (e) { alert("Erro: " + e.message); }
-        };
+        // INICIALIZAÇÃO FIREBASE DE FORMA SEGURA (Evita quebrar o sistema se a chave falhar)
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch (error) {
+            console.error("Erro Crítico de Conexão com o Firebase:", error);
+        }
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                document.getElementById('locked-state-screen').classList.add('hidden');
-                document.getElementById('authenticated-data-container').classList.remove('hidden');
-                document.getElementById('auth-logged-in-view').classList.remove('hidden');
-                document.getElementById('user-email-display').textContent = user.email;
-                
-                // Carregar dados
-                const docRef = doc(db, 'artifacts', 'tribo-burger-pricing-system', 'users', user.uid, 'user_data', 'state');
-                const snap = await getDoc(docRef);
-                
-                if (snap.exists()) {
-                    window.appState = snap.data();
-                    console.log("Dados carregados:", window.appState);
-                } else {
-                    console.log("Base de dados vazia, criando dados padrão...");
-                    window.appState = { ingredients: [], recipes: [] }; // Seed default
-                    await setDoc(docRef, window.appState);
-                }
-                window.renderAll();
+// ESTRUTURA GERAL DO BANCO DE DADOS
+let appState = {
+            ingredients: [],
+            recipes: [],
+            combos: [],
+            fixedCosts: [],
+            settings: {
+                targetCMV: 30,
+                tax: 6,
+                apps: 12,
+                card: 2.5
             }
-        });
-
-        window.renderAll = () => {
-            const container = document.getElementById('dashboard-items-summary');
-            if (container) container.innerHTML = `<p class="text-brand-textMuted">Dados carregados com sucesso. Total de insumos: ${appState.ingredients.length}</p>`;
         };
-    </script>
-</body>
-</html>
-```
 
-### Por que isto vai funcionar:
-1. **Verificação de Existência:** Agora, ao logar, o sistema verifica se existe um documento no Firestore. Se não existir, ele cria o esqueleto da base de dados (`window.appState = { ingredients: [], recipes: [] }`), evitando erros de "variável vazia".
-2. **Renderização Forçada:** A função `window.renderAll()` é chamada imediatamente após o carregamento dos dados, garantindo que o seu dashboard seja preenchido no momento em que o login é efetuado.
-3. **Console Limpo:** Removi os erros de sintaxe de `templates literals` e as chamadas duplicadas, garantindo que a aplicação inicie o ciclo de vida sem travamentos.
+        // ----------------- TRATAMENTO DE SEGURANÇA DO DOM -----------------
+        function safeSetText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+        }
+
+        function safeSetValue(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.value = value;
+        }
+
+        // ----------------- DECLARAÇÃO DAS FUNÇÕES DE RENDERIZAÇÃO NO ESCOPO GLOBAL -----------------
+        window.renderAll = function() {
+            window.renderDashboard();
+            window.renderIngredients();
+            window.renderRecipes();
+            window.renderAddOns();
+            window.renderCombos();
+            window.renderFixedCosts();
+            window.renderAnalysis();
+            window.renderSettingsInFields();
+        };
+
+        window.renderDashboard = function() {
+            safeSetText('kpi-insumos-qtd', appState.ingredients.length);
+            safeSetText('kpi-receitas-qtd', appState.recipes.length + appState.combos.length);
+            safeSetText('kpi-cmv-meta', `${appState.settings.targetCMV}%`);
+
+            const totalFixed = appState.fixedCosts.reduce((sum, c) => sum + parseFloat(c.value || 0), 0);
+            safeSetText('dashboard-total-fixed-costs', formatCurrency(totalFixed));
+
+            const container = document.getElementById('dashboard-items-summary');
+            if (!container) return;
+
+            let html = '';
+            // Inclui receitas, acompanhamentos, complementos e combos
+            const allItems = [
+                ...appState.recipes.map(r => ({ ...r, displayType: r.type === 'add-on' ? 'Complemento' : 'Ficha' })),
+                ...appState.combos.map(c => ({ ...c, displayType: 'Combo' }))
+            ];
+
+            if (allItems.length === 0) {
+                html = `<tr><td colspan="5" class="py-4 text-center text-brand-textMuted">Nenhuma receita ou combo ativo encontrado.</td></tr>`;
+            } else {
+                allItems.forEach(item => {
+                    const cost = calculateItemCost(item);
+                    const sellingPrice = parseFloat(item.sellingPrice || 0);
+                    const cmv = sellingPrice > 0 ? ((cost / sellingPrice) * 100).toFixed(1) : '0.0';
+                    const target = parseFloat(appState.settings.targetCMV || 30);
+                    
+                    let statusBadge = '';
+                    if (parseFloat(cmv) <= target) {
+                        statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/10 text-green-500 border border-green-500/20">Saudável</span>`;
+                    } else {
+                        statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20">CMV Alto</span>`;
+                    }
+
+                    html += `
+                        <tr class="hover:bg-brand-gray/20 transition-colors">
+                            <td class="py-3 px-2 font-medium">${item.name} <span class="text-[9px] text-brand-textMuted uppercase">(${item.displayType})</span></td>
+                            <td class="py-3 px-2 text-brand-textMuted">${formatCurrency(cost)}</td>
+                            <td class="py-3 px-2 font-semibold text-brand-light">${formatCurrency(sellingPrice)}</td>
+                            <td class="py-3 px-2 font-bold ${parseFloat(cmv) > target ? 'text-brand-accent' : 'text-emerald-500'}">${cmv}%</td>
+                            <td class="py-3 px-2 text-right">${statusBadge}</td>
+                        </tr>
+                    `;
+                });
+            }
+            container.innerHTML = html;
+
+            let sumCmv = 0;
+            let itemsWithPrice = 0;
+            allItems.forEach(item => {
+                const cost = calculateItemCost(item);
+                const sellingPrice = parseFloat(item.sellingPrice || 0);
+                if (sellingPrice > 0) {
+                    sumCmv += (cost / sellingPrice) * 100;
+                    itemsWithPrice++;
+                }
+            });
+            const avgCmv = itemsWithPrice > 0 ? (sumCmv / itemsWithPrice).toFixed(1) : '0';
+            safeSetText('kpi-cmv-medio', `${avgCmv}%`);
+        };
+
+        window.renderIngredients = function() {
+            const table = document.getElementById('ingredients-table-body');
+            if (!table) return;
+
+            const searchQuery = (document.getElementById('search-ingredients')?.value || '').toLowerCase();
+            let html = '';
+
+            const filtered = appState.ingredients.filter(ing => 
+                (ing.name || '').toLowerCase().includes(searchQuery)
+            );
+
+            if (filtered.length === 0) {
+                html = `<tr><td colspan="5" class="py-6 text-center text-brand-textMuted text-xs">Nenhum insumo encontrado. Clique em "Novo Insumo" para começar.</td></tr>`;
+            } else {
+                filtered.forEach(ing => {
+                    const totalCost = parseFloat(ing.cost || 0);
+                    const packageQty = parseFloat(ing.qty || 1);
+                    const unitCost = totalCost / packageQty;
+
+                    html += `
+                        <tr class="hover:bg-brand-gray/20 transition-colors">
+                            <td class="py-3.5 px-4 font-semibold text-brand-light">${ing.name}</td>
+                            <td class="py-3.5 px-4 text-brand-textMuted">${formatCurrency(totalCost)}</td>
+                            <td class="py-3.5 px-4 font-medium text-brand-light">${packageQty} ${ing.unit}</td>
+                            <td class="py-3.5 px-4 text-emerald-500 font-bold">${formatCurrency(unitCost)} por ${getBaseUnitRepresentation(ing.unit)}</td>
+                            <td class="py-3.5 px-4 text-right space-x-1 whitespace-nowrap">
+                                <button onclick="openIngredientModal('${ing.id}')" class="p-1.5 bg-brand-gray border border-brand-border rounded text-brand-textMuted hover:text-brand-light transition-colors" title="Editar">
+                                    <i class="fa-solid fa-pen text-xs"></i>
+                                </button>
+                                <button onclick="deleteIngredient('${ing.id}')" class="p-1.5 bg-brand-gray border border-brand-border rounded text-red-400 hover:text-red-300 transition-colors" title="Excluir">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            table.innerHTML = html;
+        };
+
+        // Renderiza apenas Fichas Técnicas Regulares (não complementos)
+        window.renderRecipes = function() {
+            const grid = document.getElementById('recipes-grid');
+            if (!grid) return;
+
+            let html = '';
+            const regularRecipes = appState.recipes.filter(r => r.type !== 'add-on');
+
+            if (regularRecipes.length === 0) {
+                html = `
+                    <div class="col-span-full bg-brand-dark border border-brand-border p-8 rounded-xl text-center space-y-3">
+                        <i class="fa-solid fa-burger text-3xl text-brand-textMuted"></i>
+                        <p class="text-sm text-brand-textMuted">Você ainda não tem Fichas Técnicas criadas.</p>
+                        <button onclick="openRecipeModal('recipe')" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-bold transition-all inline-block">Criar Primeira Ficha</button>
+                    </div>
+                `;
+            } else {
+                regularRecipes.forEach(rec => {
+                    const foodCost = calculateItemCost(rec);
+                    const sellingPrice = parseFloat(rec.sellingPrice || 0);
+                    const cmv = sellingPrice > 0 ? ((foodCost / sellingPrice) * 100).toFixed(1) : '0.0';
+                    const target = parseFloat(appState.settings.targetCMV || 30);
+                    const marginValue = sellingPrice - foodCost - (sellingPrice * (parseFloat(appState.settings.tax) + parseFloat(appState.settings.apps) + parseFloat(appState.settings.card)) / 100);
+                    const marginPercentage = sellingPrice > 0 ? ((marginValue / sellingPrice) * 100).toFixed(1) : '0';
+
+                    const ingPreviews = (rec.ingredients || []).slice(0, 4).map(item => {
+                        const ing = appState.ingredients.find(i => i.id === item.ingredientId);
+                        return ing ? `• ${ing.name} <span class="text-brand-textMuted font-normal">(${item.qty}${ing.unit})</span>` : '';
+                    }).filter(Boolean).join('<br>');
+
+                    html += `
+                        <div class="bg-brand-dark border border-brand-border rounded-xl p-5 shadow-xl flex flex-col justify-between space-y-4">
+                            <div>
+                                <div class="flex justify-between items-start">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-brand-accent/10 text-brand-accent">Ficha / Prato</span>
+                                    <div class="flex gap-1.5">
+                                        <button onclick="openRecipeModal('recipe', '${rec.id}')" class="p-1 bg-brand-gray border border-brand-border rounded text-brand-textMuted hover:text-brand-light"><i class="fa-solid fa-pen text-xs"></i></button>
+                                        <button onclick="deleteRecipe('${rec.id}')" class="p-1 bg-brand-gray border border-brand-border rounded text-red-400 hover:text-red-300"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                                    </div>
+                                </div>
+                                <h4 class="font-extrabold text-brand-light text-base mt-2">${rec.name}</h4>
+                                <div class="mt-3 p-3 bg-brand-black/50 border border-brand-border/60 rounded-lg text-xs leading-relaxed text-brand-light">
+                                    <p class="font-bold text-[10px] text-brand-accent uppercase tracking-wider mb-1">Ingredientes Principais</p>
+                                    <p class="space-y-0.5">${ingPreviews || '<span class="text-brand-textMuted italic">Nenhum ingrediente adicionado</span>'}</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3 pt-3 border-t border-brand-border/40">
+                                <div class="grid grid-cols-2 gap-2 text-center">
+                                    <div class="bg-brand-black p-2.5 rounded border border-brand-border">
+                                        <span class="text-[9px] text-brand-textMuted uppercase font-bold">Custo Alimento</span>
+                                        <span class="text-sm font-black block text-brand-light mt-0.5">${formatCurrency(foodCost)}</span>
+                                    </div>
+                                    <div class="bg-brand-black p-2.5 rounded border border-brand-border">
+                                        <span class="text-[9px] text-brand-textMuted uppercase font-bold">CMV Real (%)</span>
+                                        <span class="text-sm font-black block mt-0.5 ${parseFloat(cmv) > target ? 'text-brand-accent' : 'text-emerald-500'}">${cmv}%</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="text-brand-textMuted font-semibold">Preço Praticado:</span>
+                                    <span class="font-bold text-brand-light text-sm">${formatCurrency(sellingPrice)}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="text-brand-textMuted font-semibold">Margem Operacional:</span>
+                                    <span class="font-bold ${marginValue > 0 ? 'text-emerald-500' : 'text-red-400'}">${formatCurrency(marginValue)} (${marginPercentage}%)</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            grid.innerHTML = html;
+        };
+
+        // Renderiza as Fichas de Complementos (Add-ons)
+        window.renderAddOns = function() {
+            const grid = document.getElementById('add-ons-grid');
+            if (!grid) return;
+
+            let html = '';
+            const addOns = appState.recipes.filter(r => r.type === 'add-on');
+
+            if (addOns.length === 0) {
+                html = `
+                    <div class="col-span-full bg-brand-dark border border-brand-border p-8 rounded-xl text-center space-y-3">
+                        <i class="fa-solid fa-puzzle-piece text-3xl text-brand-textMuted"></i>
+                        <p class="text-sm text-brand-textMuted">Nenhum complemento extra criado.</p>
+                        <button onclick="openRecipeModal('add-on')" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-bold transition-all inline-block">Criar Primeiro Complemento</button>
+                    </div>
+                `;
+            } else {
+                addOns.forEach(rec => {
+                    const foodCost = calculateItemCost(rec);
+                    const sellingPrice = parseFloat(rec.sellingPrice || 0);
+                    const cmv = sellingPrice > 0 ? ((foodCost / sellingPrice) * 100).toFixed(1) : '0.0';
+                    const target = parseFloat(appState.settings.targetCMV || 30);
+                    const marginValue = sellingPrice - foodCost - (sellingPrice * (parseFloat(appState.settings.tax) + parseFloat(appState.settings.apps) + parseFloat(appState.settings.card)) / 100);
+                    const marginPercentage = sellingPrice > 0 ? ((marginValue / sellingPrice) * 100).toFixed(1) : '0';
+
+                    const ingPreviews = (rec.ingredients || []).slice(0, 4).map(item => {
+                        const ing = appState.ingredients.find(i => i.id === item.ingredientId);
+                        return ing ? `• ${ing.name} <span class="text-brand-textMuted font-normal">(${item.qty}${ing.unit})</span>` : '';
+                    }).filter(Boolean).join('<br>');
+
+                    html += `
+                        <div class="bg-brand-dark border border-brand-border rounded-xl p-5 shadow-xl flex flex-col justify-between space-y-4">
+                            <div>
+                                <div class="flex justify-between items-start">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-500/10 text-purple-400 border border-purple-500/20">Extra / Adicional</span>
+                                    <div class="flex gap-1.5">
+                                        <button onclick="openRecipeModal('add-on', '${rec.id}')" class="p-1 bg-brand-gray border border-brand-border rounded text-brand-textMuted hover:text-brand-light"><i class="fa-solid fa-pen text-xs"></i></button>
+                                        <button onclick="deleteRecipe('${rec.id}')" class="p-1 bg-brand-gray border border-brand-border rounded text-red-400 hover:text-red-300"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                                    </div>
+                                </div>
+                                <h4 class="font-extrabold text-brand-light text-base mt-2">+ ${rec.name}</h4>
+                                <div class="mt-3 p-3 bg-brand-black/50 border border-brand-border/60 rounded-lg text-xs leading-relaxed text-brand-light">
+                                    <p class="font-bold text-[10px] text-purple-400 uppercase tracking-wider mb-1">Custo Direto</p>
+                                    <p class="space-y-0.5">${ingPreviews || '<span class="text-brand-textMuted italic">Nenhum ingrediente</span>'}</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3 pt-3 border-t border-brand-border/40">
+                                <div class="grid grid-cols-2 gap-2 text-center">
+                                    <div class="bg-brand-black p-2.5 rounded border border-brand-border">
+                                        <span class="text-[9px] text-brand-textMuted uppercase font-bold">Custo Total</span>
+                                        <span class="text-sm font-black block text-brand-light mt-0.5">${formatCurrency(foodCost)}</span>
+                                    </div>
+                                    <div class="bg-brand-black p-2.5 rounded border border-brand-border">
+                                        <span class="text-[9px] text-brand-textMuted uppercase font-bold">CMV Real (%)</span>
+                                        <span class="text-sm font-black block mt-0.5 ${parseFloat(cmv) > target ? 'text-brand-accent' : 'text-emerald-500'}">${cmv}%</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="text-brand-textMuted font-semibold">Preço Praticado:</span>
+                                    <span class="font-bold text-brand-light text-sm">${formatCurrency(sellingPrice)}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="text-brand-textMuted font-semibold">Lucro Extra R$:</span>
+                                    <span class="font-bold ${marginValue > 0 ? 'text-emerald-500' : 'text-red-400'}">${formatCurrency(marginValue)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            grid.innerHTML = html;
+        };
+
+        window.renderCombos = function() {
+            const grid = document.getElementById('combos-grid');
+            if (!grid) return;
+
+            let html = '';
+
+            if (appState.combos.length === 0) {
+                html = `
+                    <div class="col-span-full bg-brand-dark border border-brand-border p-8 rounded-xl text-center space-y-3">
+                        <i class="fa-solid fa-boxes-packing text-3xl text-brand-textMuted"></i>
+                        <p class="text-sm text-brand-textMuted">Você ainda não tem Combos criados.</p>
+                        <button onclick="openComboModal()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black px-4 py-2 rounded-lg text-xs font-bold transition-all inline-block">Criar Primeiro Combo</button>
+                    </div>
+                `;
+            } else {
+                appState.combos.forEach(combo => {
+                    const comboCost = calculateItemCost(combo);
+                    const sellingPrice = parseFloat(combo.sellingPrice || 0);
+                    const cmv = sellingPrice > 0 ? ((comboCost / sellingPrice) * 100).toFixed(1) : '0.0';
+                    const target = parseFloat(appState.settings.targetCMV || 30);
+                    const marginValue = sellingPrice - comboCost - (sellingPrice * (parseFloat(appState.settings.tax) + parseFloat(appState.settings.apps) + parseFloat(appState.settings.card)) / 100);
+                    const marginPercentage = sellingPrice > 0 ? ((marginValue / sellingPrice) * 100).toFixed(1) : '0';
+
+                    const itemPreviews = (combo.items || []).slice(0, 4).map(ci => {
+                        if (ci.type === 'recipe') {
+                            const rec = appState.recipes.find(r => r.id === ci.itemId);
+                            return rec ? `• ${rec.name} <span class="text-brand-textMuted font-normal">(${ci.qty} un)</span>` : '';
+                        } else {
+                            const ing = appState.ingredients.find(i => i.id === ci.itemId);
+                            return ing ? `• ${ing.name} <span class="text-brand-textMuted font-normal">(${ci.qty} ${ing.unit})</span>` : '';
+                        }
+                    }).filter(Boolean).join('<br>');
+
+                    html += `
+                        <div class="bg-brand-dark border border-brand-border rounded-xl p-5 shadow-xl flex flex-col justify-between space-y-4">
+                            <div>
+                                <div class="flex justify-between items-start">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20">Combo Promo</span>
+                                    <div class="flex gap-1.5">
+                                        <button onclick="openComboModal('${combo.id}')" class="p-1 bg-brand-gray border border-brand-border rounded text-brand-textMuted hover:text-brand-light"><i class="fa-solid fa-pen text-xs"></i></button>
+                                        <button onclick="deleteCombo('${combo.id}')" class="p-1 bg-brand-gray border border-brand-border rounded text-red-400 hover:text-red-300"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                                    </div>
+                                </div>
+                                <h4 class="font-extrabold text-brand-light text-base mt-2">${combo.name}</h4>
+                                <div class="mt-3 p-3 bg-brand-black/50 border border-brand-border/60 rounded-lg text-xs leading-relaxed text-brand-light">
+                                    <p class="font-bold text-[10px] text-brand-accent uppercase tracking-wider mb-1">Itens Inclusos</p>
+                                    <p class="space-y-0.5">${itemPreviews || '<span class="text-brand-textMuted italic">Nenhum item adicionado</span>'}</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3 pt-3 border-t border-brand-border/40">
+                                <div class="grid grid-cols-2 gap-2 text-center">
+                                    <div class="bg-brand-black p-2.5 rounded border border-brand-border">
+                                        <span class="text-[9px] text-brand-textMuted uppercase font-bold">Custo Combo</span>
+                                        <span class="text-sm font-black block text-brand-light mt-0.5">${formatCurrency(comboCost)}</span>
+                                    </div>
+                                    <div class="bg-brand-black p-2.5 rounded border border-brand-border">
+                                        <span class="text-[9px] text-brand-textMuted uppercase font-bold">CMV Real (%)</span>
+                                        <span class="text-sm font-black block mt-0.5 ${parseFloat(cmv) > target ? 'text-brand-accent' : 'text-emerald-500'}">${cmv}%</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="text-brand-textMuted font-semibold">Preço Praticado:</span>
+                                    <span class="font-bold text-brand-light text-sm">${formatCurrency(sellingPrice)}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="text-brand-textMuted font-semibold">Margem Operacional:</span>
+                                    <span class="font-bold ${marginValue > 0 ? 'text-emerald-500' : 'text-red-400'}">${formatCurrency(marginValue)} (${marginPercentage}%)</span>
+                                </div>
+                            </div>
+<!-- ... existing code ... -->
+                    <div class="space-y-4" id="direct-auth-form">
+                        <div>
+                            <label class="block text-[10px] font-bold text-brand-light uppercase mb-1.5 tracking-wider">Endereço de Email</label>
+                            <input id="direct-email" type="email" placeholder="Ex: gestao@triboburger.com" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+</div>
+                    `;
+                });
+            }
+            grid.innerHTML = html;
+        };
+
+        window.renderFixedCosts = function() {
+            const table = document.getElementById('fixed-costs-table-body');
+            if (!table) return;
+
+            let html = '';
+            let total = 0;
+
+            if (appState.fixedCosts.length === 0) {
+                html = `<tr><td colspan="3" class="py-6 text-center text-brand-textMuted text-xs">Nenhum custo fixo cadastrado.</td></tr>`;
+            } else {
+                appState.fixedCosts.forEach(cost => {
+                    const val = parseFloat(cost.value || 0);
+                    total += val;
+
+                    html += `
+                        <tr class="hover:bg-brand-gray/20 transition-colors">
+                            <td class="py-3.5 px-4 font-semibold text-brand-light">${cost.description}</td>
+                            <td class="py-3.5 px-4 font-bold text-brand-accent">${formatCurrency(val)}</td>
+                            <td class="py-3.5 px-4 text-right space-x-1 whitespace-nowrap">
+                                <button onclick="openFixedCostModal('${cost.id}')" class="p-1.5 bg-brand-gray border border-brand-border rounded text-brand-textMuted hover:text-brand-light transition-colors" title="Editar">
+                                    <i class="fa-solid fa-pen text-xs"></i>
+                                </button>
+                                <button onclick="deleteFixedCost('${cost.id}')" class="p-1.5 bg-brand-gray border border-brand-border rounded text-red-400 hover:text-red-300 transition-colors" title="Excluir">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            table.innerHTML = html;
+            safeSetText('summary-total-fixed-costs', formatCurrency(total));
+        };
+
+        window.renderAnalysis = function() {
+            const table = document.getElementById('analysis-table-body');
+            if (!table) return;
+
+            // Atualizar data de geração de impressão
+            const dateEl = document.getElementById('print-date');
+            if (dateEl) {
+                const now = new Date();
+                dateEl.textContent = `Data de Geração: ${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR')}`;
+            }
+
+            safeSetText('analysis-target-cmv', `${appState.settings.targetCMV}%`);
+
+            let html = '';
+            const allItems = [
+                ...appState.recipes.map(r => ({ ...r, displayType: r.type === 'add-on' ? 'Complemento' : 'Ficha Técnica' })),
+                ...appState.combos.map(c => ({ ...c, displayType: 'Combo' }))
+            ];
+
+            if (allItems.length === 0) {
+                html = `<tr><td colspan="8" class="py-6 text-center text-brand-textMuted">Adicione Fichas ou Combos para gerar a análise.</td></tr>`;
+            } else {
+                const totalTaxesPercentage = parseFloat(appState.settings.tax) + parseFloat(appState.settings.apps) + parseFloat(appState.settings.card);
+                const target = parseFloat(appState.settings.targetCMV || 30);
+
+                allItems.forEach(item => {
+                    const cost = calculateItemCost(item);
+                    const sellingPrice = parseFloat(item.sellingPrice || 0);
+                    const cmv = sellingPrice > 0 ? ((cost / sellingPrice) * 100).toFixed(1) : '0.0';
+                    const marginVal = sellingPrice - cost - (sellingPrice * totalTaxesPercentage / 100);
+                    const marginPercentage = sellingPrice > 0 ? ((marginVal / sellingPrice) * 100).toFixed(1) : '0';
+
+                    // Cor condicional para impressão e tela normal
+                    const cmvColorClass = parseFloat(cmv) > target ? 'text-brand-accent font-extrabold' : 'text-emerald-500 font-bold';
+                    const marginColorClass = marginVal > 0 ? 'text-emerald-500 font-bold' : 'text-red-400 font-bold';
+
+                    html += `
+                        <tr class="hover:bg-brand-gray/10 transition-colors border-b border-brand-border/40">
+                            <td class="py-4 px-4 font-bold uppercase tracking-wider text-[10px] text-brand-textMuted">${item.displayType}</td>
+                            <td class="py-4 px-4 font-bold text-brand-light print-text">${item.name}</td>
+                            <td class="py-4 px-4 text-right font-medium text-brand-textMuted print-text">${formatCurrency(cost)}</td>
+                            <td class="py-4 px-4 text-right font-bold text-brand-light print-text">${formatCurrency(sellingPrice)}</td>
+                            <td class="py-4 px-4 text-center print-text ${cmvColorClass}">${cmv}%</td>
+                            <td class="py-4 px-4 text-center text-brand-textMuted print-text">${totalTaxesPercentage}%</td>
+                            <td class="py-4 px-4 text-right print-text ${marginColorClass}">${formatCurrency(marginVal)}</td>
+                            <td class="py-4 px-4 text-center print-text ${marginColorClass}">${marginPercentage}%</td>
+                        </tr>
+                    `;
+                });
+            }
+            table.innerHTML = html;
+        };
+
+        window.renderSettingsInFields = function() {
+            safeSetValue('setting-target-cmv', appState.settings.targetCMV);
+            safeSetValue('setting-tax', appState.settings.tax);
+            safeSetValue('setting-apps', appState.settings.apps);
+            safeSetValue('setting-card', appState.settings.card);
+        };
+
+
+        // ----------------- CRUD - INSUMOS E FICHAS TÉCNICAS -----------------
+
+        window.openRecipeModal = function(type, id = null) {
+            const modal = document.getElementById('modal-recipe');
+            if (!modal) return;
+
+            const container = document.getElementById('recipe-ingredients-rows');
+            container.innerHTML = '';
+
+            let loadedIngredients = [];
+<!-- ... existing code ... -->
+        window.toggleDirectAuthMode = function() {
+            authMode = authMode === 'login' ? 'register' : 'login';
+            const submitBtn = document.getElementById('btn-direct-submit');
+            const toggleBtn = document.getElementById('btn-toggle-direct');
+            const label = document.getElementById('direct-auth-toggle-label');
+            const errorBox = document.getElementById('locked-error-box');
+            
+            if (errorBox) errorBox.classList.add('hidden');
+
+            if (id) {
+                const rec = appState.recipes.find(r => r.id === id);
+                if (rec) {
+                    document.getElementById('modal-recipe-title').textContent = rec.type === 'add-on' ? 'Editar Complemento' : 'Editar Ficha Técnica';
+                    document.getElementById('label-recipe-name').textContent = rec.type === 'add-on' ? 'Nome do Extra (Ex: Bacon, Queijo)' : 'Nome do Hambúrguer/Prato';
+                    
+                    safeSetValue('recipe-id', rec.id);
+                    safeSetValue('recipe-type', rec.type || 'recipe');
+                    safeSetValue('recipe-name', rec.name);
+                    safeSetValue('recipe-selling-price', rec.sellingPrice);
+                    loadedIngredients = [...(rec.ingredients || [])];
+                }
+            if (authMode === 'login') {
+                if (submitBtn) submitBtn.textContent = 'Entrar no Sistema';
+                if (toggleBtn) toggleBtn.textContent = 'Criar Conta';
+                if (label) label.textContent = 'Ainda não tem conta?';
+} else {
+                const titleText = type === 'add-on' ? 'Criar Novo Complemento' : 'Criar Nova Ficha Técnica';
+                const labelText = type === 'add-on' ? 'Nome do Extra (Ex: Bacon, Queijo)' : 'Nome do Hambúrguer/Prato';
+                
+                document.getElementById('modal-recipe-title').textContent = titleText;
+                document.getElementById('label-recipe-name').textContent = labelText;
+
+                safeSetValue('recipe-id', '');
+                safeSetValue('recipe-type', type);
+                safeSetValue('recipe-name', '');
+                safeSetValue('recipe-selling-price', '');
+            }
+
+            loadedIngredients.forEach(item => {
+                addIngredientRowMarkup(item.ingredientId, item.qty);
+            });
+
+            calculateRecipeModalCosts();
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        };
+
+        window.closeRecipeModal = function() {
+            const modal = document.getElementById('modal-recipe');
+            if (modal) {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }
+        };
+
+        window.addIngredientRowToRecipe = function() {
+            addIngredientRowMarkup('', '');
+        };
+
+        function addIngredientRowMarkup(selectedId = '', qtyVal = '') {
+            const container = document.getElementById('recipe-ingredients-rows');
+            if (!container) return;
+
+            const rowId = 'recipe_row_' + crypto.randomUUID();
+            const div = document.createElement('div');
+            div.id = rowId;
+            div.className = "flex items-center gap-2 bg-brand-gray/80 p-2 rounded-lg border border-brand-border/60 recipe-row-item";
+
+            let optionsHtml = '<option value="">-- Escolha o Insumo --</option>';
+            appState.ingredients.forEach(ing => {
+                const isSelected = ing.id === selectedId ? 'selected' : '';
+                optionsHtml += `<option value="${ing.id}" ${isSelected}>${ing.name} (${formatCurrency(ing.cost / ing.qty)}/${getBaseUnitRepresentation(ing.unit)})</option>`;
+            });
+
+            div.innerHTML = `
+                <select onchange="calculateRecipeModalCosts()" class="select-recipe-ingredient-target bg-brand-black border border-brand-border text-brand-light text-xs rounded px-2.5 py-2 flex-1 focus:outline-none focus:border-brand-accent">
+                    ${optionsHtml}
+                </select>
+                <div class="flex items-center gap-1.5 w-28 bg-brand-black border border-brand-border rounded px-2">
+                    <input type="number" step="0.01" oninput="calculateRecipeModalCosts()" placeholder="Qtd" value="${qtyVal}" class="input-recipe-qty bg-transparent text-brand-light text-xs py-1.5 focus:outline-none w-full">
+                </div>
+                <button onclick="removeRecipeIngredientRow('${rowId}')" class="p-1.5 bg-brand-gray border border-brand-border hover:bg-brand-border rounded text-red-400 hover:text-red-300 transition-colors">
+                    <i class="fa-solid fa-trash-can text-xs"></i>
+                </button>
+            `;
+
+            container.appendChild(div);
+        }
+
+        window.removeRecipeIngredientRow = function(rowId) {
+            const row = document.getElementById(rowId);
+            if (row) {
+                row.remove();
+                calculateRecipeModalCosts();
+                if (submitBtn) submitBtn.textContent = 'Criar e Registar Conta';
+                if (toggleBtn) toggleBtn.textContent = 'Iniciar Sessão';
+                if (label) label.textContent = 'Já possui uma conta?';
+}
+};
+
+        window.calculateRecipeModalCosts = function() {
+            let foodCost = 0;
+            const container = document.getElementById('recipe-ingredients-rows');
+            if (!container) return;
+
+            const rows = container.querySelectorAll('.recipe-row-item');
+            rows.forEach(row => {
+                const selectEl = row.querySelector('.select-recipe-ingredient-target');
+                const qtyEl = row.querySelector('.input-recipe-qty');
+                
+                if (selectEl && qtyEl) {
+                    const ingId = selectEl.value;
+                    const qty = parseFloat(qtyEl.value || 0);
+        window.handleDirectAuthSubmit = async function() {
+            const email = document.getElementById('direct-email').value.trim();
+            const password = document.getElementById('direct-password').value;
+            const errorBox = document.getElementById('locked-error-box');
+
+                    const ing = appState.ingredients.find(i => i.id === ingId);
+                    if (ing && qty > 0) {
+                        const unitCost = parseFloat(ing.cost) / parseFloat(ing.qty);
+                        let ratio = 1;
+                        if (ing.unit === 'kg' || ing.unit === 'L') {
+                            ratio = 0.001; // gramas ou mililitros
+                        }
+                        foodCost += unitCost * (qty * ratio);
+                    }
+            if (!auth) {
+                if (errorBox) {
+                    errorBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> Erro de sistema: Conexão com a base de dados falhou.';
+                    errorBox.classList.remove('hidden');
+}
+            });
+
+            const sellingPrice = parseFloat(document.getElementById('recipe-selling-price')?.value || 0);
+            const cmv = sellingPrice > 0 ? ((foodCost / sellingPrice) * 100).toFixed(1) : '0.0';
+            const suggested = foodCost / (parseFloat(appState.settings.targetCMV || 30) / 100);
+
+            const totalTaxes = parseFloat(appState.settings.tax) + parseFloat(appState.settings.apps) + parseFloat(appState.settings.card);
+            const marginVal = sellingPrice - foodCost - (sellingPrice * totalTaxes / 100);
+            const marginPct = sellingPrice > 0 ? ((marginVal / sellingPrice) * 100).toFixed(1) : '0.0';
+
+            safeSetText('recipe-calc-food-cost', formatCurrency(foodCost));
+            safeSetText('recipe-calc-cmv', `${cmv}%`);
+            safeSetText('recipe-calc-suggested', formatCurrency(suggested));
+            safeSetText('recipe-calc-margin', `${marginPct}%`);
+        };
+
+        window.saveRecipe = async function() {
+            const id = document.getElementById('recipe-id').value;
+            const type = document.getElementById('recipe-type').value;
+            const name = document.getElementById('recipe-name').value.trim();
+            const sellingPrice = parseFloat(document.getElementById('recipe-selling-price').value);
+
+            if (!name || isNaN(sellingPrice)) {
+                showCustomAlert('Erro de Preenchimento', 'Certifique-se de preencher o nome e o preço da ficha.', true);
+return;
+}
+
+            const container = document.getElementById('recipe-ingredients-rows');
+            const rows = container ? container.querySelectorAll('.recipe-row-item') : [];
+            const ingredientsList = [];
+
+            rows.forEach(row => {
+                const selectEl = row.querySelector('.select-recipe-ingredient-target');
+                const qtyEl = row.querySelector('.input-recipe-qty');
+                if (selectEl && qtyEl) {
+                    const ingredientId = selectEl.value;
+                    const qty = parseFloat(qtyEl.value || 0);
+                    if (ingredientId && qty > 0) {
+                        ingredientsList.push({ ingredientId, qty });
+                    }
+                }
+            });
+
+            const targetId = id || crypto.randomUUID();
+            const list = [...appState.recipes];
+            const index = list.findIndex(r => r.id === targetId);
+
+            const record = {
+                id: targetId,
+                type: type || 'recipe', // Diferencia entre ficha completa ou add-on
+                name,
+                sellingPrice,
+                ingredients: ingredientsList
+            };
+
+            if (index > -1) {
+                list[index] = record;
+            } else {
+                list.push(record);
+            }
+
+            appState.recipes = list;
+            closeRecipeModal();
+            window.renderAll();
+            await syncStateToCloud();
+            
+            const msgTitle = type === 'add-on' ? 'Complemento Gravado' : 'Ficha Gravada';
+            showCustomAlert(msgTitle, 'A composição foi salva e os custos foram recalculados com sucesso no cardápio!');
+        };
+
+        window.deleteRecipe = function(id) {
+            showCustomConfirm('Excluir', 'Deseja realmente remover permanentemente este item do cardápio? Pode quebrar combos associados a ele.', async (approved) => {
+                if (approved) {
+                    appState.recipes = appState.recipes.filter(r => r.id !== id);
+                    window.renderAll();
+                    await syncStateToCloud();
+                }
+            });
+        };
+
+        // ----------------- CRUD - INSUMOS (INGREDIENTES) -----------------
+        window.openIngredientModal = function(id = null) {
+            const modal = document.getElementById('modal-ingredient');
+            if (!modal) return;
+
+            if (id) {
+                document.getElementById('modal-ingredient-title').textContent = 'Editar Insumo';
+                const ing = appState.ingredients.find(i => i.id === id);
+                if (ing) {
+                    safeSetValue('ingredient-id', ing.id);
+                    safeSetValue('ingredient-name', ing.name);
+                    safeSetValue('ingredient-cost', ing.cost);
+                    safeSetValue('ingredient-unit', ing.unit);
+                    safeSetValue('ingredient-qty', ing.qty);
+            if (!email || !password) {
+                if (errorBox) {
+                    errorBox.textContent = 'Por favor, preencha o seu email e senha.';
+                    errorBox.classList.remove('hidden');
+}
+            } else {
+                document.getElementById('modal-ingredient-title').textContent = 'Novo Insumo';
+                safeSetValue('ingredient-id', '');
+                safeSetValue('ingredient-name', '');
+                safeSetValue('ingredient-cost', '');
+                safeSetValue('ingredient-unit', 'g');
+                safeSetValue('ingredient-qty', '');
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        };
+
+        window.closeIngredientModal = function() {
+            const modal = document.getElementById('modal-ingredient');
+            if (modal) {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }
+        };
+
+        window.saveIngredient = async function() {
+            const id = document.getElementById('ingredient-id').value;
+            const name = document.getElementById('ingredient-name').value.trim();
+            const cost = parseFloat(document.getElementById('ingredient-cost').value);
+            const unit = document.getElementById('ingredient-unit').value;
+            const qty = parseFloat(document.getElementById('ingredient-qty').value);
+
+            if (!name || isNaN(cost) || isNaN(qty)) {
+                showCustomAlert('Erro de Preenchimento', 'Certifique-se de preencher todos os campos do ingrediente corretamente.', true);
+return;
+}
+
+            const targetId = id || crypto.randomUUID();
+            const list = [...appState.ingredients];
+            const index = list.findIndex(i => i.id === targetId);
+
+            const record = { id: targetId, name, cost, unit, qty };
+
+            if (index > -1) {
+                list[index] = record;
+            } else {
+                list.push(record);
+            }
+
+            appState.ingredients = list;
+            closeIngredientModal();
+            window.renderAll();
+            await syncStateToCloud();
+            showCustomAlert('Insumo Salvo', 'Ingrediente gravado com sucesso no catálogo!');
+        };
+
+        window.deleteIngredient = function(id) {
+            showCustomConfirm('Excluir Insumo', 'Tem certeza de que deseja remover permanentemente este insumo do cardápio? Todas as receitas vinculadas precisarão ser revistas.', async (approved) => {
+                if (approved) {
+                    appState.ingredients = appState.ingredients.filter(i => i.id !== id);
+                    window.renderAll();
+                    await syncStateToCloud();
+            if (password.length < 6) {
+                if (errorBox) {
+                    errorBox.textContent = 'A senha precisa ter pelo menos 6 caracteres.';
+                    errorBox.classList.remove('hidden');
+}
+            });
+        };
+
+
+        // ----------------- CRUD - FICHA DE COMBOS -----------------
+        let comboItemsCache = [];
+
+        window.openComboModal = function(id = null) {
+            const modal = document.getElementById('modal-combo');
+            if (!modal) return;
+
+            const container = document.getElementById('combo-items-rows');
+            container.innerHTML = '';
+
+            if (id) {
+                document.getElementById('modal-combo-title').textContent = 'Editar Combo';
+                const combo = appState.combos.find(c => c.id === id);
+                if (combo) {
+                    safeSetValue('combo-id', combo.id);
+                    safeSetValue('combo-name', combo.name);
+                    safeSetValue('combo-selling-price', combo.sellingPrice);
+                    comboItemsCache = [...(combo.items || [])];
+                }
+            } else {
+                document.getElementById('modal-combo-title').textContent = 'Novo Combo de Venda';
+                safeSetValue('combo-id', '');
+                safeSetValue('combo-name', '');
+                safeSetValue('combo-selling-price', '');
+                comboItemsCache = [];
+            }
+
+            comboItemsCache.forEach(item => {
+                addComboRowMarkup(item.type, item.itemId, item.qty);
+            });
+
+            calculateComboModalCosts();
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        };
+
+        window.closeComboModal = function() {
+            const modal = document.getElementById('modal-combo');
+            if (modal) {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }
+        };
+
+        window.addComboRowItem = function() {
+            addComboRowMarkup('recipe', '', '');
+        };
+
+        function addComboRowMarkup(type = 'recipe', selectedId = '', qtyVal = '') {
+            const container = document.getElementById('combo-items-rows');
+            if (!container) return;
+
+            const rowId = 'combo_row_' + crypto.randomUUID();
+            const div = document.createElement('div');
+            div.id = rowId;
+            div.className = "flex items-center gap-2 bg-brand-gray/80 p-2 rounded-lg border border-brand-border/60 combo-row-item";
+
+            // Seletor de Tipo (Ficha ou Insumo Direto)
+            const typeSelect = `
+                <select onchange="updateComboRowSelectOptions('${rowId}')" class="combo-item-type bg-brand-black border border-brand-border text-brand-light text-xs rounded px-2.5 py-2 w-36 focus:outline-none focus:border-brand-accent">
+                    <option value="recipe" ${type === 'recipe' ? 'selected' : ''}>🍔 Receitas / Extras</option>
+                    <option value="ingredient" ${type === 'ingredient' ? 'selected' : ''}>📦 Insumo Solto</option>
+                </select>
+            `;
+
+            div.innerHTML = `
+                ${typeSelect}
+                <select onchange="calculateComboModalCosts()" class="combo-item-target-select bg-brand-black border border-brand-border text-brand-light text-xs rounded px-2.5 py-2 flex-1 focus:outline-none focus:border-brand-accent">
+                    <!-- Options populated dynamically -->
+                </select>
+                <div class="flex items-center gap-1 bg-brand-black border border-brand-border rounded px-2 w-24">
+                    <input type="number" step="0.01" oninput="calculateComboModalCosts()" placeholder="Qtd" value="${qtyVal}" class="combo-item-qty bg-transparent text-brand-light text-xs py-1.5 focus:outline-none w-full">
+                </div>
+                <button onclick="removeComboRowItem('${rowId}')" class="p-1.5 bg-brand-gray border border-brand-border hover:bg-brand-border rounded text-red-400 hover:text-red-300 transition-colors">
+                    <i class="fa-solid fa-trash-can text-xs"></i>
+                </button>
+            `;
+
+            container.appendChild(div);
+            updateComboRowSelectOptions(rowId, selectedId);
+        }
+
+        window.updateComboRowSelectOptions = function(rowId, selectedId = '') {
+            const row = document.getElementById(rowId);
+            if (!row) return;
+
+            const type = row.querySelector('.combo-item-type').value;
+            const selectEl = row.querySelector('.combo-item-target-select');
+            if (!selectEl) return;
+
+            let html = '<option value="">-- Selecione --</option>';
+
+            if (type === 'recipe') {
+                appState.recipes.forEach(r => {
+                    const cost = calculateItemCost(r);
+                    html += `<option value="${r.id}" ${r.id === selectedId ? 'selected' : ''}>${r.name} (Custo: ${formatCurrency(cost)})</option>`;
+                });
+            } else {
+                appState.ingredients.forEach(i => {
+                    html += `<option value="${i.id}" ${i.id === selectedId ? 'selected' : ''}>${i.name} (${formatCurrency(i.cost / i.qty)}/${i.unit})</option>`;
+                });
+            }
+
+            selectEl.innerHTML = html;
+            calculateComboModalCosts();
+        };
+
+        window.removeComboRowItem = function(rowId) {
+            const row = document.getElementById(rowId);
+            if (row) {
+                row.remove();
+                calculateComboModalCosts();
+            }
+        };
+
+        window.calculateComboModalCosts = function() {
+            let totalCost = 0;
+            const container = document.getElementById('combo-items-rows');
+            if (!container) return;
+
+            const rows = container.querySelectorAll('.combo-row-item');
+            rows.forEach(row => {
+                const type = row.querySelector('.combo-item-type').value;
+                const itemId = row.querySelector('.combo-item-target-select').value;
+                const qty = parseFloat(row.querySelector('.combo-item-qty').value || 0);
+
+                if (itemId && qty > 0) {
+                    if (type === 'recipe') {
+                        const rec = appState.recipes.find(r => r.id === itemId);
+                        if (rec) {
+                            totalCost += calculateItemCost(rec) * qty;
+                        }
+                    } else {
+                        const ing = appState.ingredients.find(i => i.id === itemId);
+                        if (ing) {
+                            const unitCost = parseFloat(ing.cost) / parseFloat(ing.qty);
+                            let ratio = 1;
+                            if (ing.unit === 'kg' || ing.unit === 'L') {
+                                ratio = 0.001;
+                            }
+                            totalCost += unitCost * (qty * ratio);
+                        }
+                    }
+                }
+            });
+
+            const sellingPrice = parseFloat(document.getElementById('combo-selling-price')?.value || 0);
+            const cmv = sellingPrice > 0 ? ((totalCost / sellingPrice) * 100).toFixed(1) : '0.0';
+            const suggested = totalCost / (parseFloat(appState.settings.targetCMV || 30) / 100);
+
+            const totalTaxes = parseFloat(appState.settings.tax) + parseFloat(appState.settings.apps) + parseFloat(appState.settings.card);
+            const marginVal = sellingPrice - totalCost - (sellingPrice * totalTaxes / 100);
+            const marginPct = sellingPrice > 0 ? ((marginVal / sellingPrice) * 100).toFixed(1) : '0.0';
+
+            safeSetText('combo-calc-food-cost', formatCurrency(totalCost));
+            safeSetText('combo-calc-cmv', `${cmv}%`);
+            safeSetText('combo-calc-suggested', formatCurrency(suggested));
+            safeSetText('combo-calc-margin', `${marginPct}%`);
+        };
+
+        window.saveCombo = async function() {
+            const id = document.getElementById('combo-id').value;
+            const name = document.getElementById('combo-name').value.trim();
+            const sellingPrice = parseFloat(document.getElementById('combo-selling-price').value);
+
+            if (!name || isNaN(sellingPrice)) {
+                showCustomAlert('Erro ao Gravar', 'Por favor, preencha o nome do combo e o preço praticado.', true);
+return;
+}
+
+            const container = document.getElementById('combo-items-rows');
+            const rows = container ? container.querySelectorAll('.combo-row-item') : [];
+            const comboItems = [];
+
+            rows.forEach(row => {
+                const type = row.querySelector('.combo-item-type').value;
+                const itemId = row.querySelector('.combo-item-target-select').value;
+                const qty = parseFloat(row.querySelector('.combo-item-qty').value || 0);
+
+                if (itemId && qty > 0) {
+                    comboItems.push({ type, itemId, qty });
+            try {
+                // Desativa o botão temporariamente para evitar cliques duplos
+                const btnSubmit = document.getElementById('btn-direct-submit');
+                if (btnSubmit) {
+                    btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
+                    btnSubmit.disabled = true;
+}
+            });
+
+            const targetId = id || crypto.randomUUID();
+            const list = [...appState.combos];
+            const index = list.findIndex(c => c.id === targetId);
+
+            const record = {
+                id: targetId,
+                name,
+                sellingPrice,
+                items: comboItems
+            };
+
+            if (index > -1) {
+                list[index] = record;
+            } else {
+                list.push(record);
+            }
+
+            appState.combos = list;
+            closeComboModal();
+            window.renderAll();
+            await syncStateToCloud();
+            showCustomAlert('Combo Gravado', 'Ficha de combo promocional gravada e recalculada com sucesso!');
+        };
+
+        window.deleteCombo = function(id) {
+            showCustomConfirm('Excluir Combo', 'Tem certeza que deseja excluir esta ficha de combo?', async (approved) => {
+                if (approved) {
+                    appState.combos = appState.combos.filter(c => c.id !== id);
+                    window.renderAll();
+                    await syncStateToCloud();
+                if (authMode === 'login') {
+                    await signInWithEmailAndPassword(auth, email, password);
+                } else {
+                    await createUserWithEmailAndPassword(auth, email, password);
+}
+            });
+        };
+
+        // ----------------- CRUD - CUSTOS FIXOS -----------------
+        window.openFixedCostModal = function(id = null) {
+            const modal = document.getElementById('modal-fixed-cost');
+            if (!modal) return;
+
+            if (id) {
+                document.getElementById('modal-fixed-cost-title').textContent = 'Editar Custo Fixo';
+                const cost = appState.fixedCosts.find(c => c.id === id);
+                if (cost) {
+                    safeSetValue('fixed-cost-id', cost.id);
+                    safeSetValue('fixed-cost-description', cost.description);
+                    safeSetValue('fixed-cost-value', cost.value);
+                if (errorBox) errorBox.classList.add('hidden');
+            } catch (error) {
+                console.error("Erro Auth Direto:", error);
+                const btnSubmit = document.getElementById('btn-direct-submit');
+                if (btnSubmit) {
+                    btnSubmit.textContent = authMode === 'login' ? 'Entrar no Sistema' : 'Criar e Registar Conta';
+                    btnSubmit.disabled = false;
+}
+            } else {
+                document.getElementById('modal-fixed-cost-title').textContent = 'Novo Custo Fixo';
+                safeSetValue('fixed-cost-id', '');
+                safeSetValue('fixed-cost-description', '');
+                safeSetValue('fixed-cost-value', '');
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        };
+
+        window.closeFixedCostModal = function() {
+            const modal = document.getElementById('modal-fixed-cost');
+            if (modal) {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }
+        };
+
+        window.saveFixedCost = async function() {
+            const id = document.getElementById('fixed-cost-id').value;
+            const description = document.getElementById('fixed-cost-description').value.trim();
+            const value = parseFloat(document.getElementById('fixed-cost-value').value);
+
+            if (!description || isNaN(value)) {
+                showCustomAlert('Erro ao Salvar', 'Informe uma descrição e o valor mensal correto.', true);
+                return;
+            }
+
+            const targetId = id || crypto.randomUUID();
+            const list = [...appState.fixedCosts];
+            const index = list.findIndex(c => c.id === targetId);
+
+            const record = { id: targetId, description, value };
+
+            if (index > -1) {
+                list[index] = record;
+            } else {
+                list.push(record);
+            }
+
+            appState.fixedCosts = list;
+            closeFixedCostModal();
+            window.renderAll();
+            await syncStateToCloud();
+            showCustomAlert('Gravado', 'Custo Fixo mensal registrado com sucesso!');
+        };
+
+        window.deleteFixedCost = function(id) {
+            showCustomConfirm('Excluir Custo Fixo', 'Remover este lançamento de custo fixo?', async (approved) => {
+                if (approved) {
+                    appState.fixedCosts = appState.fixedCosts.filter(c => c.id !== id);
+                    window.renderAll();
+                    await syncStateToCloud();
+                if (errorBox) {
+                    let userMsg = 'Erro de credenciais. Verifique os dados.';
+                    if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                        userMsg = 'Dados incorretos. Verifique o email e palavra-passe.';
+                    } else if (error.code === 'auth/email-already-in-use') {
+                        userMsg = 'Este email já se encontra registado.';
+                    } else if (error.code === 'auth/network-request-failed') {
+                        userMsg = 'Falha na rede. Verifique a sua ligação à internet.';
+                    }
+                    errorBox.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1"></i> ${userMsg}`;
+                    errorBox.classList.remove('hidden');
+}
+            });
+        };
+
+        // ----------------- PARÂMETROS GLOBAIS -----------------
+        window.saveSettings = async function() {
+            const targetCMV = parseFloat(document.getElementById('setting-target-cmv').value);
+            const tax = parseFloat(document.getElementById('setting-tax').value);
+            const apps = parseFloat(document.getElementById('setting-apps').value);
+            const card = parseFloat(document.getElementById('setting-card').value);
+
+            if (isNaN(targetCMV) || isNaN(tax) || isNaN(apps) || isNaN(card)) {
+                showCustomAlert('Parâmetros Inválidos', 'Verifique se digitou os valores corretos de taxas.', true);
+                return;
+}
+
+            appState.settings = { targetCMV, tax, apps, card };
+            window.renderAll();
+            await syncStateToCloud();
+            showCustomAlert('Taxas Atualizadas', 'Parâmetros comerciais globais salvos e replicados no cálculo das fichas!');
+};
+
+        // ----------------- COORDENAÇÃO ATÔMICA DA SINCRONIZAÇÃO NUVEM -----------------
+        async function initCloudSyncListener() {
+            if (databaseListenerUnsubscribe) {
+                databaseListenerUnsubscribe(); // Cancela listener anterior se houver
+            }
+
+            const badge = document.getElementById('cloud-badge');
+            if (badge) {
+                badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> A sincronizar...`;
+                badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20";
+            }
+
+            const docRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'user_data', 'state');
+        window.handleLogout = async function() {
+<!-- ... existing code ... -->
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Inicializar renderização UI vazia antes do Firebase autenticar
+            window.renderAll();
+
+            try {
+                databaseListenerUnsubscribe = onSnapshot(docRef, (snap) => {
+                    if (snap.exists()) {
+                        const data = snap.data();
+            // Garantimos que a autenticação e estado do sistema será monitorizado em tempo real, se o Firebase estiver ativo
+            if (auth) {
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        currentUser = user;
+                        updateAuthenticationUI(user);
+
+                        // Atualiza estado local com dados da nuvem mantendo integridade
+                        appState = {
+                            ingredients: data.ingredients || [],
+                            recipes: data.recipes || [],
+                            combos: data.combos || [],
+                            fixedCosts: data.fixedCosts || [],
+                            settings: {
+                                targetCMV: data.settings?.targetCMV ?? 30,
+                                tax: data.settings?.tax ?? 6,
+                                apps: data.settings?.apps ?? 12,
+                                card: data.settings?.card ?? 2.5
+                            }
+                        };
+                        if (!user.isAnonymous) {
+                            initCloudSyncListener();
+                        }
+} else {
+                        // Se for uma conta nova e vazia, criamos o esqueleto inicial
+                        syncStateToCloud();
+                    }
+
+                    // Renderiza todos os dados na tela (após garantir que já estamos logados e recebemos os dados)
+                    window.renderAll();
+
+                    if (badge) {
+                        badge.innerHTML = `<i class="fa-solid fa-cloud mr-1"></i> Protegido`;
+                        badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20";
+                    }
+                }, (error) => {
+                    console.error("Erro na escuta da nuvem:", error);
+                    if (badge) {
+                        badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> Sem Conexão`;
+                        badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20";
+                        updateAuthenticationUI(null);
+}
+});
+            } catch (err) {
+                console.error("Erro ao inicializar escuta:", err);
+            }
+        }
+
+        async function syncStateToCloud() {
+            if (!auth.currentUser || auth.currentUser.isAnonymous) return;
+
+            const docRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'user_data', 'state');
+            try {
+                await setDoc(docRef, {
+                    ingredients: appState.ingredients,
+                    recipes: appState.recipes,
+                    combos: appState.combos,
+                    fixedCosts: appState.fixedCosts,
+                    settings: appState.settings,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+            } catch (e) {
+                console.error("Falha ao gravar dados na nuvem:", e);
+                showCustomAlert('Erro ao Sincronizar', 'Seus dados foram salvos apenas localmente nesta sessão porque houve uma falha de conexão com os servidores.', true);
+            } else {
+                updateAuthenticationUI(null); // Mostra o ecrã de bloqueio indicando falha
+}
+        }
+
+        // ----------------- FLUXO DE INICIALIZAÇÃO DO APLICATIVO -----------------
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Inicializar renderização UI vazia antes do Firebase autenticar
+            window.renderAll();
+
+            // Garantimos que a autenticação e estado do sistema será monitorizado em tempo real
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    updateAuthenticationUI(user);
+                    
+                    if (!user.isAnonymous) {
+                        initCloudSyncListener();
+                    }
+                } else {
+                    updateAuthenticationUI(null);
+                }
+            });
+});
+
+</script>
