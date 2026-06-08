@@ -2503,48 +2503,95 @@ service cloud.firestore {
 
                 const badge = document.getElementById('cloud-badge');
                 if (badge) {
-                    badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> A extrair dados...`;
+                    badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> A extrair dados profundos...`;
                     badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20";
                 }
 
                 try {
-                    // Tenta acessar o estado da pasta antiga
-                    const oldDocRef = doc(db, 'artifacts', defaultAppId, 'users', oldUid, 'user_data', 'state');
-                    const snap = await getDoc(oldDocRef);
+                    console.log("Iniciando varredura profunda no UID antigo:", oldUid);
+                    const basePath = 'artifacts/tribo-burger-pricing-system/users/' + oldUid;
+                    
+                    let foundData = false;
+                    let recoveredState = {
+                        ingredients: [],
+                        recipes: [],
+                        complements: [],
+                        combos: [],
+                        fixedCosts: [],
+                        settings: { targetCMV: 30, tax: 6, apps: 12, card: 2.5 }
+                    };
 
-                    if (snap.exists()) {
-                        const data = snap.data();
+                    // Busca TENTATIVA 1: O formato antigo consolidado (user_data/state)
+                    const oldStateRef = doc(db, 'artifacts', defaultAppId, 'users', oldUid, 'user_data', 'state');
+                    const stateSnap = await getDoc(oldStateRef);
+                    if (stateSnap.exists()) {
+                        console.log("Encontrado estado consolidado!");
+                        const d = stateSnap.data();
+                        recoveredState = { ...recoveredState, ...d };
+                        foundData = true;
+                    } else {
+                        // Busca TENTATIVA 2: Coleções espalhadas (como visto no seu print do Firebase)
+                        console.log("Documento state não encontrado. Procurando coleções espalhadas...");
                         
+                        // Busca Insumos
+                        const { collection, getDocs } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                        
+                        const insumosSnap = await getDocs(collection(db, basePath + '/insumos'));
+                        if (!insumosSnap.empty) {
+                            foundData = true;
+                            insumosSnap.forEach(doc => {
+                                recoveredState.ingredients.push({ id: doc.id, ...doc.data() });
+                            });
+                        }
+
+                        // Busca Receitas
+                        const recipesSnap = await getDocs(collection(db, basePath + '/recipes'));
+                        if (!recipesSnap.empty) {
+                            foundData = true;
+                            recipesSnap.forEach(doc => {
+                                recoveredState.recipes.push({ id: doc.id, ...doc.data() });
+                            });
+                        }
+
+                        // Busca Combos
+                        const combosSnap = await getDocs(collection(db, basePath + '/combos'));
+                        if (!combosSnap.empty) {
+                            foundData = true;
+                            combosSnap.forEach(doc => {
+                                recoveredState.combos.push({ id: doc.id, ...doc.data() });
+                            });
+                        }
+
+                        // Busca Custos Fixos
+                        const fcSnap = await getDocs(collection(db, basePath + '/fixed_costs'));
+                        if (!fcSnap.empty) {
+                            foundData = true;
+                            fcSnap.forEach(doc => {
+                                recoveredState.fixedCosts.push({ id: doc.id, ...doc.data() });
+                            });
+                        }
+                    }
+
+                    if (foundData) {
+                        console.log("Dados resgatados com sucesso:", recoveredState);
                         // Atualiza a memória local com os dados encontrados
-                        appState = {
-                            ingredients: data.ingredients || [],
-                            recipes: data.recipes || [],
-                            complements: data.complements || [],
-                            combos: data.combos || [],
-                            fixedCosts: data.fixedCosts || [],
-                            settings: {
-                                targetCMV: data.settings?.targetCMV ?? 30,
-                                tax: data.settings?.tax ?? 6,
-                                apps: data.settings?.apps ?? 12,
-                                card: data.settings?.card ?? 2.5
-                            }
-                        };
+                        appState = recoveredState;
                         
-                        // Salva e reflete as alterações
+                        // Salva e reflete as alterações na tela
                         saveLocalBackup();
                         window.renderAll();
                         
-                        // Grava definitivamente na pasta segura do usuário atual
+                        // Grava definitivamente na pasta segura do usuário ATUAL (consolidando tudo num só local)
                         await syncStateToCloud();
 
-                        showCustomAlert('Sucesso Absoluto!', 'Os dados foram encontrados e migrados com sucesso para a sua conta atual!');
-                        switchTab('dashboard'); // Joga o usuário pro painel pra ele ver os dados
+                        showCustomAlert('Sucesso Absoluto!', 'Os dados foram escaneados e migrados com sucesso para a sua conta atual!');
+                        switchTab('dashboard');
                     } else {
-                        showCustomAlert('UID Não Encontrado', `O Firebase acessou a pasta '${oldUid}', mas ela está vazia. Tem certeza que o ID está correto ou que salvou algo nela no passado?`, true);
+                        showCustomAlert('UID Vazio', `O Firebase acessou a pasta '${oldUid}', mas não encontrou coleções de insumos ou receitas. Tem certeza que o ID está correto?`, true);
                     }
                 } catch (err) {
-                    console.error("Erro na leitura da nuvem:", err);
-                    showCustomAlert('Erro de Permissão (Firestore Rules)', 'O banco de dados bloqueou a leitura da pasta antiga. Por favor, leia as instruções de segurança e mude a regra para "allow read: if true;" temporariamente no console do Firebase.', true);
+                    console.error("Erro na leitura profunda da nuvem:", err);
+                    showCustomAlert('Erro de Permissão (Firestore Rules)', 'O banco de dados bloqueou a leitura da pasta antiga. Por favor, cole a nova regra com "allow read: if true;" fornecida nas instruções e tente de novo.', true);
                 } finally {
                     initCloudSyncListener();
                 }
