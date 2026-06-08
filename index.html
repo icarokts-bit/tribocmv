@@ -137,12 +137,9 @@
                     <p class="text-[11px] text-brand-light font-bold">Acesso Bloqueado</p>
                     <p class="text-[9px] text-brand-textMuted leading-tight px-1">Inicie sessão com a sua conta segura para visualizar as fichas técnicas.</p>
                 </div>
-            </div>
-        </div>
-
-        <!-- Menu de Navegação -->
-        <nav id="sidebar-navigation" class="flex-1 px-4 space-y-1.5 py-2 overflow-y-auto pointer-events-none opacity-40">
-            <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-brand-textMuted hover:bg-brand-gray/50 hover:text-brand-light">
+        <!-- MENU LATERAL -->
+        <nav class="flex-1 px-4 space-y-1.5 py-2 overflow-y-auto">
+            <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all bg-brand-accent text-brand-black shadow-lg shadow-brand-accent/10">
                 <i class="fa-solid fa-chart-pie w-5"></i> Painel Geral
             </button>
             <button onclick="switchTab('ingredients')" id="btn-tab-ingredients" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-brand-textMuted hover:bg-brand-gray/50 hover:text-brand-light">
@@ -165,6 +162,9 @@
             </button>
             <button onclick="switchTab('settings')" id="btn-tab-settings" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-brand-textMuted hover:bg-brand-gray/50 hover:text-brand-light">
                 <i class="fa-solid fa-sliders w-5"></i> Parâmetros & Taxas
+            </button>
+            <button onclick="switchTab('recovery')" id="btn-tab-recovery" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-brand-accent hover:bg-brand-gray/50 hover:text-brand-accentHover mt-4 border border-brand-accent/20">
+                <i class="fa-solid fa-life-ring w-5"></i> Recuperar Dados
             </button>
         </nav>
 
@@ -525,17 +525,65 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-brand-light uppercase mb-2">Taxa Operação Cartões (%)</label>
-                                <input id="setting-card" type="number" step="0.01" class="bg-brand-gray border border-brand-border text-brand-light text-sm rounded-lg px-4 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                            <input id="setting-card" type="number" step="0.01" class="bg-brand-gray border border-brand-border text-brand-light text-sm rounded-lg px-4 py-2.5 w-full focus:outline-none focus:border-brand-accent">
+                        </div>
+                    </div>
+
+                    <button onclick="saveSettings()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-6 py-3 rounded-lg text-xs tracking-wider transition-colors transform hover:scale-[1.02] active:scale-95 shadow-lg shadow-brand-accent/20">
+                        Salvar Taxas Globais
+                    </button>
+                </div>
+            </section>
+
+            <!-- TAB 8: RECUPERAÇÃO DE DADOS (NOVA ABA) -->
+            <section id="tab-recovery" class="tab-content space-y-6 hidden">
+                <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-6">
+                    <div>
+                        <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1 flex items-center gap-2">
+                            <i class="fa-solid fa-truck-medical text-brand-accent"></i> Assistente de Migração e Recuperação
+                        </h3>
+                        <p class="text-xs text-brand-textMuted leading-relaxed max-w-3xl">
+                            Esta ferramenta serve para resgatar dados que ficaram "perdidos" em sessões de utilizador antigas ou noutras contas. O sistema vai extrair diretamente da nuvem os dados pertencentes ao ID (UID) que inserir abaixo, e vai guardá-los permanentemente na sua conta ativa atual.
+                        </p>
+                    </div>
+
+                    <div class="space-y-4 max-w-2xl bg-brand-black/40 p-6 rounded-xl border border-brand-border/60">
+                        <div>
+                            <label class="block text-[11px] font-bold text-brand-light uppercase mb-2 tracking-wider">ID da Conta Antiga (UID Origem)</label>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <input id="recovery-old-uid" type="text" placeholder="Ex: 9AbYn0sJYLNABoNGf0jj6AciSEs2" class="flex-1 bg-brand-gray border border-brand-border text-brand-light px-4 py-3 rounded-lg text-sm focus:outline-none focus:border-brand-accent font-mono shadow-inner transition-colors">
+                                <button onclick="attemptDataRecovery()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-black px-6 py-3 rounded-lg text-sm transition-all transform hover:scale-[1.02] active:scale-95 shadow-lg shadow-brand-accent/20 whitespace-nowrap flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-download"></i> Migrar Dados
+                                </button>
                             </div>
                         </div>
 
-                        <button onclick="saveSettings()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-6 py-3 rounded-lg text-xs tracking-wider transition-colors">
-                            Salvar Taxas
-                        </button>
+                        <div class="p-5 bg-red-500/5 border border-red-500/20 rounded-lg text-xs text-brand-light space-y-3 mt-4">
+                            <div class="flex items-center gap-2 text-red-400 font-bold uppercase tracking-wider mb-2">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Aviso Importante de Segurança
+                            </div>
+                            <p class="leading-relaxed text-brand-textMuted">
+                                Por padrão, o banco de dados do Google (Firestore) não permite que um usuário "X" leia os dados de um usuário "Y".
+                            </p>
+                            <p class="leading-relaxed text-brand-textMuted">
+                                Se o processo falhar, significa que as regras da sua nuvem estão bloqueando. Para que esta ferramenta consiga "puxar" os dados, você deve entrar no seu Console do Firebase > Firestore > Rules e colocar temporariamente esta regra exata:
+                            </p>
+                            <pre class="bg-brand-black p-3 rounded border border-brand-border font-mono text-[10px] text-emerald-400 overflow-x-auto">
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /artifacts/tribo-burger-pricing-system/users/{userId}/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}</pre>
+                            <p class="leading-relaxed text-brand-textMuted text-[10px] italic">Não esqueça de voltar a regra para <code>allow read, write: if request.auth != null && request.auth.uid == userId;</code> assim que a migração terminar!</p>
+                        </div>
                     </div>
-                </section>
+                </div>
+            </section>
 
-            </div>
         </div>
     </main>
 
@@ -941,7 +989,8 @@
                 'combos': 'Fichas de Combos',
                 'analysis': 'Análise Geral de Rentabilidade',
                 'fixed-costs': 'Custos Fixos Mensais',
-                'settings': 'Parâmetros & Taxas'
+                'settings': 'Parâmetros & Taxas',
+                'recovery': 'Recuperação de Dados'
             };
             safeSetText('header-title', titleMap[tabId] || 'Tribo Burger');
         };
@@ -2440,30 +2489,33 @@
         window.attemptDataRecovery = async function() {
             const oldUid = document.getElementById('recovery-old-uid').value.trim();
             if (!oldUid) {
-                showCustomAlert('Campo Vazio', 'Por favor, insira o ID antigo.', true);
+                showCustomAlert('Campo Vazio', 'Por favor, insira o ID antigo (UID).', true);
                 return;
             }
 
             if (!isFirebaseActive || !db) {
-                showCustomAlert('Firebase Inativo', 'É necessária ligação ativa com a sua base de dados.', true);
+                showCustomAlert('Firebase Inativo', 'A conexão com o banco de dados falhou. Tente novamente mais tarde.', true);
                 return;
             }
 
-            showCustomConfirm('Confirmar Importação', 'Isso irá substituir todos os dados da sua conta atual pelas fichas técnicas e insumos da conta antiga. Deseja prosseguir?', async (approved) => {
+            showCustomConfirm('Atenção: Substituição de Dados', 'Os dados recuperados desta conta irão SOBRESCREVER E APAGAR os insumos e fichas atuais que você tem. Quer mesmo continuar?', async (approved) => {
                 if (!approved) return;
 
                 const badge = document.getElementById('cloud-badge');
                 if (badge) {
-                    badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> A recuperar...`;
+                    badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> A extrair dados...`;
+                    badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20";
                 }
 
                 try {
+                    // Tenta acessar o estado da pasta antiga
                     const oldDocRef = doc(db, 'artifacts', defaultAppId, 'users', oldUid, 'user_data', 'state');
                     const snap = await getDoc(oldDocRef);
 
                     if (snap.exists()) {
                         const data = snap.data();
                         
+                        // Atualiza a memória local com os dados encontrados
                         appState = {
                             ingredients: data.ingredients || [],
                             recipes: data.recipes || [],
@@ -2478,17 +2530,21 @@
                             }
                         };
                         
+                        // Salva e reflete as alterações
                         saveLocalBackup();
                         window.renderAll();
+                        
+                        // Grava definitivamente na pasta segura do usuário atual
                         await syncStateToCloud();
 
-                        showCustomAlert('Importação Bem-Sucedida!', 'As fichas e insumos da conta antiga foram migrados com sucesso para a sua nova conta!');
+                        showCustomAlert('Sucesso Absoluto!', 'Os dados foram encontrados e migrados com sucesso para a sua conta atual!');
+                        switchTab('dashboard'); // Joga o usuário pro painel pra ele ver os dados
                     } else {
-                        showCustomAlert('Não Encontrado', 'Não foram encontrados registos salvos sob esse UID antigo.', true);
+                        showCustomAlert('UID Não Encontrado', `O Firebase acessou a pasta '${oldUid}', mas ela está vazia. Tem certeza que o ID está correto ou que salvou algo nela no passado?`, true);
                     }
                 } catch (err) {
-                    console.error(err);
-                    showCustomAlert('Erro de Permissão', 'Acesso negado. Certifique-se de que a regra do Firestore está definida temporariamente para "allow read: if true;" na guia "Rules" do Firebase.', true);
+                    console.error("Erro na leitura da nuvem:", err);
+                    showCustomAlert('Erro de Permissão (Firestore Rules)', 'O banco de dados bloqueou a leitura da pasta antiga. Por favor, leia as instruções de segurança e mude a regra para "allow read: if true;" temporariamente no console do Firebase.', true);
                 } finally {
                     initCloudSyncListener();
                 }
