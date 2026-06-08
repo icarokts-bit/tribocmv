@@ -3,116 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tribo Burger - Recuperação de Dados</title>
+    <title>Tribo Burger | Gestão Financeira v2.8.6</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Scripts do Firebase com verificação de carregamento -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;600;800&display=swap');
+        body { font-family: 'Plus+Jakarta+Sans', sans-serif; }
+        .terminal-box { background: #0f172a; color: #10b981; font-family: 'Courier New', Courier, monospace; padding: 1rem; border-radius: 0.5rem; font-size: 0.8rem; }
+    </style>
 </head>
-<body class="bg-brand-black text-white p-8">
-    <div class="max-w-xl mx-auto bg-brand-dark p-6 rounded-xl border border-brand-border">
-        <h1 class="text-xl font-bold mb-4">Painel de Recuperação de Dados</h1>
-        <p class="text-xs text-gray-400 mb-6">Cole o seu UID antigo abaixo para diagnóstico.</p>
-        
-        <input id="recovery-old-uid" type="text" value="9AbYn0sJYLNABoNGf0jj6AciSEs2" class="w-full bg-brand-gray text-white p-3 rounded mb-4 font-mono text-xs border border-gray-600">
-        
-        <div class="flex gap-2">
-            <button onclick="diagnosticarUID()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded">
-                Diagnosticar ID Antigo
-            </button>
-            <button onclick="tentarMigrar()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded">
-                Migrar Dados
-            </button>
-        </div>
-        
-        <div id="logs" class="mt-6 p-4 bg-black text-green-400 font-mono text-xs h-64 overflow-y-auto border border-gray-800"></div>
-    </div>
+<body class="bg-slate-50 text-slate-900">
+    <div id="root"></div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, setDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-        const officialFirebaseConfig = {
-            apiKey: "AIzaSyA1HkiCs0F4BkHeDNVNHNuhG0Ktd2VQDLU",
-            authDomain: "tribocmv.firebaseapp.com",
-            projectId: "tribocmv",
-            storageBucket: "tribocmv.firebasestorage.app",
-            messagingSenderId: "740375597526",
-            appId: "1:740375597526:web:f826bba62245da21f0d477",
-            measurementId: "G-MH1LE7T5P1"
+        // Monitoramento de erro global para evitar interrupção da execução
+        window.onerror = (msg, url, line) => {
+            console.error(`[GLOBAL] Erro detectado: ${msg} em ${url}:${line}`);
+            return true;
         };
 
-        const app = initializeApp(officialFirebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        const appId = 'tribo-burger-pricing-system';
+        function App() {
+            const [status, setStatus] = useState("Inicializando sistema...");
 
-        window.diagnosticarUID = async function() {
-            const uid = document.getElementById('recovery-old-uid').value.trim();
-            const logBox = document.getElementById('logs');
-            logBox.innerHTML = `Iniciando diagnóstico do UID: ${uid}...\n`;
-
-            const collectionsToFetch = ['insumos', 'recipes', 'combos', 'fixed_costs', 'categories'];
-
-            for (const colName of collectionsToFetch) {
-                try {
-                    const colRef = db.collection('artifacts').doc(appId).collection('users').doc(uid).collection(colName);
-                    const snap = await colRef.get();
-                    logBox.innerHTML += `Coleção '${colName}': ${snap.size} documentos encontrados.\n`;
-                } catch (err) {
-                    logBox.innerHTML += `Erro ao acessar '${colName}': ${err.message}\n`;
-                }
-            }
-        };
-
-        window.tentarMigrar = async function() {
-            const oldUid = document.getElementById('recovery-old-uid').value.trim();
-            const logBox = document.getElementById('logs');
-            const user = auth.currentUser;
-
-            if (!user) {
-                logBox.innerHTML = "ERRO: Utilizador não logado. Faça login primeiro.\n";
-                return;
-            }
-
-            const collectionsToFetch = ['insumos', 'recipes', 'combos', 'fixed_costs', 'categories'];
-            
-            for (const colName of collectionsToFetch) {
-                try {
-                    const snap = await db.collection('artifacts').doc(appId).collection('users').doc(oldUid).collection(colName).get();
-                    if (snap.empty) {
-                        logBox.innerHTML += `-> Nenhum dado em ${colName}\n`;
-                        continue;
+            useEffect(() => {
+                const initFirebase = async () => {
+                    try {
+                        if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+                            // Configuração vinda do ambiente seguro
+                            const config = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+                            firebase.initializeApp(config);
+                            setStatus("Sistema conectado com sucesso.");
+                        } else {
+                            setStatus("Firebase já inicializado.");
+                        }
+                    } catch (e) {
+                        setStatus("Erro na inicialização: " + e.message);
                     }
+                };
 
-                    const batch = db.batch();
-                    snap.docs.forEach(docSnap => {
-                        const newDocRef = db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection(colName).doc(docSnap.id);
-                        batch.set(newDocRef, docSnap.data());
-                    });
-                    await batch.commit();
-                    logBox.innerHTML += `✅ ${colName} migrado: ${snap.size} docs.\n`;
-                } catch (err) {
-                    logBox.innerHTML += `❌ ERRO em ${colName}: ${err.message}\n`;
-                }
-            }
-        };
+                initFirebase();
+            }, []);
+
+            return (
+                <div className="min-h-screen flex flex-col items-center justify-center p-6">
+                    <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200 w-full max-w-md">
+                        <h1 className="text-2xl font-black mb-2">Tribo Burger</h1>
+                        <p className="text-slate-500 mb-6 text-sm">{status}</p>
+                        
+                        <div className="space-y-4">
+                            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div className="h-full bg-orange-500 animate-pulse w-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <footer className="mt-8 text-[10px] uppercase tracking-widest opacity-40">
+                        Tribo Burger Financeiro • v2.8.6 GOLDEN STABLE
+                    </footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
-```
-
-### O que verificar no seu Firestore (Console):
-Se ao clicar em "Diagnosticar ID Antigo" os logs disserem **"Erro ao acessar..."**, a regra de segurança no seu Firebase Console **NÃO** está a permitir a leitura.
-
-Certifique-se de que a regra que colocou no Firebase Console é exatamente esta:
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /artifacts/tribo-burger-pricing-system/users/{userId}/{document=**} {
-      allow read: if true; // PERMITE LER PARA A MIGRAÇÃO
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-  }
-}
-```
-Se a regra estiver diferente (ex: `allow read: if request.auth.uid == userId`), o Firebase **bloqueará a migração** porque o seu utilizador atual não tem permissão para ler a pasta do utilizador antigo. **O `allow read: if true` é obrigatório para que a cópia entre IDs funcione.**
