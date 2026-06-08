@@ -3,48 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tribo Burger - Gestão de Custos & CMV</title>
+    <title>Tribo Burger - Sistema de Precificação</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: { extend: { colors: { brand: { black: '#0D0C0B', dark: '#161513', gray: '#1E1C1A', border: '#262421', accent: '#F27A18', accentHover: '#D9650B', light: '#FAF8F5', textMuted: '#8C8A87' } } } }
-        }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; background-color: #0D0C0B; color: #FAF8F5; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
 </head>
-<body class="bg-brand-black text-brand-light min-h-screen flex flex-col md:flex-row">
+<body class="min-h-screen flex flex-col md:flex-row overflow-x-hidden">
 
     <!-- SIDEBAR -->
-    <aside class="w-full md:w-80 bg-brand-dark border-r border-brand-border flex flex-col shrink-0">
-        <div class="p-6 border-b border-brand-border flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-brand-accent flex items-center justify-center font-black text-brand-black text-xl shadow-lg shadow-brand-accent/20">TB</div>
+    <aside class="w-full md:w-80 bg-[#161513] border-r border-[#262421] flex flex-col shrink-0">
+        <div class="p-6 border-b border-[#262421] flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-[#F27A18] flex items-center justify-center font-black text-black text-xl shadow-lg">TB</div>
             <div>
                 <h1 class="font-black text-lg uppercase tracking-wide">Tribo Burger</h1>
-                <p class="text-xs text-brand-accent font-bold">Gestão de Custos & CMV</p>
+                <p class="text-[10px] text-[#F27A18] font-bold">Gestão de Custos & CMV</p>
             </div>
         </div>
 
-        <div class="p-5 flex-1 overflow-y-auto space-y-4">
-            <!-- Auth Info -->
-            <div id="auth-panel" class="bg-brand-gray/30 p-4 rounded-xl border border-brand-border text-xs text-center">
-                <i class="fa-solid fa-spinner fa-spin text-brand-accent text-lg mb-2"></i>
-                <p>Verificando conexão...</p>
+        <div id="auth-panel" class="p-4 border-b border-[#262421] text-xs text-brand-textMuted">
+            <div id="logged-in-view" class="hidden">
+                <p class="text-emerald-500 font-bold mb-1">Logado como:</p>
+                <p id="user-email" class="text-white mb-2 break-all"></p>
+                <button onclick="window.performLogout()" class="text-red-400 underline font-bold">Sair</button>
             </div>
-
-            <nav class="space-y-1">
-                <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold text-brand-textMuted hover:bg-brand-gray hover:text-brand-light"><i class="fa-solid fa-chart-pie w-5"></i> Painel Geral</button>
-                <button onclick="switchTab('ingredients')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold text-brand-textMuted hover:bg-brand-gray hover:text-brand-light"><i class="fa-solid fa-egg w-5"></i> Insumos</button>
-                <button onclick="switchTab('recipes')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold text-brand-textMuted hover:bg-brand-gray hover:text-brand-light"><i class="fa-solid fa-book-open w-5"></i> Fichas Técnicas</button>
-                <button onclick="switchTab('settings')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold text-brand-textMuted hover:bg-brand-gray hover:text-brand-light"><i class="fa-solid fa-sliders w-5"></i> Parâmetros</button>
-            </nav>
+            <div id="anonymous-view">
+                <p>Carregando conta...</p>
+            </div>
         </div>
+
+        <nav class="flex-1 p-4 space-y-2">
+            <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-[#1E1C1A] text-gray-400 hover:text-white transition-all"><i class="fa-solid fa-chart-pie w-5"></i> Painel Geral</button>
+            <button onclick="switchTab('ingredients')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-[#1E1C1A] text-gray-400 hover:text-white transition-all"><i class="fa-solid fa-egg w-5"></i> Insumos</button>
+            <button onclick="switchTab('recipes')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-[#1E1C1A] text-gray-400 hover:text-white transition-all"><i class="fa-solid fa-book-open w-5"></i> Fichas Técnicas</button>
+            <button onclick="switchTab('combos')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-[#1E1C1A] text-gray-400 hover:text-white transition-all"><i class="fa-solid fa-boxes-packing w-5"></i> Fichas de Combos</button>
+            <button onclick="switchTab('analysis')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-[#1E1C1A] text-gray-400 hover:text-white transition-all"><i class="fa-solid fa-calculator w-5"></i> Análise Geral</button>
+            <button onclick="switchTab('fixed-costs')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-[#1E1C1A] text-gray-400 hover:text-white transition-all"><i class="fa-solid fa-house-laptop w-5"></i> Custos Fixos</button>
+            <button onclick="switchTab('settings')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-[#1E1C1A] text-gray-400 hover:text-white transition-all"><i class="fa-solid fa-sliders w-5"></i> Parâmetros</button>
+        </nav>
     </aside>
 
-    <!-- MAIN -->
-    <main class="flex-1 p-8 overflow-y-auto">
-        <!-- Dashboard/Fichas... (Conteúdo dinâmico) -->
-        <div id="content-area"></div>
+    <main class="flex-1 p-8">
+        <div id="tab-dashboard" class="tab-content active">Painel Geral</div>
+        <div id="tab-ingredients" class="tab-content">Insumos</div>
+        <div id="tab-recipes" class="tab-content">Fichas Técnicas</div>
+        <div id="tab-combos" class="tab-content">Fichas de Combos</div>
+        <div id="tab-analysis" class="tab-content">Análise Geral</div>
+        <div id="tab-fixed-costs" class="tab-content">Custos Fixos</div>
+        <div id="tab-settings" class="tab-content">
+            <h2 class="text-xl font-bold mb-4">Migrar Dados Antigos</h2>
+            <input id="old-uid-input" placeholder="ID Antigo (9AbYn0s...)" class="bg-black p-2 border border-gray-700 w-full mb-2 text-sm">
+            <button onclick="window.performMigration()" class="bg-[#F27A18] text-black font-bold p-2 w-full rounded">Migrar Dados</button>
+        </div>
     </main>
 
     <script type="module">
@@ -61,53 +75,46 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // MIGRADOR FORÇADO DE DADOS (Copiar do UID antigo para o atual)
-        window.migrarDadosAntigos = async function(oldUid) {
+        // Funções Globais (Hoisting via window)
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+        };
+
+        window.performLogout = () => {
+            signOut(auth).then(() => location.reload());
+        };
+
+        window.performMigration = async () => {
+            const oldUid = document.getElementById('old-uid-input').value;
             const user = auth.currentUser;
-            if (!user) return alert("Faça login primeiro!");
-            
-            const oldPath = doc(db, 'artifacts', 'tribo-burger-pricing-system', 'users', oldUid, 'user_data', 'state');
-            const newPath = doc(db, 'artifacts', 'tribo-burger-pricing-system', 'users', user.uid, 'user_data', 'state');
+            if (!user) return alert("Faça login!");
             
             try {
+                const oldPath = doc(db, 'artifacts', 'tribo-burger-pricing-system', 'users', oldUid, 'user_data', 'state');
+                const newPath = doc(db, 'artifacts', 'tribo-burger-pricing-system', 'users', user.uid, 'user_data', 'state');
                 const snap = await getDoc(oldPath);
                 if (snap.exists()) {
                     await setDoc(newPath, snap.data());
-                    alert("Sucesso! Dados migrados. Recarregue a página.");
+                    alert("Dados migrados com sucesso!");
                     location.reload();
                 } else {
-                    alert("Dados não encontrados no ID fornecido.");
+                    alert("UID antigo não encontrado.");
                 }
             } catch (e) {
-                alert("Erro ao migrar: " + e.message);
+                alert("Erro: " + e.message);
             }
         };
 
         onAuthStateChanged(auth, (user) => {
-            const panel = document.getElementById('auth-panel');
+            const authPanel = document.getElementById('anonymous-view');
+            const loggedInView = document.getElementById('logged-in-view');
             if (user) {
-                panel.innerHTML = `
-                    <p class="text-emerald-500 font-bold mb-2 text-center">Logado como:</p>
-                    <p class="text-xs break-all mb-2">${user.email || 'Anônimo'}</p>
-                    <button onclick="signOut(auth)" class="w-full text-red-400 text-xs font-bold underline">Sair</button>
-                    <div class="mt-4 border-t border-brand-border pt-2">
-                        <input id="old-uid-input" placeholder="Colar ID antigo aqui..." class="w-full bg-black p-1 text-[10px] mb-1">
-                        <button onclick="migrarDadosAntigos(document.getElementById('old-uid-input').value)" class="w-full bg-brand-accent p-1 text-[10px] rounded">Migrar Dados</button>
-                    </div>
-                `;
-            } else {
-                panel.innerHTML = `<p>Por favor, faça login.</p>`;
+                document.getElementById('user-email').textContent = user.email || 'Utilizador Logado';
+                authPanel.classList.add('hidden');
+                loggedInView.classList.remove('hidden');
             }
         });
     </script>
 </body>
 </html>
-```
-
-### Passo a passo para recuperar:
-1. **Login:** Faça o login na sua conta atual.
-2. **Localize o Painel:** No menu lateral, verá agora um campo chamado "Colar ID antigo aqui...".
-3. **Migração:** Cole o UID que você identificou (`9AbYn0sJYLNABoNGf0jj6AciSEs2`) e clique em **Migrar Dados**.
-4. **Finalização:** O sistema irá copiar tudo o que estava na conta antiga para a conta atual. Após o alerta de sucesso, basta recarregar a página e seus itens aparecerão.
-
-*Nota: Se a migração falhar com erro de "Permissão Negada", lembre-se que, devido às regras de segurança que definimos, pode ser necessário alterar temporariamente no Firebase Console a regra de leitura para `allow read: if true;` apenas para o caminho de importação durante este procedimento.*
