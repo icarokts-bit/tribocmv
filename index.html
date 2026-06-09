@@ -233,7 +233,7 @@
                         <div class="bg-brand-dark border border-brand-border p-5 rounded-xl shadow-lg">
                             <p class="text-xs text-brand-textMuted font-bold uppercase tracking-wider">CMV Médio Geral</p>
                             <h3 id="kpi-cmv-medio" class="text-3xl font-black text-brand-accent mt-2">0%</h3>
-                            <p class="text-[10px] text-brand-textMuted mt-1">Média do cardápio ativo</p>
+                            <p class="text-[10px] text-brand-textMuted mt-1">Média do cardápio considerado</p>
                         </div>
                         <div class="bg-brand-dark border border-brand-border p-5 rounded-xl shadow-lg">
                             <p class="text-xs text-brand-textMuted font-bold uppercase tracking-wider">Meta de CMV</p>
@@ -743,6 +743,15 @@
                     </select>
                 </div>
 
+                <!-- Ignorar CMV Geral Toggle -->
+                <div>
+                    <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Opções de Análise</label>
+                    <label class="flex items-center gap-3 bg-brand-black/40 border border-brand-border p-3.5 rounded-lg cursor-pointer hover:bg-brand-gray/50 transition-colors">
+                        <input type="checkbox" id="recipe-ignore-cmv" class="w-4 h-4 rounded border-brand-border bg-brand-gray text-brand-accent focus:ring-brand-accent focus:ring-offset-brand-dark">
+                        <span class="text-[11px] font-bold text-brand-textMuted uppercase">Não considerar para o cálculo de CMV Geral (Ignorar)</span>
+                    </label>
+                </div>
+
                 <div>
                     <div class="flex items-center justify-between mb-2">
                         <label class="block text-xs font-bold text-brand-light uppercase">Insumos da Receita</label>
@@ -808,6 +817,15 @@
                     </select>
                 </div>
 
+                <!-- Ignorar CMV Geral Toggle -->
+                <div>
+                    <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Opções de Análise</label>
+                    <label class="flex items-center gap-3 bg-brand-black/40 border border-brand-border p-3.5 rounded-lg cursor-pointer hover:bg-brand-gray/50 transition-colors">
+                        <input type="checkbox" id="complement-ignore-cmv" class="w-4 h-4 rounded border-brand-border bg-brand-gray text-brand-accent focus:ring-brand-accent focus:ring-offset-brand-dark">
+                        <span class="text-[11px] font-bold text-brand-textMuted uppercase">Não considerar para o cálculo de CMV Geral (Ignorar)</span>
+                    </label>
+                </div>
+
                 <div>
                     <div class="flex items-center justify-between mb-2">
                         <label class="block text-xs font-bold text-brand-light uppercase">Insumos do Complemento</label>
@@ -867,6 +885,15 @@
                     <select id="combo-category" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent font-semibold">
                         <!-- Populated dynamically via JS -->
                     </select>
+                </div>
+
+                <!-- Ignorar CMV Geral Toggle -->
+                <div>
+                    <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Opções de Análise</label>
+                    <label class="flex items-center gap-3 bg-brand-black/40 border border-brand-border p-3.5 rounded-lg cursor-pointer hover:bg-brand-gray/50 transition-colors">
+                        <input type="checkbox" id="combo-ignore-cmv" class="w-4 h-4 rounded border-brand-border bg-brand-gray text-brand-accent focus:ring-brand-accent focus:ring-offset-brand-dark">
+                        <span class="text-[11px] font-bold text-brand-textMuted uppercase">Não considerar para o cálculo de CMV Geral (Ignorar)</span>
+                    </label>
                 </div>
 
                 <div>
@@ -1426,16 +1453,21 @@
                     const cmv = sellingPrice > 0 ? ((cost / sellingPrice) * 100).toFixed(1) : '0.0';
                     const target = parseFloat(appState.settings.targetCMV || 30);
                     
-                    const statusBadge = parseFloat(cmv) <= target 
-                        ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/10 text-emerald-500 border border-green-500/20">Saudável</span>`
-                        : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-brand-accent border border-red-500/20">CMV Alto</span>`;
+                    let statusBadge = '';
+                    if (item.ignoreCMV) {
+                        statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-gray text-brand-textMuted border border-brand-border">CMV Ignorado</span>`;
+                    } else {
+                        statusBadge = parseFloat(cmv) <= target 
+                            ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/10 text-emerald-500 border border-green-500/20">Saudável</span>`
+                            : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-brand-accent border border-red-500/20">CMV Alto</span>`;
+                    }
 
                     html += `
-                        <tr class="hover:bg-brand-gray/20 transition-colors font-sans">
+                        <tr class="hover:bg-brand-gray/20 transition-colors font-sans ${item.ignoreCMV ? 'opacity-50' : ''}">
                             <td class="py-3 px-2 font-medium">${item.name} <span class="text-[9px] text-brand-textMuted uppercase">(${item.type})</span></td>
                             <td class="py-3 px-2 text-brand-textMuted">${formatCurrency(cost)}</td>
                             <td class="py-3 px-2 font-semibold text-brand-light">${formatCurrency(sellingPrice)}</td>
-                            <td class="py-3 px-2 font-bold ${parseFloat(cmv) > target ? 'text-brand-accent' : 'text-emerald-500'}">${cmv}%</td>
+                            <td class="py-3 px-2 font-bold ${item.ignoreCMV ? 'text-brand-textMuted italic' : (parseFloat(cmv) > target ? 'text-brand-accent' : 'text-emerald-500')}">${item.ignoreCMV ? '-' : cmv + '%'}</td>
                             <td class="py-3 px-2 text-right">${statusBadge}</td>
                         </tr>
                     `;
@@ -1445,11 +1477,13 @@
 
             let sumCmv = 0, itemsWithPrice = 0;
             allItems.forEach(item => {
-                const cost = calculateItemCost(item);
-                const sellingPrice = parseFloat(item.sellingPrice || 0);
-                if (sellingPrice > 0) {
-                    sumCmv += (cost / sellingPrice) * 100;
-                    itemsWithPrice++;
+                if (!item.ignoreCMV) {
+                    const cost = calculateItemCost(item);
+                    const sellingPrice = parseFloat(item.sellingPrice || 0);
+                    if (sellingPrice > 0) {
+                        sumCmv += (cost / sellingPrice) * 100;
+                        itemsWithPrice++;
+                    }
                 }
             });
             const avgCmv = itemsWithPrice > 0 ? (sumCmv / itemsWithPrice).toFixed(1) : '0';
@@ -1572,8 +1606,10 @@
                             `;
                         }).join('');
 
+                        const ignoreBadge = rec.ignoreCMV ? `<span class="px-2 py-0.5 ml-2 rounded text-[8px] font-bold bg-brand-gray text-brand-textMuted border border-brand-border uppercase tracking-wider"><i class="fa-solid fa-eye-slash mr-1"></i>CMV Ignorado</span>` : '';
+
                         html += `
-                            <div class="bg-brand-dark border border-brand-border rounded-2xl p-6 shadow-2xl flex flex-col justify-between space-y-4">
+                            <div class="bg-brand-dark border border-brand-border rounded-2xl p-6 shadow-2xl flex flex-col justify-between space-y-4 ${rec.ignoreCMV ? 'opacity-80' : ''}">
                                 <div>
                                     <div class="flex justify-between items-center">
                                         <span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${getRecipeCategoryStyle(cat)}">${cat}</span>
@@ -1582,7 +1618,7 @@
                                             <button onclick="deleteRecipe('${rec.id}')" class="p-1.5 bg-brand-gray border border-brand-border rounded-lg text-red-400 hover:text-red-300 transition-colors"><i class="fa-solid fa-trash-can text-xs"></i></button>
                                         </div>
                                     </div>
-                                    <h4 class="font-extrabold text-brand-light text-xl mt-3 tracking-wide">${rec.name}</h4>
+                                    <h4 class="font-extrabold text-brand-light text-xl mt-3 tracking-wide flex items-center flex-wrap gap-y-2">${rec.name} ${ignoreBadge}</h4>
                                     <div class="mt-4 p-4 bg-brand-black/60 border border-brand-border/60 rounded-xl text-xs space-y-2">
                                         <p class="font-bold text-[9px] text-brand-textMuted uppercase tracking-wider">INGREDIENTES PRINCIPAIS</p>
                                         <div class="divide-y divide-brand-border/30 font-semibold text-brand-light">
@@ -1596,9 +1632,9 @@
                                             <span class="text-[9px] text-brand-textMuted uppercase font-bold tracking-wider leading-tight">CUSTO DE ALIMENTO<br>(CMV R$)</span>
                                             <span class="text-base font-extrabold block text-brand-light mt-1.5">${formatCurrency(foodCost)}</span>
                                         </div>
-                                        <div class="p-3 rounded-xl border flex flex-col justify-center ${parseFloat(cmv) > target ? 'bg-red-500/5 border-red-500/20' : 'bg-green-500/5 border-emerald-500/20'}">
+                                        <div class="p-3 rounded-xl border flex flex-col justify-center ${rec.ignoreCMV ? 'bg-brand-gray/20 border-brand-border' : (parseFloat(cmv) > target ? 'bg-red-500/5 border-red-500/20' : 'bg-green-500/5 border-emerald-500/20')}">
                                             <span class="text-[9px] text-brand-textMuted uppercase font-bold tracking-wider leading-tight">CMV REAL (%)</span>
-                                            <span class="text-lg font-black block mt-1.5 ${parseFloat(cmv) > target ? 'text-red-500' : 'text-emerald-500'}">${cmv}%</span>
+                                            <span class="text-lg font-black block mt-1.5 ${rec.ignoreCMV ? 'text-brand-textMuted' : (parseFloat(cmv) > target ? 'text-red-500' : 'text-emerald-500')}">${cmv}%</span>
                                         </div>
                                     </div>
                                     <div class="space-y-1.5 text-xs border-t border-brand-border/40 pt-3">
@@ -1676,8 +1712,10 @@
                             `;
                         }).join('');
 
+                        const ignoreBadge = comp.ignoreCMV ? `<span class="px-2 py-0.5 mt-2 inline-block rounded text-[8px] font-bold bg-brand-gray text-brand-textMuted border border-brand-border uppercase tracking-wider"><i class="fa-solid fa-eye-slash mr-1"></i>CMV Ignorado</span>` : '';
+
                         html += `
-                            <div class="bg-brand-dark border border-brand-border rounded-2xl p-5 shadow-2xl flex flex-col justify-between space-y-4">
+                            <div class="bg-brand-dark border border-brand-border rounded-2xl p-5 shadow-2xl flex flex-col justify-between space-y-4 ${comp.ignoreCMV ? 'opacity-80' : ''}">
                                 <div>
                                     <div class="flex justify-between items-center">
                                         <span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border border-purple-500/30 text-purple-400 bg-purple-500/10">${cat}</span>
@@ -1686,7 +1724,8 @@
                                             <button onclick="deleteComplement('${comp.id}')" class="p-1.5 bg-brand-gray border border-brand-border rounded-lg text-red-400 hover:text-red-300 transition-colors"><i class="fa-solid fa-trash-can text-xs"></i></button>
                                         </div>
                                     </div>
-                                    <h4 class="font-extrabold text-brand-light text-lg mt-3 tracking-wide">${comp.name}</h4>
+                                    <h4 class="font-extrabold text-brand-light text-lg mt-3 tracking-wide leading-tight">${comp.name}</h4>
+                                    ${ignoreBadge}
                                     <div class="mt-3 p-3 bg-brand-black/60 border border-brand-border/60 rounded-xl text-[10px] space-y-2">
                                         <div class="divide-y divide-brand-border/30 font-semibold text-brand-light">${ingRows || '<p class="text-brand-textMuted italic">Sem itens adicionados.</p>'}</div>
                                     </div>
@@ -1776,8 +1815,10 @@
                             }
                         }).filter(Boolean).join('<br>');
 
+                        const ignoreBadge = combo.ignoreCMV ? `<span class="px-2 py-0.5 ml-2 rounded text-[8px] font-bold bg-brand-gray text-brand-textMuted border border-brand-border uppercase tracking-wider"><i class="fa-solid fa-eye-slash mr-1"></i>CMV Ignorado</span>` : '';
+
                         html += `
-                            <div class="bg-brand-dark border border-brand-border rounded-2xl p-6 shadow-2xl flex flex-col justify-between space-y-4 font-sans">
+                            <div class="bg-brand-dark border border-brand-border rounded-2xl p-6 shadow-2xl flex flex-col justify-between space-y-4 font-sans ${combo.ignoreCMV ? 'opacity-80' : ''}">
                                 <div>
                                     <div class="flex justify-between items-center">
                                         <span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-500 border border-amber-500/30">${cat}</span>
@@ -1786,7 +1827,7 @@
                                             <button onclick="deleteCombo('${combo.id}')" class="p-1.5 bg-brand-gray border border-brand-border rounded-lg text-red-400 hover:text-red-300 transition-colors"><i class="fa-solid fa-trash-can text-xs"></i></button>
                                         </div>
                                     </div>
-                                    <h4 class="font-extrabold text-brand-light text-xl mt-3 tracking-wide font-sans">${combo.name}</h4>
+                                    <h4 class="font-extrabold text-brand-light text-xl mt-3 tracking-wide font-sans flex items-center flex-wrap gap-y-2">${combo.name} ${ignoreBadge}</h4>
                                     <div class="mt-4 p-4 bg-brand-black/60 border border-brand-border/60 rounded-xl text-xs space-y-1">
                                         <p class="font-bold text-[9px] text-brand-textMuted uppercase tracking-wider mb-2 font-sans">COMPOSIÇÃO DO COMBO</p>
                                         <p class="space-y-1 text-brand-light leading-relaxed font-semibold">${itemPreviews || '<span class="text-brand-textMuted italic">Nenhum item adicionado</span>'}</p>
@@ -1799,9 +1840,9 @@
                                             <span class="text-[9px] text-brand-textMuted uppercase font-bold tracking-wider leading-tight">CUSTO DO COMBO</span>
                                             <span class="text-base font-extrabold block text-brand-light mt-1.5">${formatCurrency(comboCost)}</span>
                                         </div>
-                                        <div class="p-3 rounded-xl border flex flex-col justify-center ${parseFloat(cmv) > target ? 'bg-red-500/5 border-red-500/20' : 'bg-green-500/5 border-emerald-500/20'}">
+                                        <div class="p-3 rounded-xl border flex flex-col justify-center ${combo.ignoreCMV ? 'bg-brand-gray/20 border-brand-border' : (parseFloat(cmv) > target ? 'bg-red-500/5 border-red-500/20' : 'bg-green-500/5 border-emerald-500/20')}">
                                             <span class="text-[9px] text-brand-textMuted uppercase font-bold tracking-wider leading-tight">CMV REAL (%)</span>
-                                            <span class="text-lg font-black block mt-1.5 ${parseFloat(cmv) > target ? 'text-red-500' : 'text-emerald-500'}">${cmv}%</span>
+                                            <span class="text-lg font-black block mt-1.5 ${combo.ignoreCMV ? 'text-brand-textMuted' : (parseFloat(cmv) > target ? 'text-red-500' : 'text-emerald-500')}">${cmv}%</span>
                                         </div>
                                     </div>
 
@@ -1982,19 +2023,20 @@
                             const marginVal = sellingPrice - cost - (sellingPrice * totalTaxesPercentage / 100);
                             const marginPercentage = sellingPrice > 0 ? ((marginVal / sellingPrice) * 100).toFixed(1) : '0';
 
-                            const cmvColorClass = parseFloat(cmv) > target ? 'text-brand-accent font-extrabold' : 'text-emerald-500 font-bold';
-                            const marginColorClass = marginVal > 0 ? 'text-emerald-500 font-bold' : 'text-red-400 font-bold';
+                            const cmvColorClass = item.ignoreCMV ? 'text-brand-textMuted font-bold italic' : (parseFloat(cmv) > target ? 'text-brand-accent font-extrabold' : 'text-emerald-500 font-bold');
+                            const marginColorClass = item.ignoreCMV ? 'text-brand-textMuted font-bold italic' : (marginVal > 0 ? 'text-emerald-500 font-bold' : 'text-red-400 font-bold');
+                            const cmvText = item.ignoreCMV ? 'Ignorado' : `${cmv}%`;
 
                             html += `
-                                <tr class="hover:bg-brand-gray/10 transition-colors border-b border-brand-border/40 font-sans">
+                                <tr class="hover:bg-brand-gray/10 transition-colors border-b border-brand-border/40 font-sans ${item.ignoreCMV ? 'opacity-60' : ''}">
                                     <td class="py-4 px-4 font-bold uppercase tracking-wider text-[10px] text-brand-textMuted">${item.type}</td>
-                                    <td class="py-4 px-4 font-bold text-brand-light print-text">${item.name}</td>
+                                    <td class="py-4 px-4 font-bold text-brand-light print-text">${item.name} ${item.ignoreCMV ? '<i class="fa-solid fa-eye-slash text-brand-textMuted text-[10px] ml-1" title="CMV Ignorado"></i>' : ''}</td>
                                     <td class="py-4 px-4 text-right font-medium text-brand-textMuted print-text">${formatCurrency(cost)}</td>
                                     <td class="py-4 px-4 text-right font-bold text-brand-light print-text">${formatCurrency(sellingPrice)}</td>
-                                    <td class="py-4 px-4 text-center print-text ${cmvColorClass}">${cmv}%</td>
-                                    <td class="py-4 px-4 text-center text-brand-textMuted print-text">${totalTaxesPercentage}%</td>
-                                    <td class="py-4 px-4 text-right print-text ${marginColorClass}">${formatCurrency(marginVal)}</td>
-                                    <td class="py-4 px-4 text-center print-text ${marginColorClass}">${marginPercentage}%</td>
+                                    <td class="py-4 px-4 text-center print-text ${cmvColorClass}">${cmvText}</td>
+                                    <td class="py-4 px-4 text-center text-brand-textMuted print-text">${item.ignoreCMV ? '-' : totalTaxesPercentage + '%'}</td>
+                                    <td class="py-4 px-4 text-right print-text ${marginColorClass}">${item.ignoreCMV ? '-' : formatCurrency(marginVal)}</td>
+                                    <td class="py-4 px-4 text-center print-text ${marginColorClass}">${item.ignoreCMV ? '-' : marginPercentage + '%'}</td>
                                 </tr>
                             `;
                         });
@@ -2107,6 +2149,7 @@
                     safeSetValue('complement-name', comp.name);
                     safeSetValue('complement-category', comp.category || 'Outros');
                     safeSetValue('complement-selling-price', comp.sellingPrice);
+                    document.getElementById('complement-ignore-cmv').checked = comp.ignoreCMV === true;
                     complementIngredientsCache = [...(comp.ingredients || [])];
                 }
             } else {
@@ -2115,6 +2158,7 @@
                 safeSetValue('complement-name', '');
                 safeSetValue('complement-category', appState.complementCategories && appState.complementCategories.length > 0 ? appState.complementCategories[0] : 'Outros');
                 safeSetValue('complement-selling-price', '');
+                document.getElementById('complement-ignore-cmv').checked = false;
                 complementIngredientsCache = [];
             }
 
@@ -2179,6 +2223,7 @@
             const name = document.getElementById('complement-name').value.trim();
             const category = document.getElementById('complement-category').value;
             const sellingPrice = parseFloat(document.getElementById('complement-selling-price').value);
+            const ignoreCMV = document.getElementById('complement-ignore-cmv').checked;
 
             if (!name || isNaN(sellingPrice)) {
                 showCustomAlert('Aviso', 'Defina um nome e um preço válido para o complemento.', true);
@@ -2204,7 +2249,7 @@
             const targetId = id || crypto.randomUUID();
             const list = [...(appState.complements || [])];
             const index = list.findIndex(r => r.id === targetId);
-            const record = { id: targetId, name, category, sellingPrice, ingredients: ingredientsList };
+            const record = { id: targetId, name, category, sellingPrice, ingredients: ingredientsList, ignoreCMV };
 
             if (index > -1) list[index] = record;
             else list.push(record);
@@ -2244,6 +2289,7 @@
                     safeSetValue('recipe-name', rec.name);
                     safeSetValue('recipe-category', rec.category || 'Outros');
                     safeSetValue('recipe-selling-price', rec.sellingPrice);
+                    document.getElementById('recipe-ignore-cmv').checked = rec.ignoreCMV === true;
                     loadedIngredients = [...(rec.ingredients || [])];
                 }
             } else {
@@ -2252,6 +2298,7 @@
                 safeSetValue('recipe-name', '');
                 safeSetValue('recipe-category', appState.recipeCategories && appState.recipeCategories.length > 0 ? appState.recipeCategories[0] : 'Outros');
                 safeSetValue('recipe-selling-price', '');
+                document.getElementById('recipe-ignore-cmv').checked = false;
             }
 
             loadedIngredients.forEach(item => {
@@ -2376,6 +2423,7 @@
             const name = document.getElementById('recipe-name').value.trim();
             const category = document.getElementById('recipe-category').value;
             const sellingPrice = parseFloat(document.getElementById('recipe-selling-price').value);
+            const ignoreCMV = document.getElementById('recipe-ignore-cmv').checked;
 
             if (!name || isNaN(sellingPrice)) {
                 showCustomAlert('Aviso', 'Defina um nome e um preço válido para o produto.', true);
@@ -2401,7 +2449,7 @@
             const targetId = id || crypto.randomUUID();
             const list = [...appState.recipes];
             const index = list.findIndex(r => r.id === targetId);
-            const record = { id: targetId, name, category, sellingPrice, ingredients: ingredientsList };
+            const record = { id: targetId, name, category, sellingPrice, ingredients: ingredientsList, ignoreCMV };
 
             if (index > -1) list[index] = record;
             else list.push(record);
@@ -2441,6 +2489,7 @@
                     safeSetValue('combo-name', combo.name);
                     safeSetValue('combo-category', combo.category || 'Outros');
                     safeSetValue('combo-selling-price', combo.sellingPrice);
+                    document.getElementById('combo-ignore-cmv').checked = combo.ignoreCMV === true;
                     loadedItems = [...(combo.items || [])];
                 }
             } else {
@@ -2449,6 +2498,7 @@
                 safeSetValue('combo-name', '');
                 safeSetValue('combo-category', appState.comboCategories && appState.comboCategories.length > 0 ? appState.comboCategories[0] : 'Outros');
                 safeSetValue('combo-selling-price', '');
+                document.getElementById('combo-ignore-cmv').checked = false;
             }
 
             loadedItems.forEach(item => {
@@ -2585,6 +2635,7 @@
             const name = document.getElementById('combo-name').value.trim();
             const category = document.getElementById('combo-category').value;
             const sellingPrice = parseFloat(document.getElementById('combo-selling-price').value);
+            const ignoreCMV = document.getElementById('combo-ignore-cmv').checked;
 
             if (!name || isNaN(sellingPrice)) {
                 showCustomAlert('Aviso', 'Preencha o nome do combo e o preço.', true);
@@ -2608,7 +2659,7 @@
             const targetId = id || crypto.randomUUID();
             const list = [...appState.combos];
             const index = list.findIndex(c => c.id === targetId);
-            const record = { id: targetId, name, category, sellingPrice, items: comboItems };
+            const record = { id: targetId, name, category, sellingPrice, items: comboItems, ignoreCMV };
 
             if (index > -1) list[index] = record;
             else list.push(record);
@@ -2625,387 +2676,4 @@
                 if (approved) {
                     appState.combos = appState.combos.filter(c => c.id !== id);
                     window.renderAll();
-                    await syncStateToCloud();
-                }
-            });
-        };
-
-        // ----------------- CRUD - CUSTOS FIXOS -----------------
-        window.openFixedCostModal = function(id = null) {
-            const modal = document.getElementById('modal-fixed-cost');
-            if (!modal) return;
-
-            if (id) {
-                document.getElementById('modal-fixed-cost-title').textContent = 'Editar Custo Fixo';
-                const cost = appState.fixedCosts.find(c => c.id === id);
-                if (cost) {
-                    safeSetValue('fixed-cost-id', cost.id);
-                    safeSetValue('fixed-cost-description', cost.description);
-                    safeSetValue('fixed-cost-category', cost.category || 'Outros');
-                    safeSetValue('fixed-cost-value', cost.value);
-                }
-            } else {
-                document.getElementById('modal-fixed-cost-title').textContent = 'Novo Custo Fixo';
-                safeSetValue('fixed-cost-id', '');
-                safeSetValue('fixed-cost-description', '');
-                safeSetValue('fixed-cost-category', appState.fixedCostCategories && appState.fixedCostCategories.length > 0 ? appState.fixedCostCategories[0] : 'Outros');
-                safeSetValue('fixed-cost-value', '');
-            }
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        };
-
-        window.closeFixedCostModal = function() {
-            const modal = document.getElementById('modal-fixed-cost');
-            if (modal) {
-                modal.classList.remove('flex');
-                modal.classList.add('hidden');
-            }
-        };
-
-        window.saveFixedCost = async function() {
-            const id = document.getElementById('fixed-cost-id').value;
-            const description = document.getElementById('fixed-cost-description').value.trim();
-            const category = document.getElementById('fixed-cost-category').value;
-            const value = parseFloat(document.getElementById('fixed-cost-value').value);
-
-            if (!description || isNaN(value)) {
-                showCustomAlert('Aviso', 'Descreva o custo fixo e adicione o valor mensal.', true);
-                return;
-            }
-
-            const targetId = id || crypto.randomUUID();
-            const list = [...appState.fixedCosts];
-            const index = list.findIndex(c => c.id === targetId);
-            const record = { id: targetId, description, category, value };
-
-            if (index > -1) list[index] = record;
-            else list.push(record);
-
-            appState.fixedCosts = list;
-            closeFixedCostModal();
-            window.renderAll();
-            await syncStateToCloud();
-            showCustomAlert('Custo Fixo Gravado', 'Despesa fixa adicionada com sucesso!');
-        };
-
-        window.deleteFixedCost = function(id) {
-            showCustomConfirm('Excluir Custo Fixo', 'Remover este registo de despesa fixa?', async (approved) => {
-                if (approved) {
-                    appState.fixedCosts = appState.fixedCosts.filter(c => c.id !== id);
-                    window.renderAll();
-                    await syncStateToCloud();
-                }
-            });
-        };
-
-        // ----------------- PARÂMETROS FINANCEIROS -----------------
-        window.saveSettings = async function() {
-            const targetCMV = parseFloat(document.getElementById('setting-target-cmv').value);
-            const tax = parseFloat(document.getElementById('setting-tax').value);
-            const apps = parseFloat(document.getElementById('setting-apps').value);
-            const card = parseFloat(document.getElementById('setting-card').value);
-            const baseRevenue = parseFloat(document.getElementById('setting-base-revenue').value || 0);
-            const targetRevenue = parseFloat(document.getElementById('setting-target-revenue').value || 0);
-
-            if (isNaN(targetCMV) || isNaN(tax) || isNaN(apps) || isNaN(card)) {
-                showCustomAlert('Aviso', 'Certifique-se de preencher todos os parâmetros com taxas válidas.', true);
-                return;
-            }
-
-            appState.settings = { targetCMV, tax, apps, card, baseRevenue, targetRevenue };
-            window.renderAll();
-            await syncStateToCloud();
-            showCustomAlert('Configurações Salvas', 'Os novos parâmetros fiscais e metas de faturamento já foram aplicados!');
-        };
-
-        // ----------------- CONFIGURAÇÕES CUSTOMIZADAS DO FIREBASE NO CLIENTE -----------------
-        window.saveCustomFirebaseConfig = function() {
-            const config = {
-                apiKey: document.getElementById('fb-apiKey').value.trim(),
-                authDomain: document.getElementById('fb-authDomain').value.trim(),
-                projectId: document.getElementById('fb-projectId').value.trim(),
-                storageBucket: document.getElementById('fb-storageBucket').value.trim(),
-                messagingSenderId: document.getElementById('fb-messagingSenderId').value.trim(),
-                appId: document.getElementById('fb-appId').value.trim(),
-            };
-
-            if (!config.apiKey || !config.projectId) {
-                showCustomAlert('Configuração Inválida', 'A API Key e o Project ID são obrigatórios.', true);
-                return;
-            }
-
-            localStorage.setItem('tribo_burger_custom_fb_config', JSON.stringify(config));
-            showCustomAlert('Reiniciando...', 'Configurações guardadas! A página irá atualizar para conectar à sua nova base de dados.');
-            setTimeout(() => { location.reload(); }, 1500);
-        };
-
-        window.clearCustomFirebaseConfig = function() {
-            localStorage.removeItem('tribo_burger_custom_fb_config');
-            showCustomAlert('Reiniciando...', 'Conexão padrão tribocmv restaurada. Atualizando...');
-            setTimeout(() => { location.reload(); }, 1500);
-        };
-
-        function populateFirebaseConfigFields(config) {
-            safeSetValue('fb-apiKey', config.apiKey);
-            safeSetValue('fb-authDomain', config.authDomain);
-            safeSetValue('fb-projectId', config.projectId);
-            safeSetValue('fb-storageBucket', config.storageBucket);
-            safeSetValue('fb-messagingSenderId', config.messagingSenderId);
-            safeSetValue('fb-appId', config.appId);
-        }
-
-        // ----------------- COORDENAÇÃO DE SINCRONIZAÇÃO NUVEM E CACHE LOCAL -----------------
-        function loadLocalBackup() {
-            if (!currentUser || currentUser.isAnonymous) return;
-
-            const cached = localStorage.getItem('tribo_burger_offline_backup');
-            if (cached) {
-                try {
-                    const parsed = JSON.parse(cached);
-                    appState = {
-                        ingredients: parsed.ingredients || [],
-                        recipes: parsed.recipes || [],
-                        complements: parsed.complements || [],
-                        combos: parsed.combos || [],
-                        fixedCosts: parsed.fixedCosts || [],
-                        ingredientCategories: parsed.ingredientCategories || ['Proteínas', 'Pães', 'Queijos', 'Molhos', 'Vegetais/Hortifrúti', 'Embalagens', 'Outros'],
-                        recipeCategories: parsed.recipeCategories || ['Hambúrgueres', 'Acompanhamentos', 'Bebidas', 'Sobremesas', 'Molhos Caseiros', 'Outros'],
-                        complementCategories: parsed.complementCategories || ['Extras', 'Molhos', 'Outros'],
-                        comboCategories: parsed.comboCategories || ['Promocionais', 'Família', 'Outros'],
-                        fixedCostCategories: parsed.fixedCostCategories || ['Operacional', 'Renda/Aluguel', 'Marketing', 'RH/Folha', 'Impostos Fixos', 'Outros'],
-                        settings: {
-                            targetCMV: parsed.settings?.targetCMV ?? 30,
-                            tax: parsed.settings?.tax ?? 6,
-                            apps: parsed.settings?.apps ?? 12,
-                            card: parsed.settings?.card ?? 2.5,
-                            baseRevenue: parsed.settings?.baseRevenue ?? 0,
-                            targetRevenue: parsed.settings?.targetRevenue ?? 0
-                        }
-                    };
-                } catch (e) {
-                    console.error("Erro ao ler backup local:", e);
-                }
-            }
-        }
-
-        function saveLocalBackup() {
-            if (!currentUser || currentUser.isAnonymous) return;
-            localStorage.setItem('tribo_burger_offline_backup', JSON.stringify(appState));
-        }
-
-        async function initCloudSyncListener() {
-            if (!isFirebaseActive || !db || !currentUser || currentUser.isAnonymous) return;
-
-            if (databaseListenerUnsubscribe) {
-                databaseListenerUnsubscribe();
-            }
-
-            const badge = document.getElementById('cloud-badge');
-            if (badge) {
-                badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> A sincronizar...`;
-                badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20";
-            }
-
-            const docRef = collection(db, 'artifacts', defaultAppId, 'users', currentUser.uid, 'user_data');
-
-            try {
-                databaseListenerUnsubscribe = onSnapshot(doc(docRef, 'state'), (snap) => {
-                    if (snap.exists()) {
-                        const data = snap.data();
-                        appState = {
-                            ingredients: data.ingredients || [],
-                            recipes: data.recipes || [],
-                            complements: data.complements || [],
-                            combos: data.combos || [],
-                            fixedCosts: data.fixedCosts || [],
-                            ingredientCategories: data.ingredientCategories || ['Proteínas', 'Pães', 'Queijos', 'Molhos', 'Vegetais/Hortifrúti', 'Embalagens', 'Outros'],
-                            recipeCategories: data.recipeCategories || ['Hambúrgueres', 'Acompanhamentos', 'Bebidas', 'Sobremesas', 'Molhos Caseiros', 'Outros'],
-                            complementCategories: data.complementCategories || ['Extras', 'Molhos', 'Outros'],
-                            comboCategories: data.comboCategories || ['Promocionais', 'Família', 'Outros'],
-                            fixedCostCategories: data.fixedCostCategories || ['Operacional', 'Renda/Aluguel', 'Marketing', 'RH/Folha', 'Impostos Fixos', 'Outros'],
-                            settings: {
-                                targetCMV: data.settings?.targetCMV ?? 30,
-                                tax: data.settings?.tax ?? 6,
-                                apps: data.settings?.apps ?? 12,
-                                card: data.settings?.card ?? 2.5,
-                                baseRevenue: data.settings?.baseRevenue ?? 0,
-                                targetRevenue: data.settings?.targetRevenue ?? 0
-                            }
-                        };
-                        saveLocalBackup();
-                        window.renderAll();
-                    } else {
-                        syncStateToCloud();
-                    }
-
-                    if (badge) {
-                        badge.innerHTML = `<i class="fa-solid fa-cloud mr-1"></i> Protegido`;
-                        badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20";
-                    }
-                    const statusIndicator = document.getElementById('system-status-indicator');
-                    const statusText = document.getElementById('system-status-text');
-                    if (statusIndicator && statusText) {
-                        statusIndicator.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
-                        statusText.textContent = "Online (Protegido)";
-                    }
-                }, (error) => {
-                    console.warn("Bloqueado pelas regras do Firestore:", error);
-                    fallbackToOfflineBadge();
-                });
-            } catch (err) {
-                console.warn("Erro ao configurar listener do Firestore:", err);
-                fallbackToOfflineBadge();
-            }
-        }
-
-        async function syncStateToCloud() {
-            if (!currentUser || currentUser.isAnonymous) return;
-            saveLocalBackup();
-            if (!isFirebaseActive || !db) return;
-
-            const docRef = doc(db, 'artifacts', defaultAppId, 'users', currentUser.uid, 'user_data', 'state');
-
-            try {
-                await setDoc(docRef, {
-                    ingredients: appState.ingredients,
-                    recipes: appState.recipes,
-                    complements: appState.complements || [],
-                    combos: appState.combos,
-                    fixedCosts: appState.fixedCosts,
-                    ingredientCategories: appState.ingredientCategories,
-                    recipeCategories: appState.recipeCategories,
-                    complementCategories: appState.complementCategories,
-                    comboCategories: appState.comboCategories,
-                    fixedCostCategories: appState.fixedCostCategories,
-                    settings: appState.settings,
-                    updatedAt: new Date().toISOString()
-                }, { merge: true });
-            } catch (e) {
-                console.warn("Falha de gravação ou falta de permissão ativa:", e);
-            }
-        }
-
-        // ----------------- SCRIPT DE MIGRAÇÃO MANUAL DE DADOS (UID ANTIGO -> NOVO UID SEGURO) -----------------
-        window.attemptDataRecovery = async function() {
-            const oldUid = document.getElementById('recovery-old-uid').value.trim();
-            if (!oldUid) {
-                showCustomAlert('Campo Vazio', 'Por favor, insira o ID antigo.', true);
-                return;
-            }
-
-            if (!isFirebaseActive || !db) {
-                showCustomAlert('Firebase Inativo', 'É necessária ligação ativa com a sua base de dados.', true);
-                return;
-            }
-
-            showCustomConfirm('Confirmar Importação', 'Isso irá substituir todos os dados da sua conta atual pelas fichas técnicas e insumos da conta antiga. Deseja prosseguir?', async (approved) => {
-                if (!approved) return;
-
-                const badge = document.getElementById('cloud-badge');
-                if (badge) {
-                    badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> A recuperar...`;
-                }
-
-                try {
-                    const oldDocRef = doc(db, 'artifacts', defaultAppId, 'users', oldUid, 'user_data', 'state');
-                    const snap = await getDoc(oldDocRef);
-
-                    if (snap.exists()) {
-                        const data = snap.data();
-                        
-                        appState = {
-                            ingredients: data.ingredients || [],
-                            recipes: data.recipes || [],
-                            complements: data.complements || [],
-                            combos: data.combos || [],
-                            fixedCosts: data.fixedCosts || [],
-                            ingredientCategories: data.ingredientCategories || ['Proteínas', 'Pães', 'Queijos', 'Molhos', 'Vegetais/Hortifrúti', 'Embalagens', 'Outros'],
-                            recipeCategories: data.recipeCategories || ['Hambúrgueres', 'Acompanhamentos', 'Bebidas', 'Sobremesas', 'Molhos Caseiros', 'Outros'],
-                            complementCategories: data.complementCategories || ['Extras', 'Molhos', 'Outros'],
-                            comboCategories: data.comboCategories || ['Promocionais', 'Família', 'Outros'],
-                            fixedCostCategories: data.fixedCostCategories || ['Operacional', 'Renda/Aluguel', 'Marketing', 'RH/Folha', 'Impostos Fixos', 'Outros'],
-                            settings: {
-                                targetCMV: data.settings?.targetCMV ?? 30,
-                                tax: data.settings?.tax ?? 6,
-                                apps: data.settings?.apps ?? 12,
-                                card: data.settings?.card ?? 2.5,
-                                baseRevenue: data.settings?.baseRevenue ?? 0,
-                                targetRevenue: data.settings?.targetRevenue ?? 0
-                            }
-                        };
-                        
-                        saveLocalBackup();
-                        window.renderAll();
-                        await syncStateToCloud();
-
-                        showCustomAlert('Importação Bem-Sucedida!', 'As fichas e insumos da conta antiga foram migrados com sucesso para a sua nova conta!');
-                    } else {
-                        showCustomAlert('Não Encontrado', 'Não foram encontrados registos salvos sob esse UID antigo.', true);
-                    }
-                } catch (err) {
-                    console.error(err);
-                    showCustomAlert('Erro de Permissão', 'Acesso negado. Certifique-se de que a regra do Firestore está definida temporariamente para "allow read: if true;" na guia "Rules" do Firebase.', true);
-                } finally {
-                    initCloudSyncListener();
-                }
-            });
-        };
-
-        function fallbackToOfflineBadge() {
-            const badge = document.getElementById('cloud-badge');
-            if (badge) {
-                badge.innerHTML = `<i class="fa-solid fa-cloud-slash mr-1"></i> Modo Local`;
-                badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20";
-            }
-            const statusIndicator = document.getElementById('system-status-indicator');
-            const statusText = document.getElementById('system-status-text');
-            if (statusIndicator && statusText) {
-                statusIndicator.className = "w-2.5 h-2.5 rounded-full bg-amber-500";
-                statusText.textContent = "Offline (Modo Local)";
-            }
-        }
-
-        // ----------------- FLUXO DE INICIALIZAÇÃO SEGURO -----------------
-        window.addEventListener('DOMContentLoaded', async () => {
-            let fbConfigToUse = officialFirebaseConfig;
-            const customConfig = localStorage.getItem('tribo_burger_custom_fb_config');
-            if (customConfig) {
-                fbConfigToUse = JSON.parse(customConfig);
-            }
-            populateFirebaseConfigFields(fbConfigToUse);
-
-            try {
-                if (fbConfigToUse && fbConfigToUse.apiKey) {
-                    const appInstance = initializeApp(fbConfigToUse);
-                    auth = getAuth(appInstance);
-                    db = getFirestore(appInstance);
-                    isFirebaseActive = true;
-
-                    onAuthStateChanged(auth, (user) => {
-                        currentUser = user;
-                        updateAuthenticationUI(user);
-
-                        if (user && !user.isAnonymous) {
-                            loadLocalBackup();
-                            window.renderAll();
-                            initCloudSyncListener();
-                        }
-                    });
-                } else {
-                    isFirebaseActive = false;
-                    updateAuthenticationUI(null);
-                    fallbackToOfflineBadge();
-                }
-            } catch (error) {
-                console.warn("Autenticação indisponível no momento. Mantendo ecrã de login seguro:", error);
-                isFirebaseActive = false;
-                updateAuthenticationUI(null);
-                fallbackToOfflineBadge();
-            }
-        });
-
-    </script>
-</body>
-</html>
+                    await
