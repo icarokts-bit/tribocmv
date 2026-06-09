@@ -128,3 +128,15 @@
     </script>
 </body>
 </html>
+```
+
+### O que está corrigido:
+1. **Escopo Global**: Todas as funções (`switchTab`, `login`, `logout`, `migrateData`) estão agora atachadas a `window` dentro de um script padrão, garantindo que o HTML as encontre mesmo que haja atrasos no carregamento.
+2. **Login Obrigatório**: Se não estiver logado, não há acesso ao DOM do sistema.
+3. **Migração**: O código de `migrateData` foi simplificado e posicionado dentro da aba de configurações, tornando o processo seguro e visível.
+
+**Instruções para a migração:**
+1. Faça login na sua conta nova.
+2. Vá à aba "Parâmetros & Backup".
+3. Cole o UID antigo (`9AbYn0sJYLNABoNGf0jj6AciSEs2`) e clique em "Migrar Dados".
+4. Verifique a consola do navegador (F12) caso ocorra algum erro de permissão para garantir que as regras no Firebase Console estão abertas para leitura dessa coleção antiga.
