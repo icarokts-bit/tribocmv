@@ -315,14 +315,7 @@
                             <input type="text" id="search-ingredients" oninput="renderIngredients()" placeholder="Filtrar por nome de ingrediente..." class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2 w-full max-w-sm focus:outline-none focus:border-brand-accent">
                             
                             <select id="filter-ingredient-category" onchange="renderIngredients()" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-brand-accent font-semibold max-w-xs">
-                                <option value="">Todas as Categorias</option>
-                                <option value="Proteínas">Proteínas</option>
-                                <option value="Pães">Pães</option>
-                                <option value="Queijos">Queijos</option>
-                                <option value="Molhos">Molhos</option>
-                                <option value="Vegetais/Hortifrúti">Vegetais/Hortifrúti</option>
-                                <option value="Embalagens">Embalagens</option>
-                                <option value="Outros">Outros</option>
+                                <!-- Populated dynamically via JS -->
                             </select>
                         </div>
                         <div class="overflow-x-auto">
@@ -362,13 +355,7 @@
                         <input type="text" id="search-recipes" oninput="renderRecipes()" placeholder="Procurar receitas..." class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2 w-full max-w-sm focus:outline-none focus:border-brand-accent">
                         
                         <select id="filter-recipe-category" onchange="renderRecipes()" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-brand-accent font-semibold max-w-xs">
-                            <option value="">Todas as Categorias</option>
-                            <option value="Hambúrgueres">Hambúrgueres</option>
-                            <option value="Acompanhamentos">Acompanhamentos</option>
-                            <option value="Bebidas">Bebidas</option>
-                            <option value="Sobremesas">Sobremesas</option>
-                            <option value="Molhos Caseiros">Molhos Caseiros</option>
-                            <option value="Outros">Outros</option>
+                            <!-- Populated dynamically via JS -->
                         </select>
                     </div>
 
@@ -423,49 +410,49 @@
                         <p id="print-date" class="text-xs text-gray-500 mt-2">Data de Geração: --/--/----</p>
                     </div>
 
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-5 rounded-xl no-print shadow-lg">
-                        <div>
-                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide text-base">Relatório Consolidado de Rentabilidade</h3>
-                            <p class="text-xs text-brand-textMuted">Auditoria geral de custos, taxas, descontos e margem de lucro de todo o menu.</p>
+                    <!-- Dashboard Financeiro na Análise -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print mb-6">
+                        <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-lg">
+                            <h4 class="text-[10px] font-bold text-brand-textMuted uppercase tracking-wider mb-2">Faturamento Atual vs Meta</h4>
+                            <div class="flex items-end gap-2 mb-2">
+                                <span class="text-3xl font-black text-brand-light" id="analysis-base-revenue">R$ 0,00</span>
+                            </div>
+                            <div class="w-full bg-brand-gray/50 rounded-full h-2 mb-1 overflow-hidden">
+                                <div id="analysis-revenue-progress" class="bg-green-500 h-2 rounded-full" style="width: 0%"></div>
+                            </div>
+                            <p class="text-[9px] text-brand-textMuted">Meta: <span id="analysis-target-revenue" class="font-bold text-brand-light">R$ 0,00</span></p>
                         </div>
-                        <button onclick="window.print()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-black px-5 py-3 rounded-lg text-xs tracking-wider transition-all transform hover:scale-105 shadow-lg flex items-center gap-2">
-                            <i class="fa-solid fa-print text-sm"></i> IMPRIMIR RELATÓRIO
-                        </button>
-                    </div>
-
-                    <div class="bg-brand-dark border border-brand-border rounded-xl shadow-xl overflow-hidden print-card">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs min-w-[800px]">
-                                <thead class="bg-brand-black/30 border-b border-brand-border text-brand-textMuted">
-                                    <tr>
-                                        <th class="py-4 px-4 font-bold uppercase tracking-wider">Tipo</th>
-                                        <th class="py-4 px-4 font-bold uppercase tracking-wider">Nome do Item</th>
-                                        <th class="py-4 px-4 font-bold uppercase tracking-wider text-right">Custo Insumo</th>
-                                        <th class="py-4 px-4 font-bold uppercase tracking-wider text-right">Preço de Venda</th>
-                                        <th class="py-4 px-4 font-bold uppercase tracking-wider text-center">CMV (%)</th>
-                                        <th class="py-4 px-4 font-bold uppercase tracking-wider text-center">Deduções (%)</th>
-                                        <th class="py-4 px-4 font-bold uppercase tracking-wider text-right">Margem Op. (R$)</th>
-                                        <th class="py-4 px-4 font-bold uppercase tracking-wider text-center">Margem (%)</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="analysis-table-body" class="divide-y divide-brand-border/40 text-brand-light print-text">
-                                    <!-- JS -->
-                                </tbody>
-                            </table>
+                        <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-lg flex flex-col justify-center">
+                            <h4 class="text-[10px] font-bold text-brand-textMuted uppercase tracking-wider mb-2">Custos Fixos vs Faturamento</h4>
+                            <div class="flex items-end gap-2 mb-2">
+                                <span class="text-3xl font-black text-red-400" id="analysis-total-fixed">R$ 0,00</span>
+                            </div>
+                            <p class="text-[10px] text-brand-textMuted">Comprometimento de <span id="analysis-fixed-percent" class="font-bold text-red-400">0%</span> do faturamento base.</p>
+                        </div>
+                        <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-lg flex flex-col justify-center">
+                            <h4 class="text-[10px] font-bold text-brand-textMuted uppercase tracking-wider mb-2">Lucro Operacional Estimado</h4>
+                            <div class="flex items-end gap-2 mb-2">
+                                <span class="text-3xl font-black text-emerald-400" id="analysis-estimated-profit">R$ 0,00</span>
+                            </div>
+                            <p class="text-[10px] text-brand-textMuted">Baseado no faturamento, CMV médio e taxas.</p>
                         </div>
                     </div>
-                </section>
 
-                <!-- TAB 6: CUSTOS FIXOS -->
-                <section id="tab-fixed-costs" class="tab-content space-y-6 hidden">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-4 rounded-xl">
-                        <div>
-                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide">Custos Fixos Mensais</h3>
-                            <p class="text-xs text-brand-textMuted">Registe despesas operacionais recorrentes (ex: salários, rendas, energia).</p>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 no-print mb-6">
+                        <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-lg">
+                            <h4 class="text-xs font-bold text-brand-light uppercase tracking-wider mb-4">Despesas por Categoria</h4>
+                            <div id="analysis-fixed-breakdown" class="space-y-3 max-h-48 overflow-y-auto no-scrollbar pr-2">
+                                <!-- JS -->
+                            </div>
                         </div>
-                        <button onclick="openFixedCostModal()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-4 py-2.5 rounded-lg text-xs tracking-wide transition-colors flex items-center gap-2">
-                            <i class="fa-solid fa-plus text-sm"></i> Adicionar Despesa
-                        </button>
+                        <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-lg flex flex-col justify-center items-center text-center">
+                            <h4 class="text-[10px] font-bold text-brand-textMuted uppercase tracking-wider mb-2">Ponto de Equilíbrio (Break-even)</h4>
+                            <p class="text-[10px] text-brand-textMuted mb-4">Faturamento mínimo necessário para cobrir os custos fixos operacionais com a margem de contribuição atual.</p>
+                            <span class="text-4xl font-black text-brand-accent" id="analysis-breakeven">R$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-dark border border-brand-border p-5 rounded-xl no-print shadow-lg mt-6">
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -474,6 +461,7 @@
                                 <thead class="bg-brand-black/30 border-b border-brand-border text-brand-textMuted">
                                     <tr>
                                         <th class="py-3 px-4 font-bold uppercase tracking-wider">Descrição</th>
+                                        <th class="py-3 px-4 font-bold uppercase tracking-wider">Categoria</th>
                                         <th class="py-3 px-4 font-bold uppercase tracking-wider">Custo Mensal (R$)</th>
                                         <th class="py-3 px-4 font-bold uppercase tracking-wider text-right">Ações</th>
                                     </tr>
@@ -496,6 +484,24 @@
 
                 <!-- TAB 7: PARÂMETROS & TAXAS -->
                 <section id="tab-settings" class="tab-content space-y-6 hidden">
+                    
+                    <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-6">
+                        <div>
+                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1">Análise de Faturamento Mês</h3>
+                            <p class="text-xs text-brand-textMuted">Defina o faturamento realizado e a sua meta para habilitar as análises operacionais avançadas e o Ponto de Equilíbrio.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
+                            <div>
+                                <label class="block text-xs font-bold text-brand-light uppercase mb-2">Faturamento Base Realizado (R$)</label>
+                                <input id="setting-base-revenue" type="number" step="0.01" placeholder="Ex: 50000.00" class="bg-brand-gray border border-brand-border text-brand-light text-sm rounded-lg px-4 py-2.5 w-full focus:outline-none focus:border-brand-accent font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-brand-light uppercase mb-2">Faturamento Meta (R$)</label>
+                                <input id="setting-target-revenue" type="number" step="0.01" placeholder="Ex: 80000.00" class="bg-brand-gray border border-brand-border text-brand-light text-sm rounded-lg px-4 py-2.5 w-full focus:outline-none focus:border-brand-accent font-bold">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-6">
                         <div>
                             <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1">Parâmetros Comerciais</h3>
@@ -522,8 +528,44 @@
                         </div>
 
                         <button onclick="saveSettings()" class="bg-brand-accent hover:bg-brand-accentHover text-brand-black font-extrabold px-6 py-3 rounded-lg text-xs tracking-wider transition-colors">
-                            Salvar Taxas
+                            Salvar Taxas & Faturamento
                         </button>
+                    </div>
+
+                    <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-6">
+                        <div>
+                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1">Gestão de Categorias</h3>
+                            <p class="text-xs text-brand-textMuted">Crie ou remova categorias personalizadas para Insumos, Fichas e Custos Fixos.</p>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <!-- Insumos -->
+                            <div class="space-y-3 border border-brand-border p-4 rounded-lg bg-brand-black/30">
+                                <h4 class="text-[10px] font-bold text-brand-light uppercase tracking-wider">Categorias de Insumos</h4>
+                                <div class="flex gap-2">
+                                    <input id="new-cat-ingredient" type="text" placeholder="Nova categoria..." class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded px-3 py-2 flex-1 focus:outline-none focus:border-brand-accent">
+                                    <button onclick="addCategory('ingredientCategories', 'new-cat-ingredient')" class="bg-brand-gray hover:bg-brand-border border border-brand-border px-3 rounded text-brand-light transition-colors"><i class="fa-solid fa-plus"></i></button>
+                                </div>
+                                <div id="list-cat-ingredients" class="space-y-1.5 max-h-40 overflow-y-auto mt-2 text-xs pr-1"></div>
+                            </div>
+                            <!-- Receitas -->
+                            <div class="space-y-3 border border-brand-border p-4 rounded-lg bg-brand-black/30">
+                                <h4 class="text-[10px] font-bold text-brand-light uppercase tracking-wider">Categorias de Fichas</h4>
+                                <div class="flex gap-2">
+                                    <input id="new-cat-recipe" type="text" placeholder="Nova categoria..." class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded px-3 py-2 flex-1 focus:outline-none focus:border-brand-accent">
+                                    <button onclick="addCategory('recipeCategories', 'new-cat-recipe')" class="bg-brand-gray hover:bg-brand-border border border-brand-border px-3 rounded text-brand-light transition-colors"><i class="fa-solid fa-plus"></i></button>
+                                </div>
+                                <div id="list-cat-recipes" class="space-y-1.5 max-h-40 overflow-y-auto mt-2 text-xs pr-1"></div>
+                            </div>
+                            <!-- Custos Fixos -->
+                            <div class="space-y-3 border border-brand-border p-4 rounded-lg bg-brand-black/30">
+                                <h4 class="text-[10px] font-bold text-brand-light uppercase tracking-wider">Categorias de Custo Fixo</h4>
+                                <div class="flex gap-2">
+                                    <input id="new-cat-fixed" type="text" placeholder="Nova categoria..." class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded px-3 py-2 flex-1 focus:outline-none focus:border-brand-accent">
+                                    <button onclick="addCategory('fixedCostCategories', 'new-cat-fixed')" class="bg-brand-gray hover:bg-brand-border border border-brand-border px-3 rounded text-brand-light transition-colors"><i class="fa-solid fa-plus"></i></button>
+                                </div>
+                                <div id="list-cat-fixed" class="space-y-1.5 max-h-40 overflow-y-auto mt-2 text-xs pr-1"></div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- FERRAMENTA DE RECUPERAÇÃO DE DADOS DE CONTA ANTIGA (MIGRAÇÃO) -->
@@ -571,13 +613,7 @@
                 <div>
                     <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Categoria</label>
                     <select id="ingredient-category" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent font-semibold">
-                        <option value="Proteínas">Proteínas</option>
-                        <option value="Pães">Pães</option>
-                        <option value="Queijos">Queijos</option>
-                        <option value="Molhos">Molhos</option>
-                        <option value="Vegetais/Hortifrúti">Vegetais/Hortifrúti</option>
-                        <option value="Embalagens">Embalagens</option>
-                        <option value="Outros">Outros</option>
+                        <!-- Populated dynamically via JS -->
                     </select>
                 </div>
 
@@ -633,12 +669,7 @@
                 <div>
                     <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Categoria da Receita</label>
                     <select id="recipe-category" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent font-semibold">
-                        <option value="Hambúrgueres">Hambúrgueres</option>
-                        <option value="Acompanhamentos">Acompanhamentos</option>
-                        <option value="Bebidas">Bebidas</option>
-                        <option value="Sobremesas">Sobremesas</option>
-                        <option value="Molhos Caseiros">Molhos Caseiros</option>
-                        <option value="Outros">Outros</option>
+                        <!-- Populated dynamically via JS -->
                     </select>
                 </div>
 
@@ -806,6 +837,12 @@
                     <input id="fixed-cost-description" type="text" placeholder="Ex: Renda comercial, Internet" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent font-semibold font-sans">
                 </div>
                 <div>
+                    <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Categoria da Despesa</label>
+                    <select id="fixed-cost-category" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent font-semibold">
+                        <!-- Populated dynamically via JS -->
+                    </select>
+                </div>
+                <div>
                     <label class="block text-xs font-bold text-brand-light uppercase mb-1.5">Valor Mensal (R$)</label>
                     <input id="fixed-cost-value" type="number" step="0.01" placeholder="Ex: 1200.00" class="bg-brand-gray border border-brand-border text-brand-light text-xs rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-brand-accent font-bold">
                 </div>
@@ -860,11 +897,16 @@
             complements: [], // NEW
             combos: [],
             fixedCosts: [],
+            ingredientCategories: ['Proteínas', 'Pães', 'Queijos', 'Molhos', 'Vegetais/Hortifrúti', 'Embalagens', 'Outros'],
+            recipeCategories: ['Hambúrgueres', 'Acompanhamentos', 'Bebidas', 'Sobremesas', 'Molhos Caseiros', 'Outros'],
+            fixedCostCategories: ['Operacional', 'Renda/Aluguel', 'Marketing', 'RH/Folha', 'Impostos Fixos', 'Outros'],
             settings: {
                 targetCMV: 30,
                 tax: 6,
                 apps: 12,
-                card: 2.5
+                card: 2.5,
+                baseRevenue: 0,
+                targetRevenue: 0
             }
         };
 
@@ -1185,6 +1227,7 @@
         }
 
         window.renderAll = function() {
+            window.populateDropdowns();
             window.renderDashboard();
             window.renderIngredients();
             window.renderRecipes();
@@ -1193,6 +1236,69 @@
             window.renderFixedCosts();
             window.renderAnalysis();
             window.renderSettingsInFields();
+        };
+
+        window.populateDropdowns = function() {
+            const ingCats = appState.ingredientCategories || ['Outros'];
+            const recCats = appState.recipeCategories || ['Outros'];
+            const fixCats = appState.fixedCostCategories || ['Outros'];
+
+            const fillSelect = (id, options, defaultText = null) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const currentVal = el.value;
+                let html = defaultText ? `<option value="">${defaultText}</option>` : '';
+                options.forEach(opt => html += `<option value="${opt}">${opt}</option>`);
+                el.innerHTML = html;
+                if (options.includes(currentVal)) el.value = currentVal;
+            };
+
+            fillSelect('filter-ingredient-category', ingCats, 'Todas as Categorias');
+            fillSelect('ingredient-category', ingCats);
+            fillSelect('filter-recipe-category', recCats, 'Todas as Categorias');
+            fillSelect('recipe-category', recCats);
+            fillSelect('fixed-cost-category', fixCats);
+
+            const renderList = (id, listName, options) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.innerHTML = options.map(opt => `
+                    <div class="flex justify-between items-center bg-brand-gray/30 border border-brand-border p-2 rounded">
+                        <span class="truncate font-semibold text-brand-light">${opt}</span>
+                        <button onclick="removeCategory('${listName}', '${opt}')" class="text-red-400 hover:text-red-300 ml-2 px-1 transition-colors"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `).join('');
+            };
+
+            renderList('list-cat-ingredients', 'ingredientCategories', ingCats);
+            renderList('list-cat-recipes', 'recipeCategories', recCats);
+            renderList('list-cat-fixed', 'fixedCostCategories', fixCats);
+        };
+
+        window.addCategory = async function(listName, inputId) {
+            const input = document.getElementById(inputId);
+            const val = input.value.trim();
+            if (!val) return;
+            if (!appState[listName]) appState[listName] = [];
+            if (appState[listName].includes(val)) {
+                showCustomAlert('Aviso', 'Esta categoria já existe.', true);
+                return;
+            }
+            appState[listName].push(val);
+            input.value = '';
+            window.renderAll();
+            await syncStateToCloud();
+        };
+
+        window.removeCategory = function(listName, val) {
+            if (!appState[listName]) return;
+            showCustomConfirm('Remover Categoria', `Deseja remover a categoria "${val}" permanentemente?`, async (approved) => {
+                if (approved) {
+                    appState[listName] = appState[listName].filter(c => c !== val);
+                    window.renderAll();
+                    await syncStateToCloud();
+                }
+            });
         };
 
         window.renderDashboard = function() {
@@ -1573,15 +1679,17 @@
             let total = 0;
 
             if (appState.fixedCosts.length === 0) {
-                html = `<tr><td colspan="3" class="py-6 text-center text-brand-textMuted text-xs font-sans">Nenhum custo fixo registado.</td></tr>`;
+                html = `<tr><td colspan="4" class="py-6 text-center text-brand-textMuted text-xs font-sans">Nenhum custo fixo registado.</td></tr>`;
             } else {
                 appState.fixedCosts.forEach(cost => {
                     const val = parseFloat(cost.value || 0);
+                    const category = cost.category || 'Outros';
                     total += val;
 
                     html += `
                         <tr class="hover:bg-brand-gray/20 transition-colors font-sans">
                             <td class="py-3.5 px-4 font-semibold text-brand-light">${cost.description}</td>
+                            <td class="py-3.5 px-4"><span class="px-2 py-1 rounded text-[10px] font-bold bg-brand-black/50 border border-brand-border text-brand-textMuted">${category}</span></td>
                             <td class="py-3.5 px-4 font-bold text-brand-accent">${formatCurrency(val)}</td>
                             <td class="py-3.5 px-4 text-right space-x-1 whitespace-nowrap">
                                 <button onclick="openFixedCostModal('${cost.id}')" class="p-1.5 bg-brand-gray border border-brand-border rounded text-brand-textMuted hover:text-brand-light transition-colors">
@@ -1609,6 +1717,79 @@
                 dateEl.textContent = `Data de Geração: ${now.toLocaleDateString('pt-PT')} às ${now.toLocaleTimeString('pt-PT')}`;
             }
 
+            // Calculations for the new Dashboard
+            const baseRevenue = parseFloat(appState.settings.baseRevenue || 0);
+            const targetRevenue = parseFloat(appState.settings.targetRevenue || 0);
+            const totalFixed = appState.fixedCosts.reduce((sum, c) => sum + parseFloat(c.value || 0), 0);
+            const targetCMV = parseFloat(appState.settings.targetCMV || 30);
+            const totalTaxesPercentage = parseFloat(appState.settings.tax || 0) + parseFloat(appState.settings.apps || 0) + parseFloat(appState.settings.card || 0);
+            
+            // Fixed Costs Percentage
+            const fixedPercent = baseRevenue > 0 ? ((totalFixed / baseRevenue) * 100).toFixed(1) : '0.0';
+            
+            // Estimated Profit Margin (%) = 100% - CMV Meta(%) - TaxasGlobais(%) - CustosFixos(%)
+            const estimatedMarginPercent = 100 - targetCMV - totalTaxesPercentage - (baseRevenue > 0 ? (totalFixed / baseRevenue * 100) : 0);
+            const estimatedProfit = baseRevenue * (estimatedMarginPercent / 100);
+
+            // Break-even Point = Fixed Costs / Average Contribution Margin Ratio
+            // Contribution Margin Ratio = 1 - Variable Costs % = 1 - (Target CMV / 100) - (Taxes / 100)
+            const contributionMarginRatio = 1 - (targetCMV / 100) - (totalTaxesPercentage / 100);
+            const breakEven = contributionMarginRatio > 0 ? (totalFixed / contributionMarginRatio) : 0;
+
+            // Update Financial Dashboard UI
+            safeSetText('analysis-base-revenue', formatCurrency(baseRevenue));
+            safeSetText('analysis-target-revenue', formatCurrency(targetRevenue));
+            
+            const progressEl = document.getElementById('analysis-revenue-progress');
+            if (progressEl) {
+                const progress = targetRevenue > 0 ? Math.min((baseRevenue / targetRevenue) * 100, 100) : 0;
+                progressEl.style.width = `${progress}%`;
+                progressEl.className = progress >= 100 ? 'bg-emerald-500 h-2 rounded-full transition-all' : 'bg-brand-accent h-2 rounded-full transition-all';
+            }
+
+            safeSetText('analysis-total-fixed', formatCurrency(totalFixed));
+            safeSetText('analysis-fixed-percent', `${fixedPercent}%`);
+            
+            const estProfitEl = document.getElementById('analysis-estimated-profit');
+            if (estProfitEl) {
+                estProfitEl.textContent = formatCurrency(estimatedProfit);
+                estProfitEl.className = estimatedProfit >= 0 ? "text-3xl font-black text-emerald-400" : "text-3xl font-black text-red-500";
+            }
+            
+            safeSetText('analysis-breakeven', formatCurrency(breakEven));
+
+            // Breakdown by Category
+            const breakdownContainer = document.getElementById('analysis-fixed-breakdown');
+            if (breakdownContainer) {
+                const groupedCosts = {};
+                appState.fixedCosts.forEach(c => {
+                    const cat = c.category || 'Outros';
+                    groupedCosts[cat] = (groupedCosts[cat] || 0) + parseFloat(c.value || 0);
+                });
+
+                let breakdownHtml = '';
+                if (Object.keys(groupedCosts).length === 0) {
+                    breakdownHtml = '<p class="text-[10px] text-brand-textMuted uppercase font-bold text-center py-4">Nenhum custo fixo registado.</p>';
+                } else {
+                    Object.entries(groupedCosts)
+                        .sort(([, a], [, b]) => b - a)
+                        .forEach(([cat, val]) => {
+                            const pct = totalFixed > 0 ? ((val / totalFixed) * 100).toFixed(1) : 0;
+                            breakdownHtml += `
+                                <div class="flex justify-between items-center bg-brand-black/40 p-3 rounded-lg border border-brand-border">
+                                    <span class="text-xs font-semibold text-brand-light">${cat}</span>
+                                    <div class="text-right">
+                                        <p class="text-xs font-black text-brand-accent">${formatCurrency(val)}</p>
+                                        <p class="text-[9px] font-bold text-brand-textMuted">${pct}% do Total</p>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                }
+                breakdownContainer.innerHTML = breakdownHtml;
+            }
+
+            // Existing Table Logic
             let html = '';
             const allItems = [
                 ...appState.recipes.map(r => ({ ...r, type: 'Ficha Técnica' })),
@@ -1654,6 +1835,8 @@
             safeSetValue('setting-tax', appState.settings.tax);
             safeSetValue('setting-apps', appState.settings.apps);
             safeSetValue('setting-card', appState.settings.card);
+            safeSetValue('setting-base-revenue', appState.settings.baseRevenue);
+            safeSetValue('setting-target-revenue', appState.settings.targetRevenue);
         };
 
         // ----------------- CRUD - INSUMOS (INGREDIENTES) -----------------
@@ -2278,12 +2461,14 @@
                 if (cost) {
                     safeSetValue('fixed-cost-id', cost.id);
                     safeSetValue('fixed-cost-description', cost.description);
+                    safeSetValue('fixed-cost-category', cost.category || 'Outros');
                     safeSetValue('fixed-cost-value', cost.value);
                 }
             } else {
                 document.getElementById('modal-fixed-cost-title').textContent = 'Novo Custo Fixo';
                 safeSetValue('fixed-cost-id', '');
                 safeSetValue('fixed-cost-description', '');
+                safeSetValue('fixed-cost-category', appState.fixedCostCategories && appState.fixedCostCategories.length > 0 ? appState.fixedCostCategories[0] : 'Outros');
                 safeSetValue('fixed-cost-value', '');
             }
 
@@ -2302,6 +2487,7 @@
         window.saveFixedCost = async function() {
             const id = document.getElementById('fixed-cost-id').value;
             const description = document.getElementById('fixed-cost-description').value.trim();
+            const category = document.getElementById('fixed-cost-category').value;
             const value = parseFloat(document.getElementById('fixed-cost-value').value);
 
             if (!description || isNaN(value)) {
@@ -2312,7 +2498,7 @@
             const targetId = id || crypto.randomUUID();
             const list = [...appState.fixedCosts];
             const index = list.findIndex(c => c.id === targetId);
-            const record = { id: targetId, description, value };
+            const record = { id: targetId, description, category, value };
 
             if (index > -1) list[index] = record;
             else list.push(record);
@@ -2340,16 +2526,18 @@
             const tax = parseFloat(document.getElementById('setting-tax').value);
             const apps = parseFloat(document.getElementById('setting-apps').value);
             const card = parseFloat(document.getElementById('setting-card').value);
+            const baseRevenue = parseFloat(document.getElementById('setting-base-revenue').value || 0);
+            const targetRevenue = parseFloat(document.getElementById('setting-target-revenue').value || 0);
 
             if (isNaN(targetCMV) || isNaN(tax) || isNaN(apps) || isNaN(card)) {
                 showCustomAlert('Aviso', 'Certifique-se de preencher todos os parâmetros com taxas válidas.', true);
                 return;
             }
 
-            appState.settings = { targetCMV, tax, apps, card };
+            appState.settings = { targetCMV, tax, apps, card, baseRevenue, targetRevenue };
             window.renderAll();
             await syncStateToCloud();
-            showCustomAlert('Configurações Salvas', 'Os novos parâmetros fiscais e taxas já foram aplicados!');
+            showCustomAlert('Configurações Salvas', 'Os novos parâmetros fiscais e metas de faturamento já foram aplicados!');
         };
 
         // ----------------- CONFIGURAÇÕES CUSTOMIZADAS DO FIREBASE NO CLIENTE -----------------
@@ -2445,11 +2633,16 @@
                             complements: data.complements || [],
                             combos: data.combos || [],
                             fixedCosts: data.fixedCosts || [],
+                            ingredientCategories: data.ingredientCategories || ['Proteínas', 'Pães', 'Queijos', 'Molhos', 'Vegetais/Hortifrúti', 'Embalagens', 'Outros'],
+                            recipeCategories: data.recipeCategories || ['Hambúrgueres', 'Acompanhamentos', 'Bebidas', 'Sobremesas', 'Molhos Caseiros', 'Outros'],
+                            fixedCostCategories: data.fixedCostCategories || ['Operacional', 'Renda/Aluguel', 'Marketing', 'RH/Folha', 'Impostos Fixos', 'Outros'],
                             settings: {
                                 targetCMV: data.settings?.targetCMV ?? 30,
                                 tax: data.settings?.tax ?? 6,
                                 apps: data.settings?.apps ?? 12,
-                                card: data.settings?.card ?? 2.5
+                                card: data.settings?.card ?? 2.5,
+                                baseRevenue: data.settings?.baseRevenue ?? 0,
+                                targetRevenue: data.settings?.targetRevenue ?? 0
                             }
                         };
                         saveLocalBackup();
@@ -2492,6 +2685,9 @@
                     complements: appState.complements || [],
                     combos: appState.combos,
                     fixedCosts: appState.fixedCosts,
+                    ingredientCategories: appState.ingredientCategories,
+                    recipeCategories: appState.recipeCategories,
+                    fixedCostCategories: appState.fixedCostCategories,
                     settings: appState.settings,
                     updatedAt: new Date().toISOString()
                 }, { merge: true });
