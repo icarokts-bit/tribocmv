@@ -2691,4 +2691,321 @@
         };
 
         window.deleteFixedCost = function(id) {
-            show
+            showCustomConfirm('Excluir Custo Fixo', 'Remover este registo de despesa fixa?', async (approved) => {
+                if (approved) {
+                    appState.fixedCosts = appState.fixedCosts.filter(c => c.id !== id);
+                    window.renderAll();
+                    await syncStateToCloud();
+                }
+            });
+        };
+
+        // ----------------- PARÂMETROS FINANCEIROS -----------------
+        window.saveSettings = async function() {
+            const targetCMV = parseFloat(document.getElementById('setting-target-cmv').value);
+            const tax = parseFloat(document.getElementById('setting-tax').value);
+            const apps = parseFloat(document.getElementById('setting-apps').value);
+            const card = parseFloat(document.getElementById('setting-card').value);
+            const baseRevenue = parseFloat(document.getElementById('setting-base-revenue').value || 0);
+            const targetRevenue = parseFloat(document.getElementById('setting-target-revenue').value || 0);
+
+            if (isNaN(targetCMV) || isNaN(tax) || isNaN(apps) || isNaN(card)) {
+                showCustomAlert('Aviso', 'Certifique-se de preencher todos os parâmetros com taxas válidas.', true);
+                return;
+            }
+
+            appState.settings = { targetCMV, tax, apps, card, baseRevenue, targetRevenue };
+            window.renderAll();
+            await syncStateToCloud();
+            showCustomAlert('Configurações Salvas', 'Os novos parâmetros fiscais e metas de faturamento já foram aplicados!');
+        };
+
+        // ----------------- CONFIGURAÇÕES CUSTOMIZADAS DO FIREBASE NO CLIENTE -----------------
+        window.saveCustomFirebaseConfig = function() {
+            const config = {
+                apiKey: document.getElementById('fb-apiKey').value.trim(),
+                authDomain: document.getElementById('fb-authDomain').value.trim(),
+                projectId: document.getElementById('fb-projectId').value.trim(),
+                storageBucket: document.getElementById('fb-storageBucket').value.trim(),
+                messagingSenderId: document.getElementById('fb-messagingSenderId').value.trim(),
+                appId: document.getElementById('fb-appId').value.trim(),
+            };
+
+            if (!config.apiKey || !config.projectId) {
+                showCustomAlert('Configuração Inválida', 'A API Key e o Project ID são obrigatórios.', true);
+                return;
+            }
+
+            localStorage.setItem('tribo_burger_custom_fb_config', JSON.stringify(config));
+            showCustomAlert('Reiniciando...', 'Configurações guardadas! A página irá atualizar para conectar à sua nova base de dados.');
+            setTimeout(() => { location.reload(); }, 1500);
+        };
+
+        window.clearCustomFirebaseConfig = function() {
+            localStorage.removeItem('tribo_burger_custom_fb_config');
+            showCustomAlert('Reiniciando...', 'Conexão padrão tribocmv restaurada. Atualizando...');
+            setTimeout(() => { location.reload(); }, 1500);
+        };
+
+        function populateFirebaseConfigFields(config) {
+            safeSetValue('fb-apiKey', config.apiKey);
+            safeSetValue('fb-authDomain', config.authDomain);
+            safeSetValue('fb-projectId', config.projectId);
+            safeSetValue('fb-storageBucket', config.storageBucket);
+            safeSetValue('fb-messagingSenderId', config.messagingSenderId);
+            safeSetValue('fb-appId', config.appId);
+        }
+
+        // ----------------- COORDENAÇÃO DE SINCRONIZAÇÃO NUVEM E CACHE LOCAL -----------------
+        function loadLocalBackup() {
+            if (!currentUser || currentUser.isAnonymous) return;
+
+            const cached = localStorage.getItem('tribo_burger_offline_backup');
+            if (cached) {
+                try {
+                    const parsed = JSON.parse(cached);
+                    appState = {
+                        ingredients: parsed.ingredients || [],
+                        recipes: parsed.recipes || [],
+                        complements: parsed.complements || [],
+                        combos: parsed.combos || [],
+                        fixedCosts: parsed.fixedCosts || [],
+                        ingredientCategories: parsed.ingredientCategories || ['Proteínas', 'Pães', 'Queijos', 'Molhos', 'Vegetais/Hortifrúti', 'Embalagens', 'Outros'],
+                        recipeCategories: parsed.recipeCategories || ['Hambúrgueres', 'Acompanhamentos', 'Bebidas', 'Sobremesas', 'Molhos Caseiros', 'Outros'],
+                        complementCategories: parsed.complementCategories || ['Extras', 'Molhos', 'Outros'],
+                        comboCategories: parsed.comboCategories || ['Promocionais', 'Família', 'Outros'],
+                        fixedCostCategories: parsed.fixedCostCategories || ['Operacional', 'Renda/Aluguel', 'Marketing', 'RH/Folha', 'Impostos Fixos', 'Outros'],
+                        settings: {
+                            targetCMV: parsed.settings?.targetCMV ?? 30,
+                            tax: parsed.settings?.tax ?? 6,
+                            apps: parsed.settings?.apps ?? 12,
+                            card: parsed.settings?.card ?? 2.5,
+                            baseRevenue: parsed.settings?.baseRevenue ?? 0,
+                            targetRevenue: parsed.settings?.targetRevenue ?? 0
+                        }
+                    };
+                } catch (e) {
+                    console.error("Erro ao ler backup local:", e);
+                }
+            }
+        }
+
+        function saveLocalBackup() {
+            if (!currentUser || currentUser.isAnonymous) return;
+            localStorage.setItem('tribo_burger_offline_backup', JSON.stringify(appState));
+        }
+
+        async function initCloudSyncListener() {
+            if (!isFirebaseActive || !db || !currentUser || currentUser.isAnonymous) return;
+
+            if (databaseListenerUnsubscribe) {
+                databaseListenerUnsubscribe();
+            }
+
+            const badge = document.getElementById('cloud-badge');
+            if (badge) {
+                badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> A sincronizar...`;
+                badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20";
+            }
+
+            const docRef = collection(db, 'artifacts', defaultAppId, 'users', currentUser.uid, 'user_data');
+
+            try {
+                databaseListenerUnsubscribe = onSnapshot(doc(docRef, 'state'), (snap) => {
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        appState = {
+                            ingredients: data.ingredients || [],
+                            recipes: data.recipes || [],
+                            complements: data.complements || [],
+                            combos: data.combos || [],
+                            fixedCosts: data.fixedCosts || [],
+                            ingredientCategories: data.ingredientCategories || ['Proteínas', 'Pães', 'Queijos', 'Molhos', 'Vegetais/Hortifrúti', 'Embalagens', 'Outros'],
+                            recipeCategories: data.recipeCategories || ['Hambúrgueres', 'Acompanhamentos', 'Bebidas', 'Sobremesas', 'Molhos Caseiros', 'Outros'],
+                            complementCategories: data.complementCategories || ['Extras', 'Molhos', 'Outros'],
+                            comboCategories: data.comboCategories || ['Promocionais', 'Família', 'Outros'],
+                            fixedCostCategories: data.fixedCostCategories || ['Operacional', 'Renda/Aluguel', 'Marketing', 'RH/Folha', 'Impostos Fixos', 'Outros'],
+                            settings: {
+                                targetCMV: data.settings?.targetCMV ?? 30,
+                                tax: data.settings?.tax ?? 6,
+                                apps: data.settings?.apps ?? 12,
+                                card: data.settings?.card ?? 2.5,
+                                baseRevenue: data.settings?.baseRevenue ?? 0,
+                                targetRevenue: data.settings?.targetRevenue ?? 0
+                            }
+                        };
+                        saveLocalBackup();
+                        window.renderAll();
+                    } else {
+                        syncStateToCloud();
+                    }
+
+                    if (badge) {
+                        badge.innerHTML = `<i class="fa-solid fa-cloud mr-1"></i> Protegido`;
+                        badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20";
+                    }
+                    const statusIndicator = document.getElementById('system-status-indicator');
+                    const statusText = document.getElementById('system-status-text');
+                    if (statusIndicator && statusText) {
+                        statusIndicator.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                        statusText.textContent = "Online (Protegido)";
+                    }
+                }, (error) => {
+                    console.warn("Bloqueado pelas regras do Firestore:", error);
+                    fallbackToOfflineBadge();
+                });
+            } catch (err) {
+                console.warn("Erro ao configurar listener do Firestore:", err);
+                fallbackToOfflineBadge();
+            }
+        }
+
+        async function syncStateToCloud() {
+            if (!currentUser || currentUser.isAnonymous) return;
+            saveLocalBackup();
+            if (!isFirebaseActive || !db) return;
+
+            const docRef = doc(db, 'artifacts', defaultAppId, 'users', currentUser.uid, 'user_data', 'state');
+
+            try {
+                await setDoc(docRef, {
+                    ingredients: appState.ingredients,
+                    recipes: appState.recipes,
+                    complements: appState.complements || [],
+                    combos: appState.combos,
+                    fixedCosts: appState.fixedCosts,
+                    ingredientCategories: appState.ingredientCategories,
+                    recipeCategories: appState.recipeCategories,
+                    complementCategories: appState.complementCategories,
+                    comboCategories: appState.comboCategories,
+                    fixedCostCategories: appState.fixedCostCategories,
+                    settings: appState.settings,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+            } catch (e) {
+                console.warn("Falha de gravação ou falta de permissão ativa:", e);
+            }
+        }
+
+        // ----------------- SCRIPT DE MIGRAÇÃO MANUAL DE DADOS (UID ANTIGO -> NOVO UID SEGURO) -----------------
+        window.attemptDataRecovery = async function() {
+            const oldUid = document.getElementById('recovery-old-uid').value.trim();
+            if (!oldUid) {
+                showCustomAlert('Campo Vazio', 'Por favor, insira o ID antigo.', true);
+                return;
+            }
+
+            if (!isFirebaseActive || !db) {
+                showCustomAlert('Firebase Inativo', 'É necessária ligação ativa com a sua base de dados.', true);
+                return;
+            }
+
+            showCustomConfirm('Confirmar Importação', 'Isso irá substituir todos os dados da sua conta atual pelas fichas técnicas e insumos da conta antiga. Deseja prosseguir?', async (approved) => {
+                if (!approved) return;
+
+                const badge = document.getElementById('cloud-badge');
+                if (badge) {
+                    badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> A recuperar...`;
+                }
+
+                try {
+                    const oldDocRef = doc(db, 'artifacts', defaultAppId, 'users', oldUid, 'user_data', 'state');
+                    const snap = await getDoc(oldDocRef);
+
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        
+                        appState = {
+                            ingredients: data.ingredients || [],
+                            recipes: data.recipes || [],
+                            complements: data.complements || [],
+                            combos: data.combos || [],
+                            fixedCosts: data.fixedCosts || [],
+                            ingredientCategories: data.ingredientCategories || ['Proteínas', 'Pães', 'Queijos', 'Molhos', 'Vegetais/Hortifrúti', 'Embalagens', 'Outros'],
+                            recipeCategories: data.recipeCategories || ['Hambúrgueres', 'Acompanhamentos', 'Bebidas', 'Sobremesas', 'Molhos Caseiros', 'Outros'],
+                            complementCategories: data.complementCategories || ['Extras', 'Molhos', 'Outros'],
+                            comboCategories: data.comboCategories || ['Promocionais', 'Família', 'Outros'],
+                            fixedCostCategories: data.fixedCostCategories || ['Operacional', 'Renda/Aluguel', 'Marketing', 'RH/Folha', 'Impostos Fixos', 'Outros'],
+                            settings: {
+                                targetCMV: data.settings?.targetCMV ?? 30,
+                                tax: data.settings?.tax ?? 6,
+                                apps: data.settings?.apps ?? 12,
+                                card: data.settings?.card ?? 2.5,
+                                baseRevenue: data.settings?.baseRevenue ?? 0,
+                                targetRevenue: data.settings?.targetRevenue ?? 0
+                            }
+                        };
+                        
+                        saveLocalBackup();
+                        window.renderAll();
+                        await syncStateToCloud();
+
+                        showCustomAlert('Importação Bem-Sucedida!', 'As fichas e insumos da conta antiga foram migrados com sucesso para a sua nova conta!');
+                    } else {
+                        showCustomAlert('Não Encontrado', 'Não foram encontrados registos salvos sob esse UID antigo.', true);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showCustomAlert('Erro de Permissão', 'Acesso negado. Certifique-se de que a regra do Firestore está definida temporariamente para "allow read: if true;" na guia "Rules" do Firebase.', true);
+                } finally {
+                    initCloudSyncListener();
+                }
+            });
+        };
+
+        function fallbackToOfflineBadge() {
+            const badge = document.getElementById('cloud-badge');
+            if (badge) {
+                badge.innerHTML = `<i class="fa-solid fa-cloud-slash mr-1"></i> Modo Local`;
+                badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20";
+            }
+            const statusIndicator = document.getElementById('system-status-indicator');
+            const statusText = document.getElementById('system-status-text');
+            if (statusIndicator && statusText) {
+                statusIndicator.className = "w-2.5 h-2.5 rounded-full bg-amber-500";
+                statusText.textContent = "Offline (Modo Local)";
+            }
+        }
+
+        // ----------------- FLUXO DE INICIALIZAÇÃO SEGURO -----------------
+        window.addEventListener('DOMContentLoaded', async () => {
+            let fbConfigToUse = officialFirebaseConfig;
+            const customConfig = localStorage.getItem('tribo_burger_custom_fb_config');
+            if (customConfig) {
+                fbConfigToUse = JSON.parse(customConfig);
+            }
+            populateFirebaseConfigFields(fbConfigToUse);
+
+            try {
+                if (fbConfigToUse && fbConfigToUse.apiKey) {
+                    const appInstance = initializeApp(fbConfigToUse);
+                    auth = getAuth(appInstance);
+                    db = getFirestore(appInstance);
+                    isFirebaseActive = true;
+
+                    onAuthStateChanged(auth, (user) => {
+                        currentUser = user;
+                        updateAuthenticationUI(user);
+
+                        if (user && !user.isAnonymous) {
+                            loadLocalBackup();
+                            window.renderAll();
+                            initCloudSyncListener();
+                        }
+                    });
+                } else {
+                    isFirebaseActive = false;
+                    updateAuthenticationUI(null);
+                    fallbackToOfflineBadge();
+                }
+            } catch (error) {
+                console.warn("Autenticação indisponível no momento. Mantendo ecrã de login seguro:", error);
+                isFirebaseActive = false;
+                updateAuthenticationUI(null);
+                fallbackToOfflineBadge();
+            }
+        });
+
+    </script>
+</body>
+</html>
