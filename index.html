@@ -1813,18 +1813,32 @@
                         const marginValue = sellingPrice - comboCost - taxVal - appsVal - cardVal;
                         const marginPercentage = sellingPrice > 0 ? ((marginValue / sellingPrice) * 100).toFixed(1) : '0';
 
-                        const itemPreviews = (combo.items || []).map(ci => {
+                        let mainItemPreviews = '';
+                        let packagingPreviews = '';
+
+                        (combo.items || []).forEach(ci => {
+                            let text = '';
+                            let isPackaging = false;
+
                             if (ci.type === 'recipe') {
                                 const rec = appState.recipes.find(r => r.id === ci.itemId);
-                                return rec ? `• Ficha: ${rec.name} <span class="text-brand-textMuted font-normal font-sans">(${ci.qty} un)</span>` : '';
+                                if (rec) text = `• Ficha: ${rec.name} <span class="text-brand-textMuted font-normal font-sans">(${ci.qty} un)</span><br>`;
                             } else if (ci.type === 'complement') {
                                 const comp = appState.complements.find(c => c.id === ci.itemId);
-                                return comp ? `• Comp: ${comp.name} <span class="text-brand-textMuted font-normal font-sans">(${ci.qty} un)</span>` : '';
+                                if (comp) text = `• Comp: ${comp.name} <span class="text-brand-textMuted font-normal font-sans">(${ci.qty} un)</span><br>`;
                             } else {
                                 const ing = appState.ingredients.find(i => i.id === ci.itemId);
-                                return ing ? `• Insumo: ${ing.name} <span class="text-brand-textMuted font-normal font-sans">(${ci.qty} ${ing.unit})</span>` : '';
+                                if (ing) {
+                                    text = `• Insumo: ${ing.name} <span class="text-brand-textMuted font-normal font-sans">(${ci.qty} ${ing.unit})</span><br>`;
+                                    if ((ing.category || '').toLowerCase().includes('embalagen') || (ing.category || '').toLowerCase().includes('embalagem')) {
+                                        isPackaging = true;
+                                    }
+                                }
                             }
-                        }).filter(Boolean).join('<br>');
+
+                            if (isPackaging) packagingPreviews += text;
+                            else mainItemPreviews += text;
+                        });
 
                         const ignoreBadge = combo.ignoreCMV ? `<span class="px-2 py-0.5 ml-2 rounded text-[8px] font-bold bg-brand-gray text-brand-textMuted border border-brand-border uppercase tracking-wider"><i class="fa-solid fa-eye-slash mr-1"></i>CMV Ignorado</span>` : '';
 
@@ -1840,9 +1854,18 @@
                                         </div>
                                     </div>
                                     <h4 class="font-extrabold text-brand-light text-xl mt-3 tracking-wide font-sans flex items-center flex-wrap gap-y-2">${combo.name} ${ignoreBadge}</h4>
-                                    <div class="mt-4 p-4 bg-brand-black/60 border border-brand-border/60 rounded-xl text-xs space-y-1">
-                                        <p class="font-bold text-[9px] text-brand-textMuted uppercase tracking-wider mb-2 font-sans">COMPOSIÇÃO DO COMBO</p>
-                                        <p class="space-y-1 text-brand-light leading-relaxed font-semibold">${itemPreviews || '<span class="text-brand-textMuted italic">Nenhum item adicionado</span>'}</p>
+                                    
+                                    <div class="mt-4 p-4 bg-brand-black/60 border border-brand-border/60 rounded-xl text-xs space-y-3">
+                                        <div>
+                                            <p class="font-bold text-[9px] text-brand-textMuted uppercase tracking-wider mb-1.5 font-sans">COMPOSIÇÃO DO COMBO</p>
+                                            <p class="space-y-1 text-brand-light leading-relaxed font-semibold">${mainItemPreviews || '<span class="text-brand-textMuted italic">Nenhum item adicionado</span>'}</p>
+                                        </div>
+                                        {packagingPreviews && (
+                                            <div class="pt-2 border-t border-brand-border/40">
+                                                <p class="font-bold text-[8px] text-brand-textMuted uppercase tracking-wider mb-1 font-sans flex items-center gap-1.5"><i class="fa-solid fa-box-open text-brand-accent/70"></i> Embalagens Inclusas</p>
+                                                <p class="space-y-1 text-brand-light leading-relaxed font-semibold">${packagingPreviews}</p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
