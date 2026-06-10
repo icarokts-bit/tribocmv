@@ -2659,6 +2659,7 @@
 
         window.calculateComboModalCosts = function() {
             let totalCost = 0;
+            let originalValue = 0;
             const container = document.getElementById('combo-items-rows');
             if (!container) return;
 
@@ -2671,10 +2672,16 @@
                 if (itemId && qty > 0) {
                     if (type === 'recipe') {
                         const rec = appState.recipes.find(r => r.id === itemId);
-                        if (rec) totalCost += calculateItemCost(rec) * qty;
+                        if (rec) {
+                            totalCost += calculateItemCost(rec) * qty;
+                            originalValue += parseFloat(rec.sellingPrice || 0) * qty;
+                        }
                     } else if (type === 'complement') {
                         const comp = appState.complements.find(c => c.id === itemId);
-                        if (comp) totalCost += calculateItemCost(comp) * qty;
+                        if (comp) {
+                            totalCost += calculateItemCost(comp) * qty;
+                            originalValue += parseFloat(comp.sellingPrice || 0) * qty;
+                        }
                     } else {
                         const ing = appState.ingredients.find(i => i.id === itemId);
                         if (ing) {
@@ -2700,6 +2707,28 @@
             safeSetText('combo-calc-cmv', `${cmv}%`);
             safeSetText('combo-calc-suggested', formatCurrency(suggested));
             safeSetText('combo-calc-margin', `${marginPct}%`);
+
+            const origValEl = document.getElementById('combo-calc-original-value');
+            if (origValEl) {
+                origValEl.textContent = formatCurrency(originalValue);
+                if (originalValue > sellingPrice && sellingPrice > 0) {
+                    origValEl.classList.add('line-through', 'text-red-400');
+                    origValEl.classList.remove('text-brand-light');
+                } else {
+                    origValEl.classList.remove('line-through', 'text-red-400');
+                    origValEl.classList.add('text-brand-light');
+                }
+            }
+
+            const discountBox = document.getElementById('combo-calc-discount-box');
+            if (originalValue > sellingPrice && sellingPrice > 0) {
+                const discountAmt = originalValue - sellingPrice;
+                const discountPct = (discountAmt / originalValue) * 100;
+                safeSetText('combo-calc-discount', `${formatCurrency(discountAmt)} (${discountPct.toFixed(1)}%)`);
+                if(discountBox) discountBox.classList.remove('hidden');
+            } else {
+                if(discountBox) discountBox.classList.add('hidden');
+            }
         };
 
         window.saveCombo = async function() {
