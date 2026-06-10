@@ -1158,11 +1158,19 @@
                 }
                 if (errorBox) errorBox.classList.add('hidden');
             } catch (error) {
-                console.error("Erro Auth Direto:", error);
                 if (errorBox) {
-                    let userMsg = 'Erro de credenciais. Verifique os dados.';
-                    if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') userMsg = 'Dados incorretos. Verifique o email e palavra-passe.';
-                    else if (error.code === 'auth/email-already-in-use') userMsg = 'Este email já se encontra registado.';
+                    let userMsg = 'Erro ao autenticar. Tente novamente.';
+                    if (error.code === 'auth/invalid-credential') {
+                        userMsg = directAuthMode === 'login' 
+                            ? 'Credenciais inválidas. Verifique o email/senha ou clique em "Criar Conta" se for novo.' 
+                            : 'Credenciais inválidas ou email já em uso.';
+                    } else if (error.code === 'auth/email-already-in-use') {
+                        userMsg = 'Este email já se encontra registado. Faça Login.';
+                    } else if (error.code === 'auth/weak-password') {
+                        userMsg = 'A senha é muito fraca (mínimo de 6 caracteres).';
+                    } else if (error.code === 'auth/invalid-email') {
+                        userMsg = 'Formato de email inválido.';
+                    }
                     errorBox.textContent = userMsg;
                     errorBox.classList.remove('hidden');
                 }
@@ -2663,4 +2671,453 @@
 
             const totalTaxes = parseFloat(appState.settings.tax) + parseFloat(appState.settings.apps) + parseFloat(appState.settings.card);
             const marginVal = sellingPrice - totalCost - (sellingPrice * totalTaxes / 100);
-            const marginPct = sellingPrice > 0 ? ((marginVal / sellingPrice) * 100).toFixed(1) : '
+            const marginPct = sellingPrice > 0 ? ((marginVal / sellingPrice) * 100).toFixed(1) : '0.0';
+
+            safeSetText('combo-calc-food-cost', formatCurrency(totalCost));
+            safeSetText('combo-calc-cmv', `${cmv}%`);
+            safeSetText('combo-calc-suggested', formatCurrency(suggested));
+            safeSetText('combo-calc-margin', `${marginPct}%`);
+        };
+
+        window.saveCombo = async function() {
+            const id = document.getElementById('combo-id').value;
+            const name = document.getElementById('combo-name').value.trim();
+            const category = document.getElementById('combo-category').value;
+            const sellingPrice = parseFloat(document.getElementById('combo-selling-price').value);
+            const ignoreCMV = document.getElementById('combo-ignore-cmv').checked;
+
+            if (!name || isNaN(sellingPrice)) {
+                showCustomAlert('Aviso', 'Preencha o nome do combo e o preço.', true);
+                return;
+            }
+
+            const container = document.getElementById('combo-items-rows');
+            const rows = container ? container.querySelectorAll('.combo-row-item') : [];
+            const comboItems = [];
+
+            rows.forEach(row => {
+                const type = row.querySelector('.combo-item-type').value;
+                const itemId = row.querySelector('.combo-item-target-select').value;
+                const qty = parseFloat(row.querySelector('.combo-item-qty').value || 0);
+
+                if (itemId && qty > 0) {
+                    comboItems.push({ type, itemId, qty });
+                }
+            });
+
+            const targetId = id || crypto.randomUUID();
+            const list = [...appState.combos];
+            const index = list.findIndex(c => c.id === targetId);
+            const record = { id: targetId, name, category, sellingPrice, items: comboItems, ignoreCMV };
+
+            if (index > -1) list[index] = record;
+            else list.push(record);
+
+            appState.combos = list;
+            closeComboModal();
+            window.renderAll();
+            await syncStateToCloud();
+            showCustomAlert('Combo Gravado', 'O combo foi registado com sucesso!');
+        };
+
+        window.deleteCombo = function(id) {
+            showCustomConfirm('Excluir Combo', 'Remover esta oferta de combo?', async (approved) => {
+                if (approved) {
+                    appState.combos = appState.combos.filter(c => c.id !== id);
+                    window.renderAll();
+                    await syncStateToCloud();
+                }
+            });
+        };
+
+        window.duplicateCombo = async function(id) {
+            const original = appState.combos.find(c => c.id === id);
+            if (!original) return;
+            const duplicate = JSON.parse(JSON.stringify(original));
+            duplicate.id = crypto.randomUUID();
+            duplicate.name = `${original.name} (Cópia)`;
+            appState.combos.push(duplicate);
+            window.renderAll();
+            await syncStateToCloud();
+            showCustomAlert('Combo Duplicado', 'A cópia do combo foi criada com sucesso!');
+        };
+
+        // ----------------- CRUD - CUSTOS FIXOS -----------------
+        window.openFixedCostModal = function(id = null) {
+            const modal = document.getElementById('modal-fixed-cost');
+            if (!modal) return;
+
+            if (id) {
+                document.getElementById('modal-fixed-cost-title').textContent = 'Editar Custo Fixo';
+                const cost = appState.fixedCosts.find(c => c.id === id);
+                if (cost) {
+                    safeSetValue('fixed-cost-id', cost.id);
+                    safeSetValue('fixed-cost-description', cost.description);
+                    safeSetValue('fixed-cost-category', cost.category || 'Outros');
+                    safeSetValue('fixed-cost-value', cost.value);
+                }
+            } else {
+                document.getElementById('modal-fixed-cost-title').textContent = 'Novo Custo Fixo';
+                safeSetValue('fixed-cost-id', '');
+                safeSetValue('fixed-cost-description', '');
+                safeSetValue('fixed-cost-category', appState.fixedCostCategories && appState.fixedCostCategories.length > 0 ? appState.fixedCostCategories[0] : 'Outros');
+                safeSetValue('fixed-cost-value', '');
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        };
+
+        window.closeFixedCostModal = function() {
+            const modal = document.getElementById('modal-fixed-cost');
+            if (modal) {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }
+        };
+
+        window.saveFixedCost = async function() {
+            const id = document.getElementById('fixed-cost-id').value;
+            const description = document.getElementById('fixed-cost-description').value.trim();
+            const category = document.getElementById('fixed-cost-category').value;
+            const value = parseFloat(document.getElementById('fixed-cost-value').value);
+
+            if (!description || isNaN(value)) {
+                showCustomAlert('Aviso', 'Descreva o custo fixo e adicione o valor mensal.', true);
+                return;
+            }
+
+            const targetId = id || crypto.randomUUID();
+            const list = [...appState.fixedCosts];
+            const index = list.findIndex(c => c.id === targetId);
+            const record = { id: targetId, description, category, value };
+
+            if (index > -1) list[index] = record;
+            else list.push(record);
+
+            appState.fixedCosts = list;
+            closeFixedCostModal();
+            window.renderAll();
+            await syncStateToCloud();
+            showCustomAlert('Custo Fixo Gravado', 'Despesa fixa adicionada com sucesso!');
+        };
+
+        window.deleteFixedCost = function(id) {
+            showCustomConfirm('Excluir Custo Fixo', 'Remover este registo de despesa fixa?', async (approved) => {
+                if (approved) {
+                    appState.fixedCosts = appState.fixedCosts.filter(c => c.id !== id);
+                    window.renderAll();
+                    await syncStateToCloud();
+                }
+            });
+        };
+
+        // ----------------- PARÂMETROS FINANCEIROS -----------------
+        window.saveSettings = async function() {
+            const targetCMV = parseFloat(document.getElementById('setting-target-cmv').value);
+            const tax = parseFloat(document.getElementById('setting-tax').value);
+            const apps = parseFloat(document.getElementById('setting-apps').value);
+            const card = parseFloat(document.getElementById('setting-card').value);
+            const baseRevenue = parseFloat(document.getElementById('setting-base-revenue').value || 0);
+            const targetRevenue = parseFloat(document.getElementById('setting-target-revenue').value || 0);
+
+            if (isNaN(targetCMV) || isNaN(tax) || isNaN(apps) || isNaN(card)) {
+                showCustomAlert('Aviso', 'Certifique-se de preencher todos os parâmetros com taxas válidas.', true);
+                return;
+            }
+
+            appState.settings = { targetCMV, tax, apps, card, baseRevenue, targetRevenue };
+            window.renderAll();
+            await syncStateToCloud();
+            showCustomAlert('Configurações Salvas', 'Os novos parâmetros fiscais e metas de faturamento já foram aplicados!');
+        };
+
+        // ----------------- CONFIGURAÇÕES CUSTOMIZADAS DO FIREBASE NO CLIENTE -----------------
+        window.saveCustomFirebaseConfig = function() {
+            const config = {
+                apiKey: document.getElementById('fb-apiKey').value.trim(),
+                authDomain: document.getElementById('fb-authDomain').value.trim(),
+                projectId: document.getElementById('fb-projectId').value.trim(),
+                storageBucket: document.getElementById('fb-storageBucket').value.trim(),
+                messagingSenderId: document.getElementById('fb-messagingSenderId').value.trim(),
+                appId: document.getElementById('fb-appId').value.trim(),
+            };
+
+            if (!config.apiKey || !config.projectId) {
+                showCustomAlert('Configuração Inválida', 'A API Key e o Project ID são obrigatórios.', true);
+                return;
+            }
+
+            localStorage.setItem('tribo_burger_custom_fb_config', JSON.stringify(config));
+            showCustomAlert('Reiniciando...', 'Configurações guardadas! A página irá atualizar para conectar à sua nova base de dados.');
+            setTimeout(() => { location.reload(); }, 1500);
+        };
+
+        window.clearCustomFirebaseConfig = function() {
+            localStorage.removeItem('tribo_burger_custom_fb_config');
+            showCustomAlert('Reiniciando...', 'Conexão padrão tribocmv restaurada. Atualizando...');
+            setTimeout(() => { location.reload(); }, 1500);
+        };
+
+        function populateFirebaseConfigFields(config) {
+            safeSetValue('fb-apiKey', config.apiKey);
+            safeSetValue('fb-authDomain', config.authDomain);
+            safeSetValue('fb-projectId', config.projectId);
+            safeSetValue('fb-storageBucket', config.storageBucket);
+            safeSetValue('fb-messagingSenderId', config.messagingSenderId);
+            safeSetValue('fb-appId', config.appId);
+        }
+
+        // ----------------- COORDENAÇÃO DE SINCRONIZAÇÃO NUVEM E CACHE LOCAL -----------------
+        function loadLocalBackup() {
+            if (!currentUser || currentUser.isAnonymous) return;
+
+            const cached = localStorage.getItem('tribo_burger_offline_backup');
+            if (cached) {
+                try {
+                    const parsed = JSON.parse(cached);
+                    appState = {
+                        ingredients: parsed.ingredients || [],
+                        recipes: parsed.recipes || [],
+                        complements: parsed.complements || [],
+                        combos: parsed.combos || [],
+                        fixedCosts: parsed.fixedCosts || [],
+                        ingredientCategories: parsed.ingredientCategories || ['Proteínas', 'Pães', 'Queijos', 'Molhos', 'Vegetais/Hortifrúti', 'Embalagens', 'Outros'],
+                        recipeCategories: parsed.recipeCategories || ['Hambúrgueres', 'Acompanhamentos', 'Bebidas', 'Sobremesas', 'Molhos Caseiros', 'Outros'],
+                        complementCategories: parsed.complementCategories || ['Extras', 'Molhos', 'Outros'],
+                        comboCategories: parsed.comboCategories || ['Promocionais', 'Família', 'Outros'],
+                        fixedCostCategories: parsed.fixedCostCategories || ['Operacional', 'Renda/Aluguel', 'Marketing', 'RH/Folha', 'Impostos Fixos', 'Outros'],
+                        settings: {
+                            targetCMV: parsed.settings?.targetCMV ?? 30,
+                            tax: parsed.settings?.tax ?? 6,
+                            apps: parsed.settings?.apps ?? 12,
+                            card: parsed.settings?.card ?? 2.5,
+                            baseRevenue: parsed.settings?.baseRevenue ?? 0,
+                            targetRevenue: parsed.settings?.targetRevenue ?? 0
+                        }
+                    };
+                } catch (e) {
+                    console.error("Erro ao ler backup local:", e);
+                }
+            }
+        }
+
+        function saveLocalBackup() {
+            if (!currentUser || currentUser.isAnonymous) return;
+            localStorage.setItem('tribo_burger_offline_backup', JSON.stringify(appState));
+        }
+
+        async function initCloudSyncListener() {
+            if (!isFirebaseActive || !db || !currentUser || currentUser.isAnonymous) return;
+
+            if (databaseListenerUnsubscribe) {
+                databaseListenerUnsubscribe();
+            }
+
+            const badge = document.getElementById('cloud-badge');
+            if (badge) {
+                badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> A sincronizar...`;
+                badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20";
+            }
+
+            const docRef = collection(db, 'artifacts', defaultAppId, 'users', currentUser.uid, 'user_data');
+
+            try {
+                databaseListenerUnsubscribe = onSnapshot(doc(docRef, 'state'), (snap) => {
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        appState = {
+                            ingredients: data.ingredients || [],
+                            recipes: data.recipes || [],
+                            complements: data.complements || [],
+                            combos: data.combos || [],
+                            fixedCosts: data.fixedCosts || [],
+                            ingredientCategories: data.ingredientCategories || ['Proteínas', 'Pães', 'Queijos', 'Molhos', 'Vegetais/Hortifrúti', 'Embalagens', 'Outros'],
+                            recipeCategories: data.recipeCategories || ['Hambúrgueres', 'Acompanhamentos', 'Bebidas', 'Sobremesas', 'Molhos Caseiros', 'Outros'],
+                            complementCategories: data.complementCategories || ['Extras', 'Molhos', 'Outros'],
+                            comboCategories: data.comboCategories || ['Promocionais', 'Família', 'Outros'],
+                            fixedCostCategories: data.fixedCostCategories || ['Operacional', 'Renda/Aluguel', 'Marketing', 'RH/Folha', 'Impostos Fixos', 'Outros'],
+                            settings: {
+                                targetCMV: data.settings?.targetCMV ?? 30,
+                                tax: data.settings?.tax ?? 6,
+                                apps: data.settings?.apps ?? 12,
+                                card: data.settings?.card ?? 2.5,
+                                baseRevenue: data.settings?.baseRevenue ?? 0,
+                                targetRevenue: data.settings?.targetRevenue ?? 0
+                            }
+                        };
+                        saveLocalBackup();
+                        window.renderAll();
+                    } else {
+                        syncStateToCloud();
+                    }
+
+                    if (badge) {
+                        badge.innerHTML = `<i class="fa-solid fa-cloud mr-1"></i> Protegido`;
+                        badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20";
+                    }
+                    const statusIndicator = document.getElementById('system-status-indicator');
+                    const statusText = document.getElementById('system-status-text');
+                    if (statusIndicator && statusText) {
+                        statusIndicator.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                        statusText.textContent = "Online (Protegido)";
+                    }
+                }, (error) => {
+                    console.warn("Bloqueado pelas regras do Firestore:", error);
+                    fallbackToOfflineBadge();
+                });
+            } catch (err) {
+                console.warn("Erro ao configurar listener do Firestore:", err);
+                fallbackToOfflineBadge();
+            }
+        }
+
+        async function syncStateToCloud() {
+            if (!currentUser || currentUser.isAnonymous) return;
+            saveLocalBackup();
+            if (!isFirebaseActive || !db) return;
+
+            const docRef = doc(db, 'artifacts', defaultAppId, 'users', currentUser.uid, 'user_data', 'state');
+
+            try {
+                await setDoc(docRef, {
+                    ingredients: appState.ingredients,
+                    recipes: appState.recipes,
+                    complements: appState.complements || [],
+                    combos: appState.combos,
+                    fixedCosts: appState.fixedCosts,
+                    ingredientCategories: appState.ingredientCategories,
+                    recipeCategories: appState.recipeCategories,
+                    complementCategories: appState.complementCategories,
+                    comboCategories: appState.comboCategories,
+                    fixedCostCategories: appState.fixedCostCategories,
+                    settings: appState.settings,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+            } catch (e) {
+                console.warn("Falha de gravação ou falta de permissão ativa:", e);
+            }
+        }
+
+        // ----------------- SCRIPT DE MIGRAÇÃO MANUAL DE DADOS (UID ANTIGO -> NOVO UID SEGURO) -----------------
+        window.attemptDataRecovery = async function() {
+            const oldUid = document.getElementById('recovery-old-uid').value.trim();
+            if (!oldUid) {
+                showCustomAlert('Campo Vazio', 'Por favor, insira o ID antigo.', true);
+                return;
+            }
+
+            if (!isFirebaseActive || !db) {
+                showCustomAlert('Firebase Inativo', 'É necessária ligação ativa com a sua base de dados.', true);
+                return;
+            }
+
+            showCustomConfirm('Confirmar Importação', 'Isso irá substituir todos os dados da sua conta atual pelas fichas técnicas e insumos da conta antiga. Deseja prosseguir?', async (approved) => {
+                if (!approved) return;
+
+                const badge = document.getElementById('cloud-badge');
+                if (badge) {
+                    badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> A recuperar...`;
+                }
+
+                try {
+                    const oldDocRef = doc(db, 'artifacts', defaultAppId, 'users', oldUid, 'user_data', 'state');
+                    const snap = await getDoc(oldDocRef);
+
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        
+                        appState = {
+                            ingredients: data.ingredients || [],
+                            recipes: data.recipes || [],
+                            complements: data.complements || [],
+                            combos: data.combos || [],
+                            fixedCosts: data.fixedCosts || [],
+                            ingredientCategories: data.ingredientCategories || ['Proteínas', 'Pães', 'Queijos', 'Molhos', 'Vegetais/Hortifrúti', 'Embalagens', 'Outros'],
+                            recipeCategories: data.recipeCategories || ['Hambúrgueres', 'Acompanhamentos', 'Bebidas', 'Sobremesas', 'Molhos Caseiros', 'Outros'],
+                            complementCategories: data.complementCategories || ['Extras', 'Molhos', 'Outros'],
+                            comboCategories: data.comboCategories || ['Promocionais', 'Família', 'Outros'],
+                            fixedCostCategories: data.fixedCostCategories || ['Operacional', 'Renda/Aluguel', 'Marketing', 'RH/Folha', 'Impostos Fixos', 'Outros'],
+                            settings: {
+                                targetCMV: data.settings?.targetCMV ?? 30,
+                                tax: data.settings?.tax ?? 6,
+                                apps: data.settings?.apps ?? 12,
+                                card: data.settings?.card ?? 2.5,
+                                baseRevenue: data.settings?.baseRevenue ?? 0,
+                                targetRevenue: data.settings?.targetRevenue ?? 0
+                            }
+                        };
+                        
+                        saveLocalBackup();
+                        window.renderAll();
+                        await syncStateToCloud();
+
+                        showCustomAlert('Importação Bem-Sucedida!', 'As fichas e insumos da conta antiga foram migrados com sucesso para a sua nova conta!');
+                    } else {
+                        showCustomAlert('Não Encontrado', 'Não foram encontrados registos salvos sob esse UID antigo.', true);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showCustomAlert('Erro de Permissão', 'Acesso negado. Certifique-se de que a regra do Firestore está definida temporariamente para "allow read: if true;" na guia "Rules" do Firebase.', true);
+                } finally {
+                    initCloudSyncListener();
+                }
+            });
+        };
+
+        function fallbackToOfflineBadge() {
+            const badge = document.getElementById('cloud-badge');
+            if (badge) {
+                badge.innerHTML = `<i class="fa-solid fa-cloud-slash mr-1"></i> Modo Local`;
+                badge.className = "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20";
+            }
+            const statusIndicator = document.getElementById('system-status-indicator');
+            const statusText = document.getElementById('system-status-text');
+            if (statusIndicator && statusText) {
+                statusIndicator.className = "w-2.5 h-2.5 rounded-full bg-amber-500";
+                statusText.textContent = "Offline (Modo Local)";
+            }
+        }
+
+        // ----------------- FLUXO DE INICIALIZAÇÃO SEGURO -----------------
+        window.addEventListener('DOMContentLoaded', async () => {
+            let fbConfigToUse = officialFirebaseConfig;
+            const customConfig = localStorage.getItem('tribo_burger_custom_fb_config');
+            if (customConfig) {
+                fbConfigToUse = JSON.parse(customConfig);
+            }
+            populateFirebaseConfigFields(fbConfigToUse);
+
+            try {
+                if (fbConfigToUse && fbConfigToUse.apiKey) {
+                    const appInstance = initializeApp(fbConfigToUse);
+                    auth = getAuth(appInstance);
+                    db = getFirestore(appInstance);
+                    isFirebaseActive = true;
+
+                    onAuthStateChanged(auth, (user) => {
+                        currentUser = user;
+                        updateAuthenticationUI(user);
+
+                        if (user && !user.isAnonymous) {
+                            loadLocalBackup();
+                            window.renderAll();
+                            initCloudSyncListener();
+                        }
+                    });
+                } else {
+                    isFirebaseActive = false;
+                    updateAuthenticationUI(null);
+                    fallbackToOfflineBadge();
+                }
+            } catch (error) {
+                console.warn("Autenticação indisponível no momento. Mantendo ecrã de login seguro:", error);
+                isFirebaseActive = false;
+                updateAuthenticationUI(null);
+                fallbackToOfflineBadge();
+            }
+        });
+
+    </script>
+</body>
+</html>
