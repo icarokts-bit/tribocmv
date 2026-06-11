@@ -54,6 +54,72 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #F27A18;
         }
+
+        /* Configurações de Impressão (Print) */
+        @media print {
+            /* 1. Ocultar TUDO por padrão no body */
+            body * {
+                visibility: hidden;
+            }
+
+            /* 2. Forçar background branco e texto preto na impressão inteira */
+            html, body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* 3. Mostrar APENAS a tabela e o cabeçalho de impressão e todo o seu conteúdo interno */
+            #tab-analysis .print:block, 
+            #tab-analysis .print:block *,
+            #tab-analysis .print-card,
+            #tab-analysis .print-card * {
+                visibility: visible;
+            }
+
+            /* 4. Reposicionar o conteúdo imprimível para o topo da folha */
+            #tab-analysis .print:block {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+            }
+            #tab-analysis .print-card {
+                position: absolute;
+                top: 100px; /* Espaço para o cabeçalho */
+                left: 0;
+                width: 100%;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+                background: white !important;
+            }
+
+            /* 5. Limpar estilos de fundo e forçar texto preto na tabela */
+            .print-card table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+            .print-card th, .print-card td {
+                color: #000000 !important;
+                background-color: #ffffff !important;
+                border-bottom: 1px solid #ddd !important;
+            }
+            .print-card th {
+                background-color: #f3f4f6 !important; /* Cor cinza clarinha para o cabeçalho da tabela */
+                font-weight: bold !important;
+            }
+
+            /* Ocultar elementos desnecessários (icones, bg colors das rows, etc) que atrapalham a leitura no papel */
+            .print-text {
+                color: #000 !important;
+            }
+            .fa-solid {
+                display: none !important; /* Esconde os icones da font-awesome no papel */
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col md:flex-row overflow-x-hidden">
