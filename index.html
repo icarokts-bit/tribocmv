@@ -2169,7 +2169,7 @@
                 breakdownContainer.innerHTML = breakdownHtml;
             }
 
-            // Existing Table Logic Grouped By Type
+            // Existing Table Logic Grouped By Type AND Category
             let html = '';
             const allItems = [
                 ...appState.recipes.map(r => ({ ...r, type: 'Ficha Técnica' })),
@@ -2190,31 +2190,44 @@
 
                 ['Fichas Técnicas', 'Complementos Extras', 'Combos Promocionais'].forEach(type => {
                     if (grouped[type].length > 0) {
-                        html += `<tr><td colspan="8" class="py-2.5 px-4 bg-brand-black/60 font-black uppercase text-brand-accent text-[10px] tracking-widest border-y border-brand-border/50"><i class="fa-solid fa-layer-group mr-2"></i> ${type}</td></tr>`;
+                        html += `<tr><td colspan="8" class="py-3 px-4 bg-brand-black/80 font-black uppercase text-brand-accent text-[11px] tracking-widest border-y border-brand-border/50"><i class="fa-solid fa-layer-group mr-2"></i> ${type}</td></tr>`;
                         
+                        // Agrupar itens dentro do Tipo pela sua Categoria
+                        const catGrouped = {};
                         grouped[type].forEach(item => {
-                            const cost = calculateItemCost(item);
-                            const sellingPrice = parseFloat(item.sellingPrice || 0);
-                            const cmv = sellingPrice > 0 ? ((cost / sellingPrice) * 100).toFixed(1) : '0.0';
-                            const marginVal = sellingPrice - cost - (sellingPrice * totalTaxesPercentage / 100);
-                            const marginPercentage = sellingPrice > 0 ? ((marginVal / sellingPrice) * 100).toFixed(1) : '0';
+                            const cat = item.category || 'Outros';
+                            if (!catGrouped[cat]) catGrouped[cat] = [];
+                            catGrouped[cat].push(item);
+                        });
 
-                            const cmvColorClass = item.ignoreCMV ? 'text-brand-textMuted font-bold italic' : (parseFloat(cmv) > target ? 'text-brand-accent font-extrabold' : 'text-emerald-500 font-bold');
-                            const marginColorClass = item.ignoreCMV ? 'text-brand-textMuted font-bold italic' : (marginVal > 0 ? 'text-emerald-500 font-bold' : 'text-red-400 font-bold');
-                            const cmvText = item.ignoreCMV ? 'Ignorado' : `${cmv}%`;
+                        // Renderizar sub-cabeçalhos de Categoria e os seus respectivos itens
+                        Object.keys(catGrouped).sort().forEach(cat => {
+                            html += `<tr><td colspan="8" class="py-2 px-6 bg-brand-black/30 font-bold uppercase text-brand-textMuted text-[9px] tracking-wider border-b border-brand-border/30"><i class="fa-solid fa-tag mr-1"></i> CATEGORIA: ${cat}</td></tr>`;
+                            
+                            catGrouped[cat].forEach(item => {
+                                const cost = calculateItemCost(item);
+                                const sellingPrice = parseFloat(item.sellingPrice || 0);
+                                const cmv = sellingPrice > 0 ? ((cost / sellingPrice) * 100).toFixed(1) : '0.0';
+                                const marginVal = sellingPrice - cost - (sellingPrice * totalTaxesPercentage / 100);
+                                const marginPercentage = sellingPrice > 0 ? ((marginVal / sellingPrice) * 100).toFixed(1) : '0';
 
-                            html += `
-                                <tr class="hover:bg-brand-gray/10 transition-colors border-b border-brand-border/40 font-sans ${item.ignoreCMV ? 'opacity-60' : ''}">
-                                    <td class="py-4 px-4 font-bold uppercase tracking-wider text-[10px] text-brand-textMuted">${item.type}</td>
-                                    <td class="py-4 px-4 font-bold text-brand-light print-text">${item.name} ${item.ignoreCMV ? '<i class="fa-solid fa-eye-slash text-brand-textMuted text-[10px] ml-1" title="CMV Ignorado"></i>' : ''}</td>
-                                    <td class="py-4 px-4 text-right font-medium text-brand-textMuted print-text">${formatCurrency(cost)}</td>
-                                    <td class="py-4 px-4 text-right font-bold text-brand-light print-text">${formatCurrency(sellingPrice)}</td>
-                                    <td class="py-4 px-4 text-center print-text ${cmvColorClass}">${cmvText}</td>
-                                    <td class="py-4 px-4 text-center text-brand-textMuted print-text">${item.ignoreCMV ? '-' : totalTaxesPercentage + '%'}</td>
-                                    <td class="py-4 px-4 text-right print-text ${marginColorClass}">${item.ignoreCMV ? '-' : formatCurrency(marginVal)}</td>
-                                    <td class="py-4 px-4 text-center print-text ${marginColorClass}">${item.ignoreCMV ? '-' : marginPercentage + '%'}</td>
-                                </tr>
-                            `;
+                                const cmvColorClass = item.ignoreCMV ? 'text-brand-textMuted font-bold italic' : (parseFloat(cmv) > target ? 'text-brand-accent font-extrabold' : 'text-emerald-500 font-bold');
+                                const marginColorClass = item.ignoreCMV ? 'text-brand-textMuted font-bold italic' : (marginVal > 0 ? 'text-emerald-500 font-bold' : 'text-red-400 font-bold');
+                                const cmvText = item.ignoreCMV ? 'Ignorado' : `${cmv}%`;
+
+                                html += `
+                                    <tr class="hover:bg-brand-gray/10 transition-colors border-b border-brand-border/40 font-sans ${item.ignoreCMV ? 'opacity-60' : ''}">
+                                        <td class="py-4 px-4 font-bold uppercase tracking-wider text-[10px] text-brand-textMuted pl-6">${item.type}</td>
+                                        <td class="py-4 px-4 font-bold text-brand-light print-text">${item.name} ${item.ignoreCMV ? '<i class="fa-solid fa-eye-slash text-brand-textMuted text-[10px] ml-1" title="CMV Ignorado"></i>' : ''}</td>
+                                        <td class="py-4 px-4 text-right font-medium text-brand-textMuted print-text">${formatCurrency(cost)}</td>
+                                        <td class="py-4 px-4 text-right font-bold text-brand-light print-text">${formatCurrency(sellingPrice)}</td>
+                                        <td class="py-4 px-4 text-center print-text ${cmvColorClass}">${cmvText}</td>
+                                        <td class="py-4 px-4 text-center text-brand-textMuted print-text">${item.ignoreCMV ? '-' : totalTaxesPercentage + '%'}</td>
+                                        <td class="py-4 px-4 text-right print-text ${marginColorClass}">${item.ignoreCMV ? '-' : formatCurrency(marginVal)}</td>
+                                        <td class="py-4 px-4 text-center print-text ${marginColorClass}">${item.ignoreCMV ? '-' : marginPercentage + '%'}</td>
+                                    </tr>
+                                `;
+                            });
                         });
                     }
                 });
