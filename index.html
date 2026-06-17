@@ -713,6 +713,21 @@
                         </div>
                     </div>
 
+                    <!-- FERRAMENTA DE EXPORTAÇÃO (BACKUP) -->
+                    <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
+                        <div>
+                            <h3 class="font-extrabold text-brand-light uppercase tracking-wide mb-1 flex items-center gap-2">
+                                <i class="fa-solid fa-file-export text-brand-accent"></i> Exportar Backup Local
+                            </h3>
+                            <p class="text-xs text-brand-textMuted">Descarregue uma cópia de segurança completa do seu sistema (fichas, insumos, categorias e taxas) num ficheiro de dados (.json).</p>
+                        </div>
+                        <div>
+                            <button onclick="exportDataBackup()" class="bg-brand-gray hover:bg-brand-border border border-brand-border text-brand-light font-black px-5 py-3 rounded-lg text-xs transition-colors flex items-center justify-center gap-2 shadow-lg w-full sm:w-auto">
+                                <i class="fa-solid fa-download text-brand-accent"></i> Fazer Download do Backup
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- FERRAMENTA DE RECUPERAÇÃO DE DADOS DE CONTA ANTIGA (MIGRAÇÃO) -->
                     <div class="bg-brand-dark border border-brand-border p-6 rounded-xl shadow-xl space-y-4">
                         <div>
@@ -3383,6 +3398,38 @@
                 console.warn("Falha de gravação ou falta de permissão ativa:", e);
             }
         }
+
+        // ----------------- EXPORTAÇÃO DE DADOS (BACKUP LOCAL) -----------------
+        window.exportDataBackup = function() {
+            if (!appState || (!appState.ingredients.length && !appState.recipes.length)) {
+                showCustomAlert('Aviso', 'Não existem dados registados para exportar.', true);
+                return;
+            }
+
+            try {
+                const dataStr = JSON.stringify(appState, null, 2);
+                const blob = new Blob([dataStr], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                
+                const date = new Date();
+                const dateStr = `${date.getFullYear()}${(date.getMonth()+1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}`;
+                
+                a.download = `backup_triboburger_${dateStr}.json`;
+                document.body.appendChild(a);
+                a.click();
+                
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showCustomAlert('Sucesso', 'O seu ficheiro de backup foi exportado e descarregado para o seu dispositivo com sucesso!');
+            } catch (error) {
+                console.error("Erro ao exportar backup:", error);
+                showCustomAlert('Erro', 'Ocorreu um problema ao tentar compilar os dados para exportação.', true);
+            }
+        };
 
         // ----------------- SCRIPT DE MIGRAÇÃO MANUAL DE DADOS (UID ANTIGO -> NOVO UID SEGURO) -----------------
         window.attemptDataRecovery = async function() {
